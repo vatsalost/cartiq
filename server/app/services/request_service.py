@@ -1,0 +1,195 @@
+"""Request service managing natural language shopping requests and SSE logs."""
+
+from datetime import datetime, timezone
+from typing import Any, Dict, List, Optional
+import uuid
+from sqlalchemy import select
+from sqlalchemy.orm import Session
+from server.app.core.errors import CartiAPIException, CartiErrorCode
+from server.app.models.mandate import Mandate
+from server.app.models.request import ShoppingRequest, RequestEvent
+from server.app.schemas.request import RequestCreate, RequestEventResponse
+from server.app.services.agent_orchestrator import agent_orchestrator
+from server.app.services.audit_service import AuditService
+from server.app.services.event_bus import event_bus
+from server.app.services.mandate_service import MandateService
+
+
+class RequestService:
+    """Manages shopping request lifecycle, state transitions, and event replay."""
+
+    def __init__(self, db: Session):
+        self.db = db
+        self.mandate_service = MandateService(db)
+        self.audit_service = AuditService(db)
+
+    def create_request(
+        self, user_id: uuid.UUID, request_in: RequestCreate
+    ) -> ShoppingRequest:
+        """Create and queue a shopping request, snapshotting current active mandate."""
+        mandate = self.mandate_service.get_current_mandate(user_id)
+        if not mandate:
+            raise CartiAPIException(
+                code=CartiErrorCode.MANDATE_NOT_FOUND,
+                message="No active spending mandate found. Please create a mandate before submitting requests.",
+                status_code=404,
+            )
+
+        self.mandate_service.validate_mandate_active(mandate)
+
+        normalized_filters = (
+            request_in.filters.model_dump(mode="json", exclude_none=True)
+            if request_in.filters
+            else {}
+        )
+
+        shopping_request = ShoppingRequest(
+            user_id=user_id,
+            mandate_id=mandate.id,
+            request_text=request_in.text.strip(),
+            normalized_intent=normalized_filters,
+            status="queued",
+        )
+        self.db.add(shopping_request)
+        self.db.commit()
+        self.db.refresh(shopping_request)
+
+        # Record synchronous start events
+        self.add_request_event(
+            request_id=shopping_request.id,
+            event_type="request_started",
+            payload={
+                "request_id": str(shopping_request.id),
+                "step": "request_started",
+                "message": "Shopping request received and queued.",
+                "progress": 5,
+            },
+        )
+
+        self.add_request_event(
+            request_id=shopping_request.id,
+            event_type="mandate_checked",
+            payload={
+                "request_id": str(shopping_request.id),
+                "step": "mandate_checked",
+                "message": f"Verified active mandate v{mandate.version} with budget {mandate.total_budget} {mandate.currency}.",
+                "progress": 10,
+            },
+        )
+
+        self.audit_service.record_event(
+            user_id=user_id,
+            request_id=shopping_request.id,
+            event_type="request_created",
+            details={
+                "mandate_id": str(mandate.id),
+                "mandate_version": mandate.version,
+                "text": shopping_request.request_text,
+            },
+        )
+
+        # Trigger background agent loop
+        agent_orchestrator.start_request_run(shopping_request.id, user_id)
+
+        return shopping_request
+
+    def get_request(
+        self, request_id: uuid.UUID, user_id: uuid.UUID
+    ) -> ShoppingRequest:
+        """Retrieve request and verify user ownership."""
+        req = self.db.get(ShoppingRequest, request_id)
+        if not req:
+            raise CartiAPIException(
+                code=CartiErrorCode.REQUEST_NOT_FOUND,
+                message=f"Shopping request {request_id} not found.",
+                status_code=404,
+            )
+        if req.user_id != user_id:
+            raise CartiAPIException(
+                code=CartiErrorCode.ACCESS_DENIED,
+                message="You do not have permission to view this request.",
+                status_code=403,
+            )
+        return req
+
+    def cancel_request(
+        self, request_id: uuid.UUID, user_id: uuid.UUID
+    ) -> ShoppingRequest:
+        """Cancel an active shopping request."""
+        req = self.get_request(request_id, user_id)
+
+        terminal_statuses = {"proposal_ready", "no_match", "blocked", "failed"}
+        if req.status in terminal_statuses:
+            raise CartiAPIException(
+                code=CartiErrorCode.REQUEST_ALREADY_COMPLETED,
+                message=f"Cannot cancel request in terminal state '{req.status}'.",
+                status_code=400,
+            )
+
+        if req.status == "cancelled":
+            return req
+
+        req.status = "cancelled"
+        self.db.commit()
+
+        # Stop background agent
+        agent_orchestrator.stop_request_run(request_id)
+
+        self.add_request_event(
+            request_id=request_id,
+            event_type="request_cancelled",
+            payload={
+                "request_id": str(request_id),
+                "step": "request_cancelled",
+                "message": "Shopping request was cancelled by the user.",
+                "progress": 100,
+            },
+        )
+
+        self.audit_service.record_event(
+            user_id=user_id,
+            request_id=request_id,
+            event_type="request_cancelled",
+            decision="cancelled",
+        )
+        return req
+
+    def add_request_event(
+        self, request_id: uuid.UUID, event_type: str, payload: Dict[str, Any]
+    ) -> RequestEvent:
+        """Add event to database and broadcast to any open SSE connections."""
+        event = RequestEvent(
+            request_id=request_id,
+            event_type=event_type,
+            payload=payload,
+        )
+        self.db.add(event)
+        self.db.commit()
+        self.db.refresh(event)
+
+        # Publish asynchronously if event loop is running
+        try:
+            import asyncio
+            loop = asyncio.get_event_loop()
+            if loop.is_running():
+                dto = RequestEventResponse.model_validate(event)
+                loop.create_task(event_bus.publish(request_id, dto))
+        except Exception:
+            pass
+
+        return event
+
+    def get_request_events(
+        self,
+        request_id: uuid.UUID,
+        since_id: Optional[int] = None,
+        user_id: Optional[uuid.UUID] = None,
+    ) -> List[RequestEvent]:
+        """Fetch all stored events for request replay with ownership verification."""
+        if user_id is not None:
+            self.get_request(request_id, user_id)
+        stmt = select(RequestEvent).where(RequestEvent.request_id == request_id)
+        if since_id is not None:
+            stmt = stmt.where(RequestEvent.id > since_id)
+        stmt = stmt.order_by(RequestEvent.id.asc())
+        return list(self.db.scalars(stmt).all())
