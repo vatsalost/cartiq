@@ -323,7 +323,7 @@ Detailed audit and verification reports are available in the [`docs/`](docs/) di
   - [Vatsal Chaudhary](https://github.com/vatsalost)
   - [Aditi Pandey](https://github.com/aditispandey)
 - **Event**: Built for the **PayPal AI Hackathon 2026**
-- **Special Thanks**: PayPal Developer Platform & Google DeepMind Antigravity
+- **Special Thanks**: PayPal Developer Platform
 
 ---
 
