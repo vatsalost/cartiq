@@ -45,6 +45,9 @@ def set_sqlite_pragma(dbapi_connection, connection_record):
 
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=test_engine)
 
+from server.app.services.agent_orchestrator import agent_orchestrator
+agent_orchestrator.session_factory = TestingSessionLocal
+
 
 @pytest.fixture(autouse=True)
 def clean_db():

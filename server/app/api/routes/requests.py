@@ -70,6 +70,10 @@ async def get_request(
         normalized_intent=req.normalized_intent,
         status=req.status,
         error_code=req.error_code,
+        error_details=req.error_details,
+        processing_started_at=req.processing_started_at,
+        completed_at=req.completed_at,
+        retry_count=req.retry_count,
         created_at=req.created_at,
         updated_at=req.updated_at,
     )

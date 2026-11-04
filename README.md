@@ -126,6 +126,13 @@ sequenceDiagram
 - **Concurrency & Race Defenses**: Row-level locking (`SELECT ... FOR UPDATE`) prevents concurrent checkout attempts from over-reserving available funds.
 - **Automatic Lifecycle Invalidation**: Detects expiration and revocation, immediately blocking subsequent checkouts.
 
+### 🔄 Module B4: Request Lifecycle & Orchestration Service
+- **Centralized Lifecycle State Machine**: Enforces valid transitions (`queued -> running -> proposal_ready | no_match | blocked | failed | cancelled`) and guards terminal states against illegal reopening.
+- **Mandate Version Snapshotting**: Immutably binds requests to active mandate versions ($v_1, v_2, \dots$) upon submission.
+- **Worker Leases & Concurrency Defense**: Database-backed distributed leases (`locked_by`, `locked_until`) and bounded retries prevent duplicate workers and recover from worker crashes.
+- **Checkpoint Cancellation**: Embedded cancellation checkpoints stop background pipelines immediately before proposal or order generation.
+- **Redacted SSE Progress Streaming**: Ordered progress event persistence with sensitive data sanitization and reliable replay.
+
 ### 💳 Module B10: PayPal Orders v2 & Webhook Pipeline
 - **Server-Side Order Creation**: Initiates PayPal sandbox orders without exposing API credentials to clients.
 - **Safe Capture Engine**: Enforces idempotency via `PayPal-Request-Id` headers.
@@ -268,7 +275,7 @@ python -m uvicorn server.app.main:app --reload --port 8000
 
 ## 🧪 Comprehensive Automated Test Suite
 
-CartiQ features a comprehensive automated test suite with **127 automated tests** covering unit logic, database migrations, IDOR ownership boundaries, financial calculation states, and concurrency safety:
+CartiQ features a comprehensive automated test suite with **151 automated tests** covering unit logic, database migrations, IDOR ownership boundaries, financial calculation states, and concurrency safety:
 
 ```bash
 python -m pytest server/tests -v
@@ -292,7 +299,9 @@ server/tests/test_security_and_edge_cases.py   [13 passed]  Idempotency keys, in
 server/tests/test_webhooks.py                  [ 2 passed]  PayPal webhook verification & replay
 server/tests/test_health.py                    [ 2 passed]  Service health & database connectivity
 server/tests/test_candidates.py                [ 2 passed]  Candidate ranking and offer mapping
-======================= 127 passed, 1 warning in 14.05s =======================
+server/tests/test_b4_lifecycle.py              [13 passed]  State machine, transitions, worker leases, retries
+server/tests/test_b4_orchestration.py          [11 passed]  Pipeline execution, checkpoints, IDOR, SSE streaming
+======================= 151 passed, 1 warning in 4.51s =======================
 ```
 
 ---
@@ -305,6 +314,7 @@ Detailed audit and verification reports are available in the [`docs/`](docs/) di
 - [Module B2 Security Audit Report](docs/module-b2-verification-report.md) — Cross-Resource IDOR Verification
 - [Module B3 Implementation Report](docs/module-b3-implementation-report.md) — Mandate Service Architecture
 - [Module B3 Financial Logic Audit Report](docs/module-b3-verification-report.md) — Financial Verification & Concurrency Audit
+- [Module B4 Implementation Report](docs/module-b4-implementation-report.md) — Request Lifecycle & Orchestration Architecture
 
 ---
 

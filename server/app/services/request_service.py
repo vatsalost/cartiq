@@ -1,4 +1,4 @@
-"""Request service managing natural language shopping requests and SSE logs."""
+"""Request service managing natural language shopping requests, lifecycle state, and SSE logs."""
 
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
@@ -8,25 +8,27 @@ from sqlalchemy.orm import Session
 from server.app.core.errors import CartiAPIException, CartiErrorCode
 from server.app.models.mandate import Mandate
 from server.app.models.request import ShoppingRequest, RequestEvent
-from server.app.schemas.request import RequestCreate, RequestEventResponse
+from server.app.schemas.request import RequestCreate, RequestEventResponse, RequestStatus
 from server.app.services.agent_orchestrator import agent_orchestrator
 from server.app.services.audit_service import AuditService
 from server.app.services.event_bus import event_bus
+from server.app.services.lifecycle import RequestLifecycleManager, is_terminal_status
 from server.app.services.mandate_service import MandateService
 
 
 class RequestService:
-    """Manages shopping request lifecycle, state transitions, and event replay."""
+    """Manages shopping request lifecycle, state transitions, leases, and event replay."""
 
     def __init__(self, db: Session):
         self.db = db
         self.mandate_service = MandateService(db)
         self.audit_service = AuditService(db)
+        self.lifecycle = RequestLifecycleManager(db)
 
     def create_request(
         self, user_id: uuid.UUID, request_in: RequestCreate
     ) -> ShoppingRequest:
-        """Create and queue a shopping request, snapshotting current active mandate."""
+        """Create and queue a shopping request, snapshotting current active mandate version."""
         mandate = self.mandate_service.get_current_mandate(user_id)
         if not mandate:
             raise CartiAPIException(
@@ -48,7 +50,9 @@ class RequestService:
             mandate_id=mandate.id,
             request_text=request_in.text.strip(),
             normalized_intent=normalized_filters,
-            status="queued",
+            status=RequestStatus.QUEUED.value,
+            retry_count=0,
+            max_retries=3,
         )
         self.db.add(shopping_request)
         self.db.commit()
@@ -88,7 +92,7 @@ class RequestService:
             },
         )
 
-        # Trigger background agent loop
+        # Trigger background execution pipeline
         agent_orchestrator.start_request_run(shopping_request.id, user_id)
 
         return shopping_request
@@ -118,21 +122,16 @@ class RequestService:
         """Cancel an active shopping request."""
         req = self.get_request(request_id, user_id)
 
-        terminal_statuses = {"proposal_ready", "no_match", "blocked", "failed"}
-        if req.status in terminal_statuses:
-            raise CartiAPIException(
-                code=CartiErrorCode.REQUEST_ALREADY_COMPLETED,
-                message=f"Cannot cancel request in terminal state '{req.status}'.",
-                status_code=400,
-            )
-
-        if req.status == "cancelled":
+        if req.status == RequestStatus.CANCELLED.value:
             return req
 
-        req.status = "cancelled"
-        self.db.commit()
+        # Transition via central lifecycle manager
+        self.lifecycle.transition(
+            request=req,
+            target_status=RequestStatus.CANCELLED.value,
+        )
 
-        # Stop background agent
+        # Stop background worker execution
         agent_orchestrator.stop_request_run(request_id)
 
         self.add_request_event(
@@ -158,10 +157,13 @@ class RequestService:
         self, request_id: uuid.UUID, event_type: str, payload: Dict[str, Any]
     ) -> RequestEvent:
         """Add event to database and broadcast to any open SSE connections."""
+        # Sanitize payload: never expose provider credentials, internal tokens, or secret keys
+        sanitized_payload = self._sanitize_payload(payload)
+
         event = RequestEvent(
             request_id=request_id,
             event_type=event_type,
-            payload=payload,
+            payload=sanitized_payload,
         )
         self.db.add(event)
         self.db.commit()
@@ -193,3 +195,27 @@ class RequestService:
             stmt = stmt.where(RequestEvent.id > since_id)
         stmt = stmt.order_by(RequestEvent.id.asc())
         return list(self.db.scalars(stmt).all())
+
+    @staticmethod
+    def _sanitize_payload(payload: Dict[str, Any]) -> Dict[str, Any]:
+        """Remove sensitive internal keys from SSE event payloads."""
+        redacted_keys = {
+            "password",
+            "password_hash",
+            "secret",
+            "api_key",
+            "client_secret",
+            "token",
+            "access_token",
+            "session_secret",
+            "paypal_client_secret",
+        }
+        sanitized = {}
+        for k, v in payload.items():
+            if any(sensitive in k.lower() for sensitive in redacted_keys):
+                continue
+            if isinstance(v, dict):
+                sanitized[k] = RequestService._sanitize_payload(v)
+            else:
+                sanitized[k] = v
+        return sanitized

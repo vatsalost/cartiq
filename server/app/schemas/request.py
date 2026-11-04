@@ -2,9 +2,22 @@
 
 from datetime import datetime
 from decimal import Decimal
+from enum import Enum
 from typing import Any, Dict, Optional
 import uuid
 from pydantic import BaseModel, ConfigDict, Field, field_validator
+
+
+class RequestStatus(str, Enum):
+    """Authoritative shopping request lifecycle states."""
+
+    QUEUED = "queued"
+    RUNNING = "running"
+    PROPOSAL_READY = "proposal_ready"
+    NO_MATCH = "no_match"
+    BLOCKED = "blocked"
+    FAILED = "failed"
+    CANCELLED = "cancelled"
 
 
 class RequestFilters(BaseModel):
@@ -59,6 +72,10 @@ class RequestDetailResponse(BaseModel):
     normalized_intent: Optional[Dict[str, Any]] = None
     status: str
     error_code: Optional[str] = None
+    error_details: Optional[Dict[str, Any]] = None
+    processing_started_at: Optional[datetime] = None
+    completed_at: Optional[datetime] = None
+    retry_count: int = 0
     created_at: datetime
     updated_at: datetime
 

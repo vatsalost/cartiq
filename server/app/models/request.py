@@ -25,6 +25,7 @@ class ShoppingRequest(Base, UUIDPrimaryKeyMixin, TimestampMixin):
     __tablename__ = "requests"
     __table_args__ = (
         Index("ix_requests_user_created", "user_id", "created_at"),
+        Index("ix_requests_status_locked", "status", "locked_until"),
     )
 
     user_id: Mapped[uuid.UUID] = mapped_column(
@@ -43,6 +44,15 @@ class ShoppingRequest(Base, UUIDPrimaryKeyMixin, TimestampMixin):
     normalized_intent: Mapped[Optional[Dict[str, Any]]] = mapped_column(JSON, nullable=True, default=dict)
     status: Mapped[str] = mapped_column(String(32), default="queued", nullable=False, index=True)
     error_code: Mapped[Optional[str]] = mapped_column(String(64), nullable=True)
+    error_details: Mapped[Optional[Dict[str, Any]]] = mapped_column(JSON, nullable=True)
+
+    # Lifecycle, worker lease & retry tracking
+    processing_started_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
+    completed_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
+    retry_count: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    max_retries: Mapped[int] = mapped_column(Integer, default=3, nullable=False)
+    locked_by: Mapped[Optional[str]] = mapped_column(String(64), nullable=True)
+    locked_until: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
 
     # Relationships
     user = relationship("User", back_populates="requests")
