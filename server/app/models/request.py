@@ -26,6 +26,7 @@ class ShoppingRequest(Base, UUIDPrimaryKeyMixin, TimestampMixin):
     __table_args__ = (
         Index("ix_requests_user_created", "user_id", "created_at"),
         Index("ix_requests_status_locked", "status", "locked_until"),
+        Index("ix_requests_user_client_id", "user_id", "client_request_id"),
     )
 
     user_id: Mapped[uuid.UUID] = mapped_column(
@@ -40,6 +41,7 @@ class ShoppingRequest(Base, UUIDPrimaryKeyMixin, TimestampMixin):
         nullable=False,
         index=True,
     )
+    client_request_id: Mapped[Optional[str]] = mapped_column(String(64), nullable=True, index=True)
     request_text: Mapped[str] = mapped_column(Text, nullable=False)
     normalized_intent: Mapped[Optional[Dict[str, Any]]] = mapped_column(JSON, nullable=True, default=dict)
     status: Mapped[str] = mapped_column(String(32), default="queued", nullable=False, index=True)

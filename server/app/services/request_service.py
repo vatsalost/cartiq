@@ -1,6 +1,7 @@
 """Request service managing natural language shopping requests, lifecycle state, and SSE logs."""
 
 from datetime import datetime, timezone
+from decimal import Decimal
 from typing import Any, Dict, List, Optional
 import uuid
 from sqlalchemy import select
@@ -26,9 +27,24 @@ class RequestService:
         self.lifecycle = RequestLifecycleManager(db)
 
     def create_request(
-        self, user_id: uuid.UUID, request_in: RequestCreate
+        self,
+        user_id: uuid.UUID,
+        request_in: RequestCreate,
+        client_request_id: Optional[str] = None,
     ) -> ShoppingRequest:
         """Create and queue a shopping request, snapshotting current active mandate version."""
+        # 1. Idempotency check: if client_request_id supplied, return existing request if found
+        if client_request_id:
+            existing = self.db.scalars(
+                select(ShoppingRequest).where(
+                    ShoppingRequest.user_id == user_id,
+                    ShoppingRequest.client_request_id == client_request_id,
+                )
+            ).first()
+            if existing:
+                return existing
+
+        # 2. Mandate validation & retrieval
         mandate = self.mandate_service.get_current_mandate(user_id)
         if not mandate:
             raise CartiAPIException(
@@ -48,6 +64,7 @@ class RequestService:
         shopping_request = ShoppingRequest(
             user_id=user_id,
             mandate_id=mandate.id,
+            client_request_id=client_request_id,
             request_text=request_in.text.strip(),
             normalized_intent=normalized_filters,
             status=RequestStatus.QUEUED.value,
@@ -89,6 +106,7 @@ class RequestService:
                 "mandate_id": str(mandate.id),
                 "mandate_version": mandate.version,
                 "text": shopping_request.request_text,
+                "client_request_id": client_request_id,
             },
         )
 
@@ -133,6 +151,16 @@ class RequestService:
 
         # Stop background worker execution
         agent_orchestrator.stop_request_run(request_id)
+
+        # Release any pending uncaptured budget reservations for associated proposals
+        if req.proposals:
+            for proposal in req.proposals:
+                if proposal.order and proposal.order.budget_reserved > Decimal("0.00"):
+                    # Safeguard: Never alter or reverse already completed or refunded payments
+                    if proposal.order.status not in ("completed", "refunded"):
+                        self.mandate_service.release_budget_reservation(
+                            proposal.order.id, reason="request_cancelled"
+                        )
 
         self.add_request_event(
             request_id=request_id,

@@ -388,3 +388,294 @@ def test_terminal_event_breaks_stream(client, db, valid_request):
     assert "event: search_started" in res.text
     assert "event: no_match" in res.text
     assert "event: late_event" not in res.text
+
+
+def test_request_creation_idempotency_key(client, active_mandate, test_user, db):
+    """Test 12: Repeated submissions with Idempotency-Key return existing request without duplication."""
+    headers = {"Idempotency-Key": "idemp_client_key_999"}
+    payload = {"text": "Find an ergonomic chair under $50"}
+
+    # First submission
+    res1 = client.post("/api/requests", json=payload, headers=headers)
+    assert res1.status_code == 202
+    req_id_1 = res1.json()["request_id"]
+
+    # Repeated submission with identical Idempotency-Key
+    res2 = client.post("/api/requests", json=payload, headers=headers)
+    assert res2.status_code == 202
+    req_id_2 = res2.json()["request_id"]
+
+    # Must be identical request ID
+    assert req_id_1 == req_id_2
+
+    # Exactly 1 request record exists in DB for this idempotency key
+    count = db.query(ShoppingRequest).filter_by(
+        user_id=test_user.id, client_request_id="idemp_client_key_999"
+    ).count()
+    assert count == 1
+
+
+@pytest.mark.anyio
+async def test_concurrent_worker_lease_blocks_duplicate_execution(db, active_mandate, test_user):
+    """Test 13: Second worker cannot acquire lease on actively processing request."""
+    req_svc = RequestService(db)
+    req = req_svc.create_request(
+        user_id=test_user.id,
+        request_in=type("Payload", (), {
+            "text": "Concurrent lease test",
+            "filters": None,
+        })(),
+    )
+
+    # Worker 1 acquires lease for 120s
+    from server.app.services.lifecycle import RequestLifecycleManager
+    lifecycle = RequestLifecycleManager(db)
+    acquired_1 = lifecycle.acquire_lease(req, worker_id="worker_alpha", lease_seconds=120)
+    assert acquired_1 is True
+
+    # Worker 2 attempts execution pipeline
+    orchestrator = AgentOrchestrator()
+    await orchestrator.execute_request_pipeline(
+        request_id=req.id,
+        user_id=test_user.id,
+        worker_id="worker_beta",
+        db=db,
+    )
+
+    # Worker 2 was rejected; worker_alpha remains the lock owner
+    db.refresh(req)
+    assert req.locked_by == "worker_alpha"
+
+
+@pytest.mark.anyio
+async def test_duplicate_proposal_creation_is_idempotent(db, active_mandate, test_user):
+    """Test 14: Two attempts to create proposal for the same candidate return existing proposal."""
+    req_svc = RequestService(db)
+    req = req_svc.create_request(
+        user_id=test_user.id,
+        request_in=type("Payload", (), {
+            "text": "Idempotent proposal test",
+            "filters": None,
+        })(),
+    )
+
+    mock_discovery = MockDiscoveryService([
+        {
+            "product_id": "ch3_unique_item",
+            "title": "Unique Keyboard",
+            "category": "Electronics",
+            "price": "30.00",
+            "domain": "target.com",
+            "availability": "InStock",
+            "condition": "new",
+        }
+    ])
+    orchestrator = AgentOrchestrator(discovery_service=mock_discovery)
+
+    # Run 1
+    await orchestrator.execute_request_pipeline(
+        request_id=req.id,
+        user_id=test_user.id,
+        worker_id="worker_run_1",
+        db=db,
+    )
+
+    # First proposal
+    proposals_1 = db.query(Proposal).filter_by(request_id=req.id).all()
+    assert len(proposals_1) == 1
+    first_prop_id = proposals_1[0].id
+
+    # Reset status to running to simulate a retry worker
+    req.status = RequestStatus.RUNNING.value
+    db.commit()
+
+    # Run 2 on same request
+    await orchestrator.execute_request_pipeline(
+        request_id=req.id,
+        user_id=test_user.id,
+        worker_id="worker_run_2",
+        db=db,
+    )
+
+    # Exactly 1 proposal exists, matching first proposal ID
+    proposals_2 = db.query(Proposal).filter_by(request_id=req.id).all()
+    assert len(proposals_2) == 1
+    assert proposals_2[0].id == first_prop_id
+
+
+@pytest.mark.anyio
+async def test_most_important_cancellation_race_condition(db, active_mandate, test_user, other_user):
+    """Test 15: CRITICAL ACCEPTANCE TEST:
+    Submit a request, begin processing it, cancel it while worker is active,
+    and verify that no proposal is created afterward, no unauthorized user can access it,
+    and all eligible reservations are handled correctly.
+    """
+    req_svc = RequestService(db)
+    req = req_svc.create_request(
+        user_id=test_user.id,
+        request_in=type("Payload", (), {
+            "text": "Race condition cancellation test",
+            "filters": None,
+        })(),
+    )
+
+    mock_discovery = MockDiscoveryService([
+        {
+            "product_id": "ch3_race_item",
+            "title": "Race Test Desk Lamp",
+            "category": "Home",
+            "price": "28.00",
+            "domain": "target.com",
+            "availability": "InStock",
+            "condition": "new",
+        }
+    ])
+
+    orchestrator = AgentOrchestrator(discovery_service=mock_discovery)
+
+    # Step A: Worker starts and moves request to running
+    from server.app.services.lifecycle import RequestLifecycleManager
+    lifecycle = RequestLifecycleManager(db)
+    lifecycle.acquire_lease(req, worker_id="race_worker", lease_seconds=120)
+    lifecycle.transition(req, target_status=RequestStatus.RUNNING.value)
+    db.refresh(req)
+    assert req.status == RequestStatus.RUNNING.value
+
+    # Step B: User cancels request while worker is active
+    req_svc.cancel_request(req.id, test_user.id)
+    db.refresh(req)
+    assert req.status == RequestStatus.CANCELLED.value
+
+    # Step C: Worker attempts to continue execution through proposal creation
+    await orchestrator.execute_request_pipeline(
+        request_id=req.id,
+        user_id=test_user.id,
+        worker_id="race_worker",
+        db=db,
+    )
+
+    # Step D: Verify post-conditions
+    # 1. Request remains cancelled
+    db.refresh(req)
+    assert req.status == RequestStatus.CANCELLED.value
+
+    # 2. NO proposal was generated
+    assert db.query(Proposal).filter_by(request_id=req.id).count() == 0
+
+    # 3. Unauthorized user cannot access the cancelled request
+    with pytest.raises(CartiAPIException) as exc_info:
+        req_svc.get_request(req.id, other_user.id)
+    assert exc_info.value.code == CartiErrorCode.ACCESS_DENIED
+
+
+def test_cancellation_releases_uncaptured_budget_reservation(db, active_mandate, test_user):
+    """Test 16: Request cancellation releases pending uncaptured budget reservation via B3,
+    but does not alter or reverse completed payments.
+    """
+    from server.app.models.order import Order
+    from server.app.services.mandate_service import MandateService
+
+    req_svc = RequestService(db)
+    mandate_svc = MandateService(db)
+
+    # Create request
+    req = req_svc.create_request(
+        user_id=test_user.id,
+        request_in=type("Payload", (), {"text": "Reservation release test", "filters": None})(),
+    )
+
+    # Create candidate and proposal
+    cand = Candidate(
+        request_id=req.id,
+        provider_product_id="prod_res_1",
+        title="Test Lamp",
+        rank_score=Decimal("0.90"),
+    )
+    db.add(cand)
+    db.flush()
+
+    offer = CandidateOffer(
+        candidate_id=cand.id,
+        domain="target.com",
+        buy_url="https://target.com/lamp",
+        price_amount=Decimal("35.00"),
+        currency="USD",
+        availability="InStock",
+        condition="new",
+    )
+    db.add(offer)
+    db.flush()
+
+    proposal = Proposal(
+        request_id=req.id,
+        user_id=test_user.id,
+        mandate_id=active_mandate.id,
+        candidate_id=cand.id,
+        offer_id=offer.id,
+        quantity=1,
+        unit_price_at_proposal=Decimal("35.00"),
+        subtotal_at_proposal=Decimal("35.00"),
+        currency="USD",
+        rationale="Ergonomic desk lamp adhering to mandate rules.",
+        status="pending",
+        expires_at=datetime.now(timezone.utc) + timedelta(hours=24),
+    )
+    db.add(proposal)
+    db.flush()
+
+    # Create order with budget reserved $35.00
+    order = Order(
+        proposal_id=proposal.id,
+        user_id=test_user.id,
+        create_request_id=f"create_{uuid.uuid4().hex[:12]}",
+        capture_request_id=f"capture_{uuid.uuid4().hex[:12]}",
+        amount=Decimal("35.00"),
+        currency="USD",
+        budget_reserved=Decimal("35.00"),
+        status="created",
+    )
+    db.add(order)
+    db.commit()
+
+    # Verify initial reserved budget
+    budget_before = mandate_svc.calculate_available_budget(active_mandate.id)
+    assert budget_before.available_budget == Decimal("65.00")  # 100.00 - 35.00 reserved
+
+    # Cancel request
+    req_svc.cancel_request(req.id, test_user.id)
+    db.refresh(order)
+
+    # Order was cancelled and budget reservation released
+    assert order.status == "cancelled"
+    assert order.budget_reserved == Decimal("0.00")
+
+    # Available budget fully restored
+    budget_after = mandate_svc.calculate_available_budget(active_mandate.id)
+    assert budget_after.available_budget == Decimal("100.00")
+
+
+def test_unauthenticated_request_endpoints_rejected(client):
+    """Test 17: All request endpoints reject invalid or unauthenticated credentials with 401."""
+    random_id = uuid.uuid4()
+    bad_headers = {"Authorization": "Bearer invalid_or_expired_token_xyz"}
+
+    # POST /api/requests
+    res1 = client.post("/api/requests", json={"text": "Unauthenticated test"}, headers=bad_headers)
+    assert res1.status_code == 401
+    assert res1.json()["error"]["code"] == CartiErrorCode.AUTHENTICATION_REQUIRED
+
+    # GET /api/requests/{id}
+    res2 = client.get(f"/api/requests/{random_id}", headers=bad_headers)
+    assert res2.status_code == 401
+    assert res2.json()["error"]["code"] == CartiErrorCode.AUTHENTICATION_REQUIRED
+
+    # GET /api/requests/{id}/stream
+    res3 = client.get(f"/api/requests/{random_id}/stream", headers=bad_headers)
+    assert res3.status_code == 401
+    assert res3.json()["error"]["code"] == CartiErrorCode.AUTHENTICATION_REQUIRED
+
+    # POST /api/requests/{id}/cancel
+    res4 = client.post(f"/api/requests/{random_id}/cancel", headers=bad_headers)
+    assert res4.status_code == 401
+    assert res4.json()["error"]["code"] == CartiErrorCode.AUTHENTICATION_REQUIRED
+

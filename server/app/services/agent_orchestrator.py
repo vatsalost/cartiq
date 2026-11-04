@@ -140,7 +140,7 @@ class AgentOrchestrator:
             # Idempotency / lease acquisition
             acquired = lifecycle.acquire_lease(req, worker_id=worker_tag, lease_seconds=120)
             if not acquired:
-                if req.retry_count >= req.max_retries and req.status == RequestStatus.QUEUED.value:
+                if req.retry_count >= req.max_retries and req.status in (RequestStatus.QUEUED.value, RequestStatus.RUNNING.value):
                     lifecycle.transition(
                         req,
                         target_status=RequestStatus.FAILED.value,
@@ -431,13 +431,19 @@ class AgentOrchestrator:
                 },
             )
 
-            # Proposal synthesis and persistence
+            # Proposal synthesis and persistence with atomic row lock
+            stmt = select(ShoppingRequest).where(ShoppingRequest.id == request_id).with_for_update()
+            locked_req = db.scalars(stmt).first()
+            if not locked_req or locked_req.status != RequestStatus.RUNNING.value:
+                logger.info("Request %s is status '%s'; aborting proposal creation", request_id, getattr(locked_req, 'status', None))
+                return
+
             proposal = self._create_and_persist_proposal(
-                db, req, mandate, best_candidate, selected_offer
+                db, locked_req, mandate, best_candidate, selected_offer
             )
 
             # Transition: running -> proposal_ready
-            lifecycle.transition(req, target_status=RequestStatus.PROPOSAL_READY.value)
+            lifecycle.transition(locked_req, target_status=RequestStatus.PROPOSAL_READY.value)
 
             await self._emit_event(
                 db,
@@ -637,6 +643,13 @@ class AgentOrchestrator:
         offer: CandidateOffer,
     ) -> Proposal:
         """Instantiate and persist Proposal record."""
+        # Idempotency check: if proposal already exists, reuse it
+        existing_proposal = db.scalars(
+            select(Proposal).where(Proposal.request_id == req.id)
+        ).first()
+        if existing_proposal:
+            return existing_proposal
+
         if self.proposal_creator:
             return self.proposal_creator.create_proposal_from_candidate(
                 request_id=req.id,
@@ -671,8 +684,7 @@ class AgentOrchestrator:
             expires_at=utc_now() + timedelta(hours=24),
         )
         db.add(proposal)
-        db.commit()
-        db.refresh(proposal)
+        db.flush()
         return proposal
 
 

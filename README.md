@@ -9,7 +9,7 @@
 [![SQLAlchemy 2.0](https://img.shields.io/badge/SQLAlchemy-2.0+-red.svg)](https://www.sqlalchemy.org/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16+-336791.svg)](https://www.postgresql.org/)
 [![PayPal Orders v2](https://img.shields.io/badge/PayPal-Orders_v2_API-003087.svg)](https://developer.paypal.com/docs/api/orders/v2/)
-[![Tests Passing](https://img.shields.io/badge/tests-127%20passed-brightgreen.svg)](server/tests)
+[![Tests Passing](https://img.shields.io/badge/tests-157%20passed-brightgreen.svg)](server/tests)
 [![Security](https://img.shields.io/badge/Security-Argon2id%20%7C%20IDOR%20Defense-orange.svg)](docs/module-b2-verification-report.md)
 
 **Built for the PayPal AI Hackathon 2026**
@@ -275,7 +275,7 @@ python -m uvicorn server.app.main:app --reload --port 8000
 
 ## 🧪 Comprehensive Automated Test Suite
 
-CartiQ features a comprehensive automated test suite with **151 automated tests** covering unit logic, database migrations, IDOR ownership boundaries, financial calculation states, and concurrency safety:
+CartiQ features a comprehensive automated test suite with **157 automated tests** covering unit logic, database migrations, IDOR ownership boundaries, financial calculation states, and concurrency safety:
 
 ```bash
 python -m pytest server/tests -v
@@ -300,8 +300,8 @@ server/tests/test_webhooks.py                  [ 2 passed]  PayPal webhook verif
 server/tests/test_health.py                    [ 2 passed]  Service health & database connectivity
 server/tests/test_candidates.py                [ 2 passed]  Candidate ranking and offer mapping
 server/tests/test_b4_lifecycle.py              [13 passed]  State machine, transitions, worker leases, retries
-server/tests/test_b4_orchestration.py          [11 passed]  Pipeline execution, checkpoints, IDOR, SSE streaming
-======================= 151 passed, 1 warning in 4.51s =======================
+server/tests/test_b4_orchestration.py          [17 passed]  Pipeline execution, checkpoints, IDOR, SSE streaming
+====================== 157 passed, 1 warning in 20.75s =======================
 ```
 
 ---
@@ -315,6 +315,7 @@ Detailed audit and verification reports are available in the [`docs/`](docs/) di
 - [Module B3 Implementation Report](docs/module-b3-implementation-report.md) — Mandate Service Architecture
 - [Module B3 Financial Logic Audit Report](docs/module-b3-verification-report.md) — Financial Verification & Concurrency Audit
 - [Module B4 Implementation Report](docs/module-b4-implementation-report.md) — Request Lifecycle & Orchestration Architecture
+- [Module B4 Verification Report](docs/module-b4-verification-report.md) — Request Lifecycle & Orchestration Audit Report
 
 ---
 
