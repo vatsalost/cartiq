@@ -48,6 +48,7 @@ class GeminiLLMProvider:
         timeout_seconds: Optional[float] = None,
         temperature: Optional[float] = None,
         max_tokens: Optional[int] = None,
+        http_client: Optional[httpx.AsyncClient] = None,
     ):
         self.api_key = api_key or settings.LLM_API_KEY
         self.model = model or settings.LLM_MODEL
@@ -55,6 +56,7 @@ class GeminiLLMProvider:
         self.temperature = temperature if temperature is not None else settings.LLM_TEMPERATURE
         self.max_tokens = max_tokens or settings.LLM_MAX_TOKENS
         self.base_url = "https://generativelanguage.googleapis.com/v1beta"
+        self._http_client = http_client
 
     async def generate_structured(
         self,
@@ -92,9 +94,9 @@ class GeminiLLMProvider:
                 "parts": [{"text": system_instruction}]
             }
 
+        client = self._http_client or httpx.AsyncClient(timeout=self.timeout_seconds)
         try:
-            async with httpx.AsyncClient(timeout=self.timeout_seconds) as client:
-                response = await client.post(url, json=payload)
+            response = await client.post(url, json=payload)
         except httpx.TimeoutException:
             logger.error("Gemini API call timed out after %ss", self.timeout_seconds)
             raise CartiAPIException(
@@ -109,6 +111,9 @@ class GeminiLLMProvider:
                 message="LLM provider network error.",
                 retryable=True,
             )
+        finally:
+            if not self._http_client:
+                await client.aclose()
 
         if response.status_code == 429:
             raise CartiAPIException(
@@ -170,9 +175,9 @@ class GeminiLLMProvider:
         if system_instruction:
             payload["systemInstruction"] = {"parts": [{"text": system_instruction}]}
 
+        client = self._http_client or httpx.AsyncClient(timeout=self.timeout_seconds)
         try:
-            async with httpx.AsyncClient(timeout=self.timeout_seconds) as client:
-                response = await client.post(url, json=payload)
+            response = await client.post(url, json=payload)
         except httpx.TimeoutException:
             raise CartiAPIException(
                 code=CartiErrorCode.AGENT_TIMEOUT,
@@ -185,6 +190,9 @@ class GeminiLLMProvider:
                 message="LLM provider network error.",
                 retryable=True,
             )
+        finally:
+            if not self._http_client:
+                await client.aclose()
 
         if response.status_code != 200:
             raise CartiAPIException(
