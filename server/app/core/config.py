@@ -30,6 +30,17 @@ class Settings(BaseSettings):
     LLM_PROVIDER: str = "gemini"
     LLM_API_KEY: str = ""
     LLM_MODEL: str = "gemini-2.5-flash"
+    LLM_TEMPERATURE: float = 0.2
+    LLM_TIMEOUT_SECONDS: float = 15.0
+    LLM_MAX_TOKENS: int = 2048
+
+    # Agent Loop & Tool Gateway Settings
+    AGENT_MAX_ITERATIONS: int = 8
+    AGENT_MAX_TOOL_CALLS: int = 6
+    AGENT_MAX_SEARCH_CALLS: int = 4
+    AGENT_MAX_EXECUTION_SECONDS: float = 30.0
+    AGENT_MAX_CANDIDATES: int = 30
+    TOOL_DEFAULT_TIMEOUT_SECONDS: float = 5.0
 
     # Channel3 Settings
     CHANNEL3_API_KEY: str = ""
