@@ -713,8 +713,6 @@ class AgentOrchestrator:
         offer: CandidateOffer,
     ) -> Proposal:
         """Instantiate and persist Proposal record."""
-<<<<<<< HEAD
-=======
         # Idempotency check: if proposal already exists, reuse it
         existing_proposal = db.scalars(
             select(Proposal).where(Proposal.request_id == req.id)
@@ -722,7 +720,6 @@ class AgentOrchestrator:
         if existing_proposal:
             return existing_proposal
 
->>>>>>> origin/vatsal
         if self.proposal_creator:
             return self.proposal_creator.create_proposal_from_candidate(
                 request_id=req.id,

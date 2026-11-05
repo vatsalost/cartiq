@@ -2,7 +2,7 @@
 
 from datetime import datetime
 from decimal import Decimal
-from typing import Any, AsyncGenerator, Dict, List, Optional, Protocol, Set, Tuple
+from typing import Any, AsyncGenerator, Callable, Dict, List, Optional, Protocol, Set, Tuple
 import uuid
 from server.app.models.candidate import Candidate
 from server.app.models.mandate import Mandate
