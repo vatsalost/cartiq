@@ -31,6 +31,7 @@ from modules.b8_guardrail_policy.policy_rules import (
     rule_budget_not_exceeded,
     rule_category_allowed,
     rule_category_not_blocked,
+    rule_condition_allowed,
     rule_currency_consistent,
     rule_offer_in_stock,
     rule_offer_price_valid,
@@ -38,6 +39,7 @@ from modules.b8_guardrail_policy.policy_rules import (
     rule_price_within_tolerance,
     rule_product_data_valid,
     rule_quantity_within_limit,
+    rule_required_attributes_satisfied,
     rule_retailer_allowed,
 )
 
@@ -189,7 +191,26 @@ def evaluate_proposal(
     )
 
     # -----------------------------------------------------------------------
-    # Phase 9: Price tolerance drift (checkout re-validation only)
+    # Phase 9: Condition and Required Attributes
+    # -----------------------------------------------------------------------
+    all_results.append(
+        rule_condition_allowed(
+            offer_condition=proposal.condition,
+            required_condition=proposal.required_condition,
+        )
+    )
+
+    if proposal.required_attributes:
+        all_results.append(
+            rule_required_attributes_satisfied(
+                attributes=proposal.attributes,
+                required_attributes=proposal.required_attributes,
+                product_title=proposal.product_title,
+            )
+        )
+
+    # -----------------------------------------------------------------------
+    # Phase 10: Price tolerance drift (checkout re-validation only)
     # -----------------------------------------------------------------------
     if reference_price is not None and currency_ok:
         all_results.append(

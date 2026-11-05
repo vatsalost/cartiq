@@ -281,6 +281,10 @@ class RankedCandidate(BaseModel):
     condition: str
     buy_url: str
     image_url: Optional[str] = None
+    attributes: dict[str, Any] = Field(
+        default_factory=dict,
+        description="Product catalog key-value attributes.",
+    )
     eligibility_status: EligibilityStatus
     ranking_score: float = Field(
         default=0.0,

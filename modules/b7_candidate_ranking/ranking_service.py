@@ -61,6 +61,7 @@ class RankingService(IRankingService):
                 condition=candidate.offer.condition,
                 buy_url=candidate.offer.buy_url,
                 image_url=candidate.product.image_url,
+                attributes=candidate.product.attributes,
                 eligibility_status=EligibilityStatus.ELIGIBLE,
                 ranking_score=score,
                 score_breakdown=breakdown,

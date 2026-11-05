@@ -498,3 +498,83 @@ def rule_price_within_tolerance(
             f"tolerance of reference price {reference_price} {currency}."
         ),
     )
+
+
+# ---------------------------------------------------------------------------
+# Condition and attribute rules
+# ---------------------------------------------------------------------------
+
+def rule_condition_allowed(
+    offer_condition: str,
+    required_condition: Optional[str],
+) -> PolicyRuleResult:
+    """Verify that the offer condition satisfies the requested condition."""
+    if not required_condition:
+        return PolicyRuleResult(
+            rule_name="condition_check",
+            passed=True,
+            violation_code=None,
+            detail="No required_condition specified; condition check passed.",
+        )
+
+    norm_req = _norm(required_condition)
+    norm_offer = _norm(offer_condition)
+    if norm_req == norm_offer:
+        return PolicyRuleResult(
+            rule_name="condition_check",
+            passed=True,
+            violation_code=None,
+            detail=f"Offer condition '{offer_condition}' matches required condition '{required_condition}'.",
+        )
+
+    return PolicyRuleResult(
+        rule_name="condition_check",
+        passed=False,
+        violation_code=PolicyViolationCode.WRONG_CONDITION,
+        detail=(
+            f"Offer condition '{offer_condition}' does not match required condition '{required_condition}'."
+        ),
+    )
+
+
+def rule_required_attributes_satisfied(
+    attributes: dict,
+    required_attributes: Optional[dict],
+    product_title: Optional[str] = None,
+) -> PolicyRuleResult:
+    """Verify that all required attributes are satisfied."""
+    if not required_attributes:
+        return PolicyRuleResult(
+            rule_name="required_attributes_check",
+            passed=True,
+            violation_code=None,
+            detail="No required_attributes specified; attribute check passed.",
+        )
+
+    clean_attrs = {_norm(str(k)): _norm(str(v)) for k, v in (attributes or {}).items()}
+    title_norm = _norm(product_title)
+
+    for req_k, req_v in required_attributes.items():
+        k_norm = _norm(str(req_k))
+        v_norm = _norm(str(req_v))
+
+        matched = False
+        if k_norm in clean_attrs and (v_norm in clean_attrs[k_norm] or clean_attrs[k_norm] in v_norm):
+            matched = True
+        elif v_norm in title_norm:
+            matched = True
+
+        if not matched:
+            return PolicyRuleResult(
+                rule_name="required_attributes_check",
+                passed=False,
+                violation_code=PolicyViolationCode.MISSING_REQUIRED_ATTRIBUTE,
+                detail=f"Product lacks required attribute '{req_k}' with value '{req_v}'.",
+            )
+
+    return PolicyRuleResult(
+        rule_name="required_attributes_check",
+        passed=True,
+        violation_code=None,
+        detail="All required attributes are verified and satisfied.",
+    )

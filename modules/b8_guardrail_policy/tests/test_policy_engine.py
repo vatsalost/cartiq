@@ -689,3 +689,73 @@ def test_blocked_and_not_in_allowed_simultaneous(svc):
     assert not decision.is_approved
     assert PolicyViolationCode.BLOCKED_CATEGORY in decision.violations
     assert PolicyViolationCode.CATEGORY_NOT_ALLOWED in decision.violations
+
+
+def test_wrong_condition_rejected_in_b8(svc, valid_mandate):
+    """Verify that condition mismatch produces WRONG_CONDITION violation in B8."""
+    proposal = make_proposal(condition="refurbished")
+    proposal.required_condition = "new"
+    decision = svc.evaluate(proposal=proposal, mandate=valid_mandate)
+    assert not decision.is_approved
+    assert PolicyViolationCode.WRONG_CONDITION in decision.violations
+
+
+def test_missing_required_attribute_rejected_in_b8(svc, valid_mandate):
+    """Verify that missing required attribute produces MISSING_REQUIRED_ATTRIBUTE in B8."""
+    proposal = make_proposal(attributes={"color": "black"})
+    proposal.required_attributes = {"color": "black", "dimmable": "true"}
+    decision = svc.evaluate(proposal=proposal, mandate=valid_mandate)
+    assert not decision.is_approved
+    assert PolicyViolationCode.MISSING_REQUIRED_ATTRIBUTE in decision.violations
+
+
+def test_evaluate_ranked_candidate_and_comparison_result(svc, valid_mandate):
+    """Verify DecisionService convenience methods evaluate_ranked_candidate and evaluate_comparison_result."""
+    from modules.b7_candidate_ranking.models import (
+        ComparisonResult,
+        EligibilityStatus,
+        RankedCandidate,
+    )
+
+    ranked1 = RankedCandidate(
+        candidate_id="prod_1:off_1",
+        product_id="prod_1",
+        offer_key="off_1",
+        product_title="Test Lamp 1",
+        category="Home Lighting",
+        domain="target.com",
+        price_amount=Decimal("30.00"),
+        currency="USD",
+        availability="InStock",
+        condition="new",
+        buy_url="https://target.com/1",
+        eligibility_status=EligibilityStatus.ELIGIBLE,
+        ranking_score=0.90,
+    )
+    ranked2 = RankedCandidate(
+        candidate_id="prod_2:off_2",
+        product_id="prod_2",
+        offer_key="off_2",
+        product_title="Test Lamp 2",
+        category="Home Lighting",
+        domain="target.com",
+        price_amount=Decimal("999.00"),  # exceeds budget
+        currency="USD",
+        availability="InStock",
+        condition="new",
+        buy_url="https://target.com/2",
+        eligibility_status=EligibilityStatus.ELIGIBLE,
+        ranking_score=0.70,
+    )
+
+    d1 = svc.evaluate_ranked_candidate(ranked=ranked1, mandate=valid_mandate)
+    assert d1.status == PolicyDecisionStatus.APPROVED
+
+    comp = ComparisonResult(
+        ranked_candidates=[ranked1, ranked2],
+        explanation="Testing comparison",
+    )
+    results = svc.evaluate_comparison_result(comp, mandate=valid_mandate)
+    assert len(results) == 2
+    assert results["prod_1:off_1"].status == PolicyDecisionStatus.APPROVED
+    assert results["prod_2:off_2"].status == PolicyDecisionStatus.REJECTED

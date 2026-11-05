@@ -222,6 +222,51 @@ class ProposalEvaluationRequest(BaseModel):
             "B8 never uses this score to authorize or reject a proposal."
         ),
     )
+    required_condition: Optional[str] = Field(
+        default=None,
+        description="Optional required condition constraint from request or mandate.",
+    )
+    required_attributes: dict[str, Any] = Field(
+        default_factory=dict,
+        description="Optional required attributes from request to independently re-verify.",
+    )
+    reference_price: Optional[Decimal] = Field(
+        default=None,
+        description="Optional earlier-observed reference price for tolerance drift checks.",
+    )
+
+    @classmethod
+    def from_ranked_candidate(
+        cls,
+        ranked: Any,
+        quantity: int = 1,
+        attributes: Optional[dict[str, Any]] = None,
+        observed_at: Optional[datetime] = None,
+        reference_price: Optional[Decimal] = None,
+        required_condition: Optional[str] = None,
+        required_attributes: Optional[dict[str, Any]] = None,
+    ) -> "ProposalEvaluationRequest":
+        """Construct ProposalEvaluationRequest from a B7 RankedCandidate or compatible object."""
+        return cls(
+            candidate_id=getattr(ranked, "candidate_id", ""),
+            product_id=getattr(ranked, "product_id", ""),
+            offer_key=getattr(ranked, "offer_key", ""),
+            product_title=getattr(ranked, "product_title", ""),
+            category=getattr(ranked, "category", None),
+            domain=getattr(ranked, "domain", ""),
+            buy_url=getattr(ranked, "buy_url", ""),
+            price_amount=getattr(ranked, "price_amount", Decimal("0.00")),
+            currency=getattr(ranked, "currency", "USD"),
+            availability=getattr(ranked, "availability", "InStock"),
+            condition=getattr(ranked, "condition", "new"),
+            quantity=quantity,
+            attributes=attributes if attributes is not None else getattr(ranked, "attributes", {}),
+            observed_at=observed_at,
+            b7_ranking_score=getattr(ranked, "ranking_score", None),
+            reference_price=reference_price,
+            required_condition=required_condition,
+            required_attributes=required_attributes or {},
+        )
 
     @field_validator("price_amount", mode="before")
     @classmethod

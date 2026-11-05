@@ -70,6 +70,14 @@ class ComparisonService(IComparisonService):
 
         return options
 
+    @classmethod
+    def adapt_b6_products(cls, b6_products: list[Any]) -> list[CandidateOption]:
+        """Convert a collection of B6 NormalizedProduct instances into discrete B7 CandidateOptions."""
+        options: list[CandidateOption] = []
+        for p in b6_products:
+            options.extend(cls.adapt_b6_product(p))
+        return options
+
     def filter_candidates(
         self,
         request: ShoppingRequest,
@@ -104,6 +112,7 @@ class ComparisonService(IComparisonService):
                     condition=candidate.offer.condition,
                     buy_url=candidate.offer.buy_url,
                     image_url=candidate.product.image_url,
+                    attributes=candidate.product.attributes,
                     eligibility_status=EligibilityStatus.INELIGIBLE,
                     ranking_score=0.0,
                     score_breakdown={},

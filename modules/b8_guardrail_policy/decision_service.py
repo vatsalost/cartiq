@@ -21,7 +21,7 @@ import logging
 import uuid
 from datetime import datetime, timezone
 from decimal import Decimal
-from typing import Optional
+from typing import Any, Optional
 
 from modules.b7_candidate_ranking.models import MandateSnapshot
 from modules.b8_guardrail_policy.eligibility_engine import evaluate_proposal
@@ -251,3 +251,59 @@ class DecisionService:
             b7_ranking_score=None,  # Not used in B8 policy decisions.
         )
         return self.evaluate(proposal=proposal, mandate=mandate, now=now)
+
+    def evaluate_ranked_candidate(
+        self,
+        ranked: Any,
+        mandate: Optional[MandateSnapshot],
+        quantity: int = 1,
+        now: Optional[datetime] = None,
+        reference_price: Optional[Decimal] = None,
+        required_condition: Optional[str] = None,
+        required_attributes: Optional[dict] = None,
+    ) -> PolicyDecision:
+        """Convenience method to evaluate a B7 RankedCandidate directly."""
+        proposal = ProposalEvaluationRequest.from_ranked_candidate(
+            ranked=ranked,
+            quantity=quantity,
+            reference_price=reference_price,
+            required_condition=required_condition,
+            required_attributes=required_attributes or {},
+        )
+        return self.evaluate(
+            proposal=proposal,
+            mandate=mandate,
+            now=now,
+            reference_price=reference_price,
+        )
+
+    def evaluate_comparison_result(
+        self,
+        comparison_result: Any,
+        mandate: Optional[MandateSnapshot],
+        quantity: int = 1,
+        now: Optional[datetime] = None,
+        reference_price: Optional[Decimal] = None,
+        required_condition: Optional[str] = None,
+        required_attributes: Optional[dict] = None,
+    ) -> dict[str, PolicyDecision]:
+        """Evaluate all eligible ranked candidates from a B7 ComparisonResult.
+
+        Returns:
+            Dictionary mapping candidate_id to its authoritative PolicyDecision.
+        """
+        decisions: dict[str, PolicyDecision] = {}
+        ranked_list = getattr(comparison_result, "ranked_candidates", []) or []
+        for ranked in ranked_list:
+            cand_id = getattr(ranked, "candidate_id", "")
+            decision = self.evaluate_ranked_candidate(
+                ranked=ranked,
+                mandate=mandate,
+                quantity=quantity,
+                now=now,
+                reference_price=reference_price,
+                required_condition=required_condition,
+                required_attributes=required_attributes,
+            )
+            decisions[cand_id] = decision
+        return decisions
