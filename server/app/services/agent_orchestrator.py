@@ -731,31 +731,17 @@ class AgentOrchestrator:
                 rationale=candidate.rank_reason or "Best evaluated match adhering to mandate rules.",
             )
 
-        from datetime import timedelta
-        proposal = Proposal(
+        from server.app.services.proposal_service import ProposalService
+        proposal_svc = ProposalService(db)
+        return proposal_svc.create_proposal_from_candidate(
             request_id=req.id,
             user_id=req.user_id,
             mandate_id=mandate.id,
             candidate_id=candidate.id,
             offer_id=offer.id,
             quantity=1,
-            unit_price_at_proposal=offer.price_amount,
-            subtotal_at_proposal=offer.price_amount,
-            currency=offer.currency,
             rationale=candidate.rank_reason or "Optimal candidate meeting all budget, retailer, and condition constraints.",
-            guardrail_result={
-                "budget_check": "passed",
-                "per_item_cap_check": "passed",
-                "category_check": "passed",
-                "retailer_check": "passed",
-            },
-            verification_result={"status": "verified", "domain": offer.domain},
-            status="pending",
-            expires_at=utc_now() + timedelta(hours=24),
         )
-        db.add(proposal)
-        db.flush()
-        return proposal
 
 
 agent_orchestrator = AgentOrchestrator()
