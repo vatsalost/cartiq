@@ -112,3 +112,33 @@ async def get_order_receipt(
 ):
     receipt = order_service.get_order_receipt(order_id, current_user.id)
     return receipt
+
+
+@router.post(
+    "/{order_id}/cancel",
+    response_model=OrderDetailResponse,
+    summary="Cancel uncaptured in-flight order",
+    description="Cancels an order awaiting approval and releases the reserved mandate budget.",
+)
+async def cancel_order(
+    order_id: uuid.UUID,
+    current_user: AuthenticatedUser = Depends(get_current_user),
+    order_service: OrderService = Depends(get_order_service),
+):
+    order = order_service.cancel_order(order_id, current_user.id)
+    return order_service.get_order_receipt(order.id, current_user.id)
+
+
+@router.post(
+    "/{order_id}/reconcile",
+    response_model=OrderDetailResponse,
+    summary="Reconcile order state with PayPal",
+    description="Synchronizes internal order state with the latest status from PayPal API.",
+)
+async def reconcile_order(
+    order_id: uuid.UUID,
+    current_user: AuthenticatedUser = Depends(get_current_user),
+    order_service: OrderService = Depends(get_order_service),
+):
+    order = order_service.reconcile_order_with_paypal(order_id, current_user.id)
+    return order_service.get_order_receipt(order.id, current_user.id)

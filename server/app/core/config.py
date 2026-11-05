@@ -51,6 +51,8 @@ class Settings(BaseSettings):
 
     # PayPal Settings
     PAYPAL_ENV: str = "sandbox"
+    PAYPAL_MODE: str = "sandbox"
+    PAYPAL_TIMEOUT_SECONDS: float = 10.0
     PAYPAL_BASE_URL: str = "https://api-m.sandbox.paypal.com"
     PAYPAL_CLIENT_ID: str = ""
     PAYPAL_CLIENT_SECRET: str = ""

@@ -182,4 +182,5 @@ async def create_paypal_order(
         status=created_order.status,
         amount=created_order.amount,
         currency=created_order.currency,
+        approval_url=getattr(created_order, "approval_url", None),
     )

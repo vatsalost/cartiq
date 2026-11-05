@@ -3,10 +3,12 @@
 from datetime import datetime, timezone
 from decimal import Decimal
 import hashlib
+import logging
 from typing import List, Optional, Tuple
 import uuid
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session, selectinload
+
 from server.app.core.errors import CartiAPIException, CartiErrorCode
 from server.app.models.order import Order
 from server.app.models.proposal import Proposal
@@ -17,9 +19,11 @@ from server.app.services.mandate_service import MandateService
 from server.app.services.paypal_service import paypal_service
 from server.app.services.proposal_service import ProposalService
 
+logger = logging.getLogger("carti.orders")
+
 
 class OrderService:
-    """Business logic for orders, payment capture, and refund reconciliation."""
+    """Authoritative business logic for orders, payment capture, and refund reconciliation."""
 
     def __init__(self, db: Session):
         self.db = db
@@ -31,13 +35,12 @@ class OrderService:
         self, proposal_id: uuid.UUID, user_id: uuid.UUID, checkout_attempt_id: str
     ) -> Order:
         """
-        Validate proposal, check budget, and create internal and PayPal orders.
+        Validate proposal via B9 checkout preparation, check budget, and create internal and PayPal orders.
         Server calculates all amounts; client cannot send amount/currency.
         """
-        # Formulate stable create request ID
         create_req_id = hashlib.sha256(f"{proposal_id}:{checkout_attempt_id}".encode("utf-8")).hexdigest()[:32]
 
-        # Check if an order already exists for this proposal
+        # Check if an order already exists for this proposal (idempotency guard)
         existing_order = self.db.scalars(
             select(Order).where(Order.proposal_id == proposal_id)
         ).first()
@@ -48,7 +51,6 @@ class OrderService:
                     message="You do not have permission to access this order.",
                     status_code=403,
                 )
-            # Idempotent return for same checkout attempt
             if existing_order.create_request_id == create_req_id:
                 return existing_order
             raise CartiAPIException(
@@ -57,49 +59,24 @@ class OrderService:
                 status_code=409,
             )
 
-        proposal = self.proposal_service.validate_proposal_for_checkout(proposal_id, user_id)
+        # 1. B9 Trusted Checkout Preparation (revalidates ownership, proposal, mandate, currency, stock, tolerance, budget)
+        prep = self.proposal_service.prepare_proposal_for_checkout(proposal_id, user_id)
+        proposal = self.proposal_service.get_proposal(proposal_id, user_id)
 
-        # Validate mandate is still active and valid
-        mandate = self.mandate_service.get_mandate_by_id(proposal.mandate_id, user_id=user_id)
-        self.mandate_service.validate_mandate_is_active(mandate)
+        # 2. Call centralized PayPal Orders v2 API
+        create_res = paypal_service.create_order(proposal, checkout_attempt_id)
+        paypal_order_id = create_res[0]
 
-        # Verify currency match
-        if proposal.currency != mandate.currency:
-            raise CartiAPIException(
-                code=CartiErrorCode.CURRENCY_MISMATCH,
-                message=f"Proposal currency ({proposal.currency}) does not match mandate currency ({mandate.currency}).",
-                status_code=400,
-            )
-
-        # Verify mandate budget with row-level lock
-        breakdown = self.mandate_service.calculate_available_budget(proposal.mandate_id, lock_row=True)
-        available_budget = breakdown.available_budget
-        if available_budget < proposal.subtotal_at_proposal:
-            self.audit_service.record_event(
-                user_id=user_id,
-                proposal_id=proposal_id,
-                event_type="budget_limit_exceeded",
-                decision="rejected",
-                reason=f"Order amount ({proposal.subtotal_at_proposal} {proposal.currency}) exceeds remaining mandate budget ({available_budget} {proposal.currency}).",
-            )
-            raise CartiAPIException(
-                code=CartiErrorCode.BUDGET_EXCEEDED,
-                message=f"Order amount ({proposal.subtotal_at_proposal} {proposal.currency}) exceeds remaining mandate budget ({available_budget} {proposal.currency}).",
-                status_code=400,
-            )
-
-        # Call PayPal Orders v2 API
-        paypal_order_id, amount, currency = paypal_service.create_order(proposal, checkout_attempt_id)
-
+        # 3. Persist Order with trusted B9 amount
         order = Order(
             proposal_id=proposal.id,
             user_id=user_id,
             paypal_order_id=paypal_order_id,
             create_request_id=create_req_id,
-            amount=amount,
-            currency=currency,
+            amount=prep.amount,
+            currency=prep.currency,
             status="created",
-            budget_reserved=amount,
+            budget_reserved=prep.amount,
         )
         self.db.add(order)
         proposal.status = "checkout_started"
@@ -113,8 +90,8 @@ class OrderService:
             event_type="paypal_order_created",
             details={
                 "paypal_order_id": paypal_order_id,
-                "amount": str(amount),
-                "currency": currency,
+                "amount": str(prep.amount),
+                "currency": prep.currency,
             },
         )
         return order
@@ -141,7 +118,7 @@ class OrderService:
         if paypal_order_id and order.paypal_order_id and paypal_order_id != order.paypal_order_id:
             raise CartiAPIException(
                 code=CartiErrorCode.PAYMENT_CAPTURE_FAILED,
-                message="PayPal order ID mismatch: provided ID does not match the internal order record.",
+                message="PayPal order ID mismatch: provided ID does not match internal order record.",
                 status_code=400,
             )
 
@@ -156,7 +133,6 @@ class OrderService:
                 status_code=400,
             )
 
-        # Generate idempotency key for capture
         capture_key = hashlib.sha256(f"cap:{order.id}".encode("utf-8")).hexdigest()[:32]
 
         capture_id, _, _, captured_at = paypal_service.capture_order(
@@ -167,6 +143,14 @@ class OrderService:
         order.capture_request_id = capture_key
         order.status = "completed"
         order.captured_at = captured_at
+
+        # Transition proposal status to ordered
+        if order.proposal:
+            order.proposal.status = "ordered"
+
+        # B3 accounting: convert in-flight reservation to captured spend
+        self.mandate_service.convert_reservation_to_captured(order.id)
+
         self.db.commit()
         self.db.refresh(order)
 
@@ -183,9 +167,13 @@ class OrderService:
         return order
 
     def refund_order(
-        self, order_id: uuid.UUID, user_id: uuid.UUID, reason: Optional[str] = None
+        self,
+        order_id: uuid.UUID,
+        user_id: uuid.UUID,
+        reason: Optional[str] = None,
+        amount: Optional[Decimal] = None,
     ) -> Refund:
-        """Execute full refund for a captured Sandbox order."""
+        """Execute full or partial refund for a captured Sandbox order."""
         order = self.db.get(Order, order_id)
         if not order:
             raise CartiAPIException(
@@ -200,13 +188,6 @@ class OrderService:
                 status_code=403,
             )
 
-        # Check existing refund for idempotency
-        existing_refund = self.db.scalars(
-            select(Refund).where(Refund.order_id == order_id)
-        ).first()
-        if existing_refund and existing_refund.status == "completed":
-            return existing_refund
-
         if order.status != "completed":
             raise CartiAPIException(
                 code=CartiErrorCode.REFUND_NOT_ALLOWED,
@@ -214,22 +195,58 @@ class OrderService:
                 status_code=400,
             )
 
-        refund_key = hashlib.sha256(f"ref:{order.id}".encode("utf-8")).hexdigest()[:32]
+        if not order.paypal_capture_id:
+            raise CartiAPIException(
+                code=CartiErrorCode.REFUND_NOT_ALLOWED,
+                message="Order has no PayPal capture ID associated to refund.",
+                status_code=400,
+            )
+
+        # Check existing refunds
+        completed_refunds = [r for r in order.refunds if r.status == "completed"]
+        already_refunded = sum((r.amount for r in completed_refunds), Decimal("0.00"))
+        remaining_capturable = order.amount - already_refunded
+
+        refund_amount = amount if amount is not None else remaining_capturable
+        if refund_amount <= Decimal("0.00"):
+            raise CartiAPIException(
+                code=CartiErrorCode.REFUND_NOT_ALLOWED,
+                message="Refund amount must be greater than zero.",
+                status_code=400,
+            )
+        if refund_amount > remaining_capturable:
+            raise CartiAPIException(
+                code=CartiErrorCode.REFUND_NOT_ALLOWED,
+                message=f"Requested refund amount ({refund_amount}) exceeds remaining captured order amount ({remaining_capturable}).",
+                status_code=400,
+            )
+
+        refund_key = hashlib.sha256(f"ref:{order.id}:{refund_amount}".encode("utf-8")).hexdigest()[:32]
+
+        existing_refund = self.db.scalars(
+            select(Refund).where(Refund.request_idempotency_key == refund_key)
+        ).first()
+        if existing_refund and existing_refund.status == "completed":
+            return existing_refund
+
         paypal_refund_id, refund_status = paypal_service.refund_capture(
-            order.paypal_capture_id, order.amount, order.currency, refund_key
+            order.paypal_capture_id, refund_amount, order.currency, refund_key, note_to_payer=reason
         )
 
         refund = Refund(
             order_id=order.id,
             paypal_refund_id=paypal_refund_id,
             request_idempotency_key=refund_key,
-            amount=order.amount,
+            amount=refund_amount,
             currency=order.currency,
             status=refund_status,
         )
         self.db.add(refund)
-        order.status = "refunded"
-        order.budget_reserved = Decimal("0.00")
+
+        if already_refunded + refund_amount >= order.amount:
+            order.status = "refunded"
+            order.budget_reserved = Decimal("0.00")
+
         self.db.commit()
         self.db.refresh(refund)
 
@@ -239,13 +256,15 @@ class OrderService:
             event_type="order_refunded",
             details={
                 "paypal_refund_id": paypal_refund_id,
-                "amount": str(order.amount),
+                "amount": str(refund_amount),
                 "reason": reason,
             },
         )
         return refund
 
-    def cancel_order(self, order_id: uuid.UUID, user_id: uuid.UUID, reason: str = "user_cancelled") -> Order:
+    def cancel_order(
+        self, order_id: uuid.UUID, user_id: uuid.UUID, reason: str = "user_cancelled"
+    ) -> Order:
         """Cancel an in-flight uncaptured order and release its budget reservation."""
         order = self.db.get(Order, order_id)
         if not order:
@@ -267,11 +286,67 @@ class OrderService:
                 status_code=400,
             )
         if order.status in ["cancelled", "failed"]:
-            return order  # Idempotent
+            return order
 
         order.status = "cancelled"
         self.mandate_service.release_budget_reservation(order.id, reason=reason)
+        if order.proposal and order.proposal.status == "checkout_started":
+            order.proposal.status = "pending"
+
         self.db.commit()
+        self.audit_service.record_event(
+            user_id=user_id,
+            order_id=order.id,
+            event_type="order_cancelled",
+            reason=reason,
+        )
+        return order
+
+    def reconcile_order_with_paypal(self, order_id: uuid.UUID, user_id: uuid.UUID) -> Order:
+        """Synchronize internal order status with live PayPal Orders v2 API."""
+        order = self.db.get(Order, order_id)
+        if not order:
+            raise CartiAPIException(
+                code=CartiErrorCode.ORDER_NOT_FOUND,
+                message=f"Order {order_id} not found.",
+                status_code=404,
+            )
+        if order.user_id != user_id:
+            raise CartiAPIException(
+                code=CartiErrorCode.ACCESS_DENIED,
+                message="You do not have permission to access this order.",
+                status_code=403,
+            )
+
+        if not order.paypal_order_id:
+            return order
+
+        details = paypal_service.get_order(order.paypal_order_id)
+        pp_status = details.get("status", "").upper()
+
+        if pp_status == "APPROVED" and order.status == "created":
+            order.status = "buyer_approved"
+            self.db.commit()
+            self.audit_service.record_event(
+                user_id=user_id,
+                order_id=order.id,
+                event_type="order_reconciled",
+                details={"paypal_status": pp_status, "new_internal_status": order.status},
+            )
+        elif pp_status == "COMPLETED" and order.status not in ["completed", "refunded"]:
+            order.status = "completed"
+            order.captured_at = datetime.now(timezone.utc)
+            self.mandate_service.convert_reservation_to_captured(order.id)
+            if order.proposal:
+                order.proposal.status = "ordered"
+            self.db.commit()
+            self.audit_service.record_event(
+                user_id=user_id,
+                order_id=order.id,
+                event_type="order_reconciled",
+                details={"paypal_status": pp_status, "new_internal_status": order.status},
+            )
+
         return order
 
     def get_order_receipt(self, order_id: uuid.UUID, user_id: uuid.UUID) -> OrderDetailResponse:
@@ -290,7 +365,6 @@ class OrderService:
                 status_code=403,
             )
 
-        # Cross-resource ownership verification
         if order.proposal and order.proposal.user_id != user_id:
             raise CartiAPIException(
                 code=CartiErrorCode.ACCESS_DENIED,

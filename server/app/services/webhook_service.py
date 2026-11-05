@@ -9,6 +9,7 @@ from server.app.core.errors import CartiAPIException, CartiErrorCode
 from server.app.models.order import Order
 from server.app.models.webhook import WebhookEvent
 from server.app.services.audit_service import AuditService
+from server.app.services.mandate_service import MandateService
 from server.app.services.paypal_service import paypal_service
 
 logger = logging.getLogger("carti.webhooks")
@@ -20,6 +21,7 @@ class WebhookService:
     def __init__(self, db: Session):
         self.db = db
         self.audit_service = AuditService(db)
+        self.mandate_service = MandateService(db)
 
     def process_webhook(
         self, headers: Dict[str, str], raw_body: bytes, payload: Dict[str, Any]
@@ -86,13 +88,16 @@ class WebhookService:
                 if order.status not in ["completed", "refunded"]:
                     order.status = "completed"
                     order.captured_at = datetime.now(timezone.utc)
+                    if order.proposal:
+                        order.proposal.status = "ordered"
+                    self.mandate_service.convert_reservation_to_captured(order.id)
             elif event_type == "PAYMENT.CAPTURE.DENIED":
                 if order.status != "completed":
                     order.status = "failed"
-                    order.budget_reserved = 0
+                    self.mandate_service.release_budget_reservation(order.id, reason="paypal_capture_denied")
             elif event_type == "PAYMENT.CAPTURE.REFUNDED":
                 order.status = "refunded"
-                order.budget_reserved = 0
+                order.budget_reserved = Decimal("0.00")
 
             self.db.commit()
             self.audit_service.record_event(

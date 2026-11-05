@@ -51,3 +51,10 @@ class Order(Base, UUIDPrimaryKeyMixin, TimestampMixin):
     user = relationship("User", back_populates="orders")
     proposal = relationship("Proposal", back_populates="order")
     refunds = relationship("Refund", back_populates="order", cascade="all, delete-orphan")
+
+    @property
+    def approval_url(self) -> Optional[str]:
+        """Convenience redirect URL for buyer approval in PayPal Sandbox."""
+        if self.paypal_order_id:
+            return f"https://www.sandbox.paypal.com/checkoutnow?token={self.paypal_order_id}"
+        return None

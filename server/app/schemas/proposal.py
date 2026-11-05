@@ -133,3 +133,4 @@ class ProposalCreateOrderResponse(BaseModel):
     status: str
     amount: Decimal
     currency: str
+    approval_url: Optional[str] = None
