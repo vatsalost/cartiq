@@ -593,13 +593,33 @@ class ProposalService:
             )
 
         # 5. Offer availability check
-        if proposal.offer and not proposal.offer.is_eligible:
-            self.mark_proposal_stale(proposal.id, "Offer marked ineligible.")
-            raise CartiAPIException(
-                code=CartiErrorCode.PROPOSAL_STALE,
-                message="Retailer offer is no longer eligible.",
-                status_code=409,
-            )
+        if proposal.offer:
+            if not proposal.offer.is_eligible or (
+                proposal.offer.availability
+                and proposal.offer.availability.lower() in ["outofstock", "out_of_stock", "soldout", "unavailable"]
+            ):
+                self.mark_proposal_stale(proposal.id, "Offer is out of stock or marked ineligible.")
+                raise CartiAPIException(
+                    code=CartiErrorCode.PROPOSAL_STALE,
+                    message="Retailer offer is no longer available or in stock.",
+                    status_code=409,
+                )
+
+            # Price tolerance check
+            current_price = Decimal(str(proposal.offer.price_amount))
+            original_price = Decimal(str(proposal.unit_price_at_proposal))
+            tolerance = getattr(mandate, "price_tolerance_pct", Decimal("0.05")) or Decimal("0.05")
+            max_allowed = original_price * (Decimal("1.00") + tolerance)
+            if current_price > max_allowed:
+                self.mark_proposal_stale(
+                    proposal.id,
+                    f"Offer price increased from {original_price} to {current_price}, exceeding {tolerance * 100}% tolerance.",
+                )
+                raise CartiAPIException(
+                    code=CartiErrorCode.PROPOSAL_STALE,
+                    message=f"Offer price increased from {original_price} to {current_price}, exceeding allowed price tolerance.",
+                    status_code=409,
+                )
 
         # 6. Budget availability with row-level lock
         amount = getattr(proposal, "total_amount", proposal.subtotal_at_proposal)
