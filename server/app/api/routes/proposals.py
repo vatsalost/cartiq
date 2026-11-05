@@ -165,6 +165,13 @@ async def reject_proposal(
     summary="Create PayPal order for approved proposal",
     description="Revalidates proposal facts, reserves mandate budget, and creates a server-side PayPal Sandbox order.",
 )
+@router.post(
+    "/{proposal_id}/checkout",
+    response_model=ProposalCreateOrderResponse,
+    status_code=status.HTTP_201_CREATED,
+    summary="Checkout proposal and create PayPal order (alias)",
+    description="Alias for /{proposal_id}/order for frontend checkout consistency.",
+)
 async def create_paypal_order(
     proposal_id: uuid.UUID,
     order_in: ProposalCreateOrderRequest,

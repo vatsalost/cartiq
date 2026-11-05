@@ -489,11 +489,14 @@ class MandateService:
     def convert_reservation_to_captured(self, order_id: uuid.UUID) -> None:
         """Convert in-flight reservation into captured spending on confirmed PayPal capture."""
         order = self.db.get(Order, order_id)
-        if not order or order.status == "completed":
+        if not order:
+            return
+
+        if order.status == "completed" and order.budget_reserved == Decimal("0.00"):
             return  # Idempotent
 
         order.status = "completed"
-        # budget_reserved remains equal to amount for record retention or is finalized
+        order.budget_reserved = Decimal("0.00")
         self.db.commit()
 
         self.audit_service.record_event(

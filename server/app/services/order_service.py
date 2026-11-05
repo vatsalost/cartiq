@@ -100,7 +100,13 @@ class OrderService:
         self, order_id: uuid.UUID, user_id: uuid.UUID, paypal_order_id: Optional[str] = None
     ) -> Order:
         """Capture payment after buyer onApprove confirmation."""
-        order = self.db.get(Order, order_id)
+        if self.db.bind and self.db.bind.dialect.name == "postgresql":
+            order = self.db.scalars(
+                select(Order).where(Order.id == order_id).with_for_update()
+            ).first()
+        else:
+            order = self.db.get(Order, order_id)
+
         if not order:
             raise CartiAPIException(
                 code=CartiErrorCode.ORDER_NOT_FOUND,
@@ -141,7 +147,6 @@ class OrderService:
 
         order.paypal_capture_id = capture_id
         order.capture_request_id = capture_key
-        order.status = "completed"
         order.captured_at = captured_at
 
         # Transition proposal status to ordered
@@ -174,7 +179,13 @@ class OrderService:
         amount: Optional[Decimal] = None,
     ) -> Refund:
         """Execute full or partial refund for a captured Sandbox order."""
-        order = self.db.get(Order, order_id)
+        if self.db.bind and self.db.bind.dialect.name == "postgresql":
+            order = self.db.scalars(
+                select(Order).where(Order.id == order_id).with_for_update()
+            ).first()
+        else:
+            order = self.db.get(Order, order_id)
+
         if not order:
             raise CartiAPIException(
                 code=CartiErrorCode.ORDER_NOT_FOUND,
@@ -266,7 +277,13 @@ class OrderService:
         self, order_id: uuid.UUID, user_id: uuid.UUID, reason: str = "user_cancelled"
     ) -> Order:
         """Cancel an in-flight uncaptured order and release its budget reservation."""
-        order = self.db.get(Order, order_id)
+        if self.db.bind and self.db.bind.dialect.name == "postgresql":
+            order = self.db.scalars(
+                select(Order).where(Order.id == order_id).with_for_update()
+            ).first()
+        else:
+            order = self.db.get(Order, order_id)
+
         if not order:
             raise CartiAPIException(
                 code=CartiErrorCode.ORDER_NOT_FOUND,
@@ -304,7 +321,13 @@ class OrderService:
 
     def reconcile_order_with_paypal(self, order_id: uuid.UUID, user_id: uuid.UUID) -> Order:
         """Synchronize internal order status with live PayPal Orders v2 API."""
-        order = self.db.get(Order, order_id)
+        if self.db.bind and self.db.bind.dialect.name == "postgresql":
+            order = self.db.scalars(
+                select(Order).where(Order.id == order_id).with_for_update()
+            ).first()
+        else:
+            order = self.db.get(Order, order_id)
+
         if not order:
             raise CartiAPIException(
                 code=CartiErrorCode.ORDER_NOT_FOUND,
@@ -334,8 +357,21 @@ class OrderService:
                 details={"paypal_status": pp_status, "new_internal_status": order.status},
             )
         elif pp_status == "COMPLETED" and order.status not in ["completed", "refunded"]:
-            order.status = "completed"
-            order.captured_at = datetime.now(timezone.utc)
+            order.captured_at = order.captured_at or datetime.now(timezone.utc)
+            if not order.paypal_capture_id:
+                try:
+                    captures = (
+                        details.get("purchase_units", [{}])[0]
+                        .get("payments", {})
+                        .get("captures", [])
+                    )
+                    if captures:
+                        order.paypal_capture_id = captures[0].get("id")
+                except Exception:
+                    pass
+                if not order.paypal_capture_id:
+                    order.paypal_capture_id = f"CAP-REC-{order.paypal_order_id[-8:]}"
+
             self.mandate_service.convert_reservation_to_captured(order.id)
             if order.proposal:
                 order.proposal.status = "ordered"
