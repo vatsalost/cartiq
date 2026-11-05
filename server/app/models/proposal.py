@@ -59,17 +59,49 @@ class Proposal(Base, UUIDPrimaryKeyMixin):
         index=True,
     )
     quantity: Mapped[int] = mapped_column(Integer, default=1, nullable=False)
+    mandate_version: Mapped[int] = mapped_column(Integer, default=1, nullable=False)
     unit_price_at_proposal: Mapped[Decimal] = mapped_column(Numeric(12, 2), nullable=False)
     subtotal_at_proposal: Mapped[Decimal] = mapped_column(Numeric(12, 2), nullable=False)
+    shipping_amount: Mapped[Decimal] = mapped_column(
+        Numeric(12, 2), default=Decimal("0.00"), nullable=False
+    )
+    tax_amount: Mapped[Decimal] = mapped_column(
+        Numeric(12, 2), default=Decimal("0.00"), nullable=False
+    )
+    total_amount: Mapped[Decimal] = mapped_column(
+        Numeric(12, 2), default=Decimal("0.00"), nullable=False
+    )
     currency: Mapped[str] = mapped_column(String(3), nullable=False, default="USD")
     rationale: Mapped[str] = mapped_column(Text, nullable=False)
     guardrail_result: Mapped[Dict[str, Any]] = mapped_column(JSON, nullable=False, default=dict)
     verification_result: Mapped[Optional[Dict[str, Any]]] = mapped_column(JSON, nullable=True)
+    verification_status: Mapped[str] = mapped_column(
+        String(32), default="unverified", nullable=False
+    )
+    product_snapshot: Mapped[Optional[Dict[str, Any]]] = mapped_column(
+        JSON, nullable=True, default=dict
+    )
+    offer_snapshot: Mapped[Optional[Dict[str, Any]]] = mapped_column(
+        JSON, nullable=True, default=dict
+    )
     status: Mapped[str] = mapped_column(String(32), default="pending", nullable=False, index=True)
     expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=utc_now, nullable=False
     )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=utc_now, onupdate=utc_now, nullable=False
+    )
+
+    def __init__(self, **kwargs):
+        if "total_amount" not in kwargs and "subtotal_at_proposal" in kwargs:
+            subtotal = kwargs.get("subtotal_at_proposal", Decimal("0.00"))
+            shipping = kwargs.get("shipping_amount", Decimal("0.00"))
+            tax = kwargs.get("tax_amount", Decimal("0.00"))
+            kwargs["total_amount"] = subtotal + shipping + tax
+        if "updated_at" not in kwargs:
+            kwargs["updated_at"] = utc_now()
+        super().__init__(**kwargs)
 
     # Relationships
     request = relationship("ShoppingRequest", back_populates="proposals")

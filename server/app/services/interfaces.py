@@ -76,6 +76,52 @@ class IAgentOrchestrator(Protocol):
     def stop_request_run(self, request_id: uuid.UUID) -> None: ...
 
 
+class IAgentLoop(Protocol):
+    """Protocol for controlled agent loop and research execution (B5)."""
+
+    async def run(
+        self,
+        request_id: uuid.UUID,
+        user_id: uuid.UUID,
+        request_text: str,
+        mandate: Optional[Mandate] = None,
+        discovery_service: Optional[Any] = None,
+        cancellation_check: Optional[Callable[[], bool]] = None,
+        event_callback: Optional[Callable[[str, Dict[str, Any]], Any]] = None,
+    ) -> Any: ...
+
+
+class IToolGateway(Protocol):
+    """Protocol for centralized allowlisted tool gateway (B5)."""
+
+    def is_tool_approved(self, tool_name: str) -> bool: ...
+    def is_tool_forbidden(self, tool_name: str) -> bool: ...
+    async def execute_tool(
+        self,
+        call: Any,
+        context: Any,
+        execution_history: List[Any],
+        cancellation_check: Optional[Callable[[], bool]] = None,
+    ) -> Any: ...
+
+
+class ILLMProvider(Protocol):
+    """Protocol for LLM provider operations (B5)."""
+
+    async def generate_structured(
+        self,
+        prompt: str,
+        schema_cls: Any,
+        system_instruction: Optional[str] = None,
+    ) -> Any: ...
+
+    async def generate_text(
+        self,
+        prompt: str,
+        system_instruction: Optional[str] = None,
+    ) -> str: ...
+
+
 class IDiscoveryService(Protocol):
     """Protocol for product discovery across authorized retailers (B6)."""
 

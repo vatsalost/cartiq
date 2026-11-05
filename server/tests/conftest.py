@@ -14,6 +14,7 @@ from sqlalchemy.pool import StaticPool
 os.environ["APP_ENV"] = "test"
 os.environ["DEMO_USER_ENABLED"] = "true"
 
+from server.app.core.rate_limit import general_limiter, request_creation_limiter, auth_limiter
 from server.app.core.security import AuthenticatedUser
 from server.app.db.session import Base, get_db
 from server.app.main import app
@@ -59,6 +60,9 @@ def clean_db():
     """Ensure a fresh database schema for every test."""
     Base.metadata.drop_all(bind=test_engine)
     Base.metadata.create_all(bind=test_engine)
+    general_limiter.reset()
+    request_creation_limiter.reset()
+    auth_limiter.reset()
     yield
     Base.metadata.drop_all(bind=test_engine)
 

@@ -24,6 +24,7 @@ from server.app.schemas.request import RequestEventResponse, RequestStatus
 from server.app.services.audit_service import AuditService
 from server.app.services.event_bus import event_bus
 from server.app.services.interfaces import (
+    IAgentLoop,
     IDiscoveryService,
     IGuardrailEngine,
     IProposalCreationService,
@@ -43,6 +44,7 @@ class AgentOrchestrator:
         ranking_service: Optional[IRankingService] = None,
         guardrail_engine: Optional[IGuardrailEngine] = None,
         proposal_creator: Optional[IProposalCreationService] = None,
+        agent_loop: Optional[IAgentLoop] = None,
         session_factory=SessionLocal,
     ):
         self._active_tasks: Dict[uuid.UUID, asyncio.Task] = {}
@@ -50,6 +52,7 @@ class AgentOrchestrator:
         self.ranking_service = ranking_service
         self.guardrail_engine = guardrail_engine
         self.proposal_creator = proposal_creator
+        self.agent_loop = agent_loop
         self.session_factory = session_factory
 
     def start_request_run(
@@ -140,7 +143,7 @@ class AgentOrchestrator:
             # Idempotency / lease acquisition
             acquired = lifecycle.acquire_lease(req, worker_id=worker_tag, lease_seconds=120)
             if not acquired:
-                if req.retry_count >= req.max_retries and req.status == RequestStatus.QUEUED.value:
+                if req.retry_count >= req.max_retries and req.status in (RequestStatus.QUEUED.value, RequestStatus.RUNNING.value):
                     lifecycle.transition(
                         req,
                         target_status=RequestStatus.FAILED.value,
@@ -210,7 +213,7 @@ class AgentOrchestrator:
             )
 
             # Retrieve or discover candidates
-            candidates = self._load_or_discover_candidates(db, req, mandate)
+            candidates = await self._load_or_discover_candidates_async(db, req, mandate)
 
             # Checkpoint 2: Cancellation check
             if self._is_cancelled(db, request_id):
@@ -431,13 +434,19 @@ class AgentOrchestrator:
                 },
             )
 
-            # Proposal synthesis and persistence
+            # Proposal synthesis and persistence with atomic row lock
+            stmt = select(ShoppingRequest).where(ShoppingRequest.id == request_id).with_for_update()
+            locked_req = db.scalars(stmt).first()
+            if not locked_req or locked_req.status != RequestStatus.RUNNING.value:
+                logger.info("Request %s is status '%s'; aborting proposal creation", request_id, getattr(locked_req, 'status', None))
+                return
+
             proposal = self._create_and_persist_proposal(
-                db, req, mandate, best_candidate, selected_offer
+                db, locked_req, mandate, best_candidate, selected_offer
             )
 
             # Transition: running -> proposal_ready
-            lifecycle.transition(req, target_status=RequestStatus.PROPOSAL_READY.value)
+            lifecycle.transition(locked_req, target_status=RequestStatus.PROPOSAL_READY.value)
 
             await self._emit_event(
                 db,
@@ -517,6 +526,73 @@ class AgentOrchestrator:
                 lifecycle.release_lease(req, worker_tag)
             if should_close_db:
                 db.close()
+
+    async def _load_or_discover_candidates_async(
+        self, db: Session, req: ShoppingRequest, mandate: Mandate
+    ) -> List[Candidate]:
+        """Load pre-existing candidates, or execute agent loop (B5), or fallback to direct discovery (B6)."""
+        # 1. Check if candidates already exist in DB for this request
+        stmt = (
+            select(Candidate)
+            .where(Candidate.request_id == req.id)
+            .order_by(Candidate.rank_score.desc().nullslast())
+        )
+        existing = list(db.scalars(stmt).all())
+        if existing:
+            return existing
+
+        # 2. If agent_loop is available, run autonomous research loop (B5)
+        if self.agent_loop:
+            agent_res = await self.agent_loop.run(
+                request_id=req.id,
+                user_id=req.user_id,
+                request_text=req.request_text,
+                mandate=mandate,
+                discovery_service=self.discovery_service,
+                cancellation_check=lambda: self._is_cancelled(db, req.id),
+            )
+            if getattr(agent_res, "status", None) == "clarification_needed":
+                logger.info("Agent identified clarification needed for request %s", req.id)
+                return []
+
+            if getattr(agent_res, "candidates", None):
+                candidates = []
+                for item in agent_res.candidates:
+                    cand = Candidate(
+                        request_id=req.id,
+                        provider_product_id=item.product_id,
+                        title=item.title,
+                        brand=item.brand,
+                        category=item.category,
+                        image_url=item.image_url,
+                        attributes=item.attributes,
+                        rank_score=Decimal("0.85"),
+                        rank_reason=agent_res.rationale or "Discovered matching item",
+                        observed_at=utc_now(),
+                    )
+                    db.add(cand)
+                    db.flush()
+
+                    for off in item.offers:
+                        offer = CandidateOffer(
+                            candidate_id=cand.id,
+                            provider_offer_id=off.offer_key,
+                            domain=off.domain,
+                            buy_url=off.buy_url,
+                            price_amount=off.price_amount,
+                            currency=off.currency,
+                            availability=off.availability,
+                            condition=off.condition,
+                            is_eligible=True,
+                            observed_at=utc_now(),
+                        )
+                        db.add(offer)
+                    candidates.append(cand)
+                db.commit()
+                return candidates
+
+        # 3. Fallback to direct discovery service
+        return self._load_or_discover_candidates(db, req, mandate)
 
     def _load_or_discover_candidates(
         self, db: Session, req: ShoppingRequest, mandate: Mandate
@@ -637,6 +713,16 @@ class AgentOrchestrator:
         offer: CandidateOffer,
     ) -> Proposal:
         """Instantiate and persist Proposal record."""
+<<<<<<< HEAD
+=======
+        # Idempotency check: if proposal already exists, reuse it
+        existing_proposal = db.scalars(
+            select(Proposal).where(Proposal.request_id == req.id)
+        ).first()
+        if existing_proposal:
+            return existing_proposal
+
+>>>>>>> origin/vatsal
         if self.proposal_creator:
             return self.proposal_creator.create_proposal_from_candidate(
                 request_id=req.id,
@@ -648,32 +734,17 @@ class AgentOrchestrator:
                 rationale=candidate.rank_reason or "Best evaluated match adhering to mandate rules.",
             )
 
-        from datetime import timedelta
-        proposal = Proposal(
+        from server.app.services.proposal_service import ProposalService
+        proposal_svc = ProposalService(db)
+        return proposal_svc.create_proposal_from_candidate(
             request_id=req.id,
             user_id=req.user_id,
             mandate_id=mandate.id,
             candidate_id=candidate.id,
             offer_id=offer.id,
             quantity=1,
-            unit_price_at_proposal=offer.price_amount,
-            subtotal_at_proposal=offer.price_amount,
-            currency=offer.currency,
             rationale=candidate.rank_reason or "Optimal candidate meeting all budget, retailer, and condition constraints.",
-            guardrail_result={
-                "budget_check": "passed",
-                "per_item_cap_check": "passed",
-                "category_check": "passed",
-                "retailer_check": "passed",
-            },
-            verification_result={"status": "verified", "domain": offer.domain},
-            status="pending",
-            expires_at=utc_now() + timedelta(hours=24),
         )
-        db.add(proposal)
-        db.commit()
-        db.refresh(proposal)
-        return proposal
 
 
 from server.app.services.discovery_service import DiscoveryService

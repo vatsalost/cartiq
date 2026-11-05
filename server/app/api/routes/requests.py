@@ -37,11 +37,15 @@ router = APIRouter(prefix="/requests", tags=["Requests"])
     description="Validates active mandate, queues request, snapshots mandate version, and returns stream URL.",
 )
 async def create_request(
+    request: Request,
     request_in: RequestCreate,
     current_user: AuthenticatedUser = Depends(get_current_user),
     request_service: RequestService = Depends(get_request_service),
 ):
-    created_request = request_service.create_request(current_user.id, request_in)
+    idempotency_key = request.headers.get("Idempotency-Key") or request.headers.get("X-Idempotency-Key")
+    created_request = request_service.create_request(
+        current_user.id, request_in, client_request_id=idempotency_key
+    )
     return RequestCreateResponse(
         request_id=created_request.id,
         status=created_request.status,
