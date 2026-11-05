@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Sparkles, Shield, ShoppingBag, Plus, ArrowUpRight } from 'lucide-react'
+import { Shield, ShoppingBag, Plus } from 'lucide-react'
 import { StatCard } from '../components/dashboard/StatCard'
 import { CashflowChart } from '../components/dashboard/CashflowChart'
 import { RecentRequestsTable } from '../components/dashboard/RecentRequestsTable'
@@ -13,7 +13,7 @@ import { mockRequests, mockOrders } from '../api/mockData'
 
 export const DashboardPage: React.FC = () => {
   const navigate = useNavigate()
-  const { mandate, breakdown, isLoadingMandate } = useAuth()
+  const { mandate, breakdown } = useAuth()
   const [requests, setRequests] = useState<ShoppingRequest[]>(mockRequests)
   const [orders, setOrders] = useState<Order[]>(mockOrders)
 
@@ -33,49 +33,49 @@ export const DashboardPage: React.FC = () => {
 
   return (
     <div className="flex flex-col gap-6">
-      {/* Top Banner & Quick Action Buttons */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      {/* Top Controls Row */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h2 className="text-xl md:text-2xl font-black text-neutral-900 dark:text-white tracking-tight flex items-center gap-2">
-            <span>Welcome to Carti Concierge</span>
+          <h2 className="text-lg md:text-xl font-bold text-neutral-900 dark:text-white tracking-tight">
+            Overview
           </h2>
           <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">
-            Real-time autonomous purchasing governed by verified spending mandates
+            Spending budget, active requests, and settled orders
           </p>
         </div>
 
-        <div className="flex items-center gap-2.5 flex-wrap">
+        <div className="flex items-center gap-2 flex-wrap">
           <Button
             variant="outline"
             size="sm"
             onClick={() => navigate('/mandate')}
-            icon={<Shield size={14} />}
+            icon={<Shield size={13} />}
           >
-            Manage Mandate
+            Mandate
           </Button>
           <Button
             variant="outline"
             size="sm"
             onClick={() => navigate('/orders')}
-            icon={<ShoppingBag size={14} />}
+            icon={<ShoppingBag size={13} />}
           >
-            All Orders
+            Orders
           </Button>
           <Button
             variant="primary"
             size="sm"
             onClick={() => navigate('/shopping')}
-            icon={<Plus size={16} />}
+            icon={<Plus size={14} />}
           >
-            New Shopping Request
+            New Request
           </Button>
         </div>
       </div>
 
-      {/* Hero Visual Section matching reference screenshots */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
-        {/* Left 3 Stat Cards ("Cash flow" row from screenshots) */}
-        <div className="lg:col-span-7 grid grid-cols-1 sm:grid-cols-3 gap-4">
+      {/* Metric Cards & Spending Distribution */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-stretch">
+        {/* Left Stat Cards */}
+        <div className="lg:col-span-7 grid grid-cols-1 sm:grid-cols-3 gap-3">
           <StatCard
             title="Available Budget"
             amount={`$${breakdown?.available_budget || '65.02'}`}
@@ -95,25 +95,25 @@ export const DashboardPage: React.FC = () => {
           <StatCard
             title="Active Reservations"
             amount={`$${breakdown?.active_reservations || '49.99'}`}
-            subtitle="Pipeline checkouts"
+            subtitle="Pending checkout"
             variant="dark"
             iconType="neutral"
           />
         </div>
 
-        {/* Right Dark Chart Container ("Profit and loss" card from screenshots) */}
+        {/* Right Spending Overview */}
         <div className="lg:col-span-5">
           <CashflowChart />
         </div>
       </div>
 
-      {/* Two Tabular Panels matching screenshots bottom layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-2">
-        <div className="p-5 md:p-6 rounded-[28px] bg-neutral-50/70 dark:bg-[#16181D] border border-neutral-200/80 dark:border-neutral-800">
+      {/* Recent Activity Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div className="p-4 sm:p-5 rounded-2xl bg-neutral-50/70 dark:bg-[#16181D] border border-neutral-200/80 dark:border-neutral-800">
           <RecentRequestsTable requests={requests} />
         </div>
 
-        <div className="p-5 md:p-6 rounded-[28px] bg-neutral-50/70 dark:bg-[#16181D] border border-neutral-200/80 dark:border-neutral-800">
+        <div className="p-4 sm:p-5 rounded-2xl bg-neutral-50/70 dark:bg-[#16181D] border border-neutral-200/80 dark:border-neutral-800">
           <RecentOrdersTable orders={orders} />
         </div>
       </div>

@@ -17,11 +17,11 @@ export const MandatePage: React.FC = () => {
       {/* Top Controls Row */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h2 className="text-xl md:text-2xl font-black text-neutral-900 dark:text-white tracking-tight flex items-center gap-2">
-            <span>Spending Mandate & Guardrail Settings</span>
+          <h2 className="text-lg md:text-xl font-bold text-neutral-900 dark:text-white tracking-tight">
+            Spending Mandate
           </h2>
           <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">
-            Carti Core Module B3: Immutable spending boundaries & strict authorization limits
+            Set your budget limits, per-item spending caps, and retailer rules
           </p>
         </div>
 
@@ -30,16 +30,16 @@ export const MandatePage: React.FC = () => {
             <Button
               variant="primary"
               size="sm"
-              icon={<Edit3 size={15} />}
+              icon={<Edit3 size={14} />}
               onClick={() => setIsEditing(true)}
             >
-              Modify Spending Mandate
+              Edit Mandate
             </Button>
           ) : (
             <Button
               variant="outline"
               size="sm"
-              icon={<RotateCcw size={15} />}
+              icon={<RotateCcw size={14} />}
               onClick={() => setIsEditing(false)}
             >
               Cancel Edit

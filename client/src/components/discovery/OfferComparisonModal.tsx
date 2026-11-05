@@ -28,7 +28,7 @@ export const OfferComparisonModal: React.FC<OfferComparisonModalProps> = ({
             {product.title}
           </h4>
           <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">
-            Verified across indexed Channel3 retailer catalog data
+            Prices and availability verified across approved retailers
           </p>
         </div>
 

@@ -89,11 +89,11 @@ export const ShoppingPage: React.FC = () => {
         <div className="flex flex-col gap-4">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-xl font-extrabold text-neutral-900 dark:text-white tracking-tight flex items-center gap-2">
-                <span>Evaluated Product Candidates</span>
+              <h3 className="text-lg font-bold text-neutral-900 dark:text-white tracking-tight">
+                Matching Products
               </h3>
               <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">
-                Channel3 catalog items filtered against active mandate and category rules
+                Items matched and verified against your active spending mandate
               </p>
             </div>
 
@@ -103,7 +103,7 @@ export const ShoppingPage: React.FC = () => {
               onClick={() => navigate('/proposals')}
               icon={<ArrowRight size={14} />}
             >
-              Go to Final Proposal
+              View Proposal
             </Button>
           </div>
 

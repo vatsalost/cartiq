@@ -38,11 +38,11 @@ export const HistoryPage: React.FC = () => {
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h2 className="text-xl md:text-2xl font-black text-neutral-900 dark:text-white tracking-tight flex items-center gap-2">
-          <span>History & Audit Trail</span>
+        <h2 className="text-lg md:text-xl font-bold text-neutral-900 dark:text-white tracking-tight">
+          History & Audit Trail
         </h2>
         <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">
-          Carti Core Module B13: Cryptographically non-repudiable audit logs and lineage snapshots
+          Review previous requests, product comparisons, completed orders, and audit logs
         </p>
       </div>
 

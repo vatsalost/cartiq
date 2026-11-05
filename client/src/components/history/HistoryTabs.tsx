@@ -32,7 +32,7 @@ export const HistoryTabs: React.FC<HistoryTabsProps> = ({
   const [filterQuery, setFilterQuery] = useState('')
 
   return (
-    <div className="rounded-[28px] p-6 md:p-8 bg-white dark:bg-[#16181D] border border-neutral-200/80 dark:border-neutral-800 shadow-[0_4px_24px_rgba(0,0,0,0.03)] flex flex-col gap-6">
+    <div className="rounded-2xl p-5 sm:p-6 bg-white dark:bg-[#16181D] border border-neutral-200 dark:border-neutral-800 shadow-xs flex flex-col gap-5">
       {/* Tab Switcher & Search Bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-neutral-100 dark:border-neutral-800">
         <div className="flex items-center gap-2 overflow-x-auto no-scrollbar">

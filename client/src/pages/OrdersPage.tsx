@@ -55,11 +55,11 @@ export const OrdersPage: React.FC = () => {
     <div className="flex flex-col gap-6">
       {/* Top Heading */}
       <div>
-        <h2 className="text-xl md:text-2xl font-black text-neutral-900 dark:text-white tracking-tight flex items-center gap-2">
-          <span>Orders & Verified Receipts</span>
+        <h2 className="text-lg md:text-xl font-bold text-neutral-900 dark:text-white tracking-tight">
+          Orders & Receipts
         </h2>
         <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">
-          Carti Module B10: Server-side captured PayPal orders and authorized refunds
+          Confirmed PayPal payments, receipts, and refund requests
         </p>
       </div>
 
@@ -82,9 +82,9 @@ export const OrdersPage: React.FC = () => {
       )}
 
       {/* All Orders Table */}
-      <div className="rounded-[28px] p-6 md:p-8 bg-white dark:bg-[#16181D] border border-neutral-200/80 dark:border-neutral-800 shadow-[0_4px_24px_rgba(0,0,0,0.03)] flex flex-col gap-4">
-        <h3 className="text-base font-extrabold text-neutral-900 dark:text-white">
-          All Purchase Transactions ({orders.length})
+      <div className="rounded-2xl p-5 sm:p-6 bg-white dark:bg-[#16181D] border border-neutral-200 dark:border-neutral-800 shadow-xs flex flex-col gap-4">
+        <h3 className="text-base font-bold text-neutral-900 dark:text-white">
+          All Orders ({orders.length})
         </h3>
 
         <div className="overflow-x-auto">

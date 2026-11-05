@@ -37,58 +37,61 @@ export const SseProgressTracker: React.FC<SseProgressTrackerProps> = ({
     {
       id: 'understanding',
       label: 'Understanding Request',
-      description: 'Parsing natural language attributes and constraints',
+      description: 'Parsing product criteria and constraints',
       icon: Brain,
       status: 'in_progress',
     },
     {
       id: 'checking_mandate',
       label: 'Checking Mandate',
-      description: 'Verifying active spending limits, per-item cap & categories',
+      description: 'Verifying budget headroom and allowed categories',
       icon: Shield,
       status: 'pending',
     },
     {
       id: 'searching_channel3',
-      label: 'Searching Channel3',
-      description: 'Executing semantic search across indexed retailer catalogs',
+      label: 'Searching Retailers',
+      description: 'Finding matching products across retailer catalogs',
       icon: Search,
       status: 'pending',
     },
     {
       id: 'comparing_offers',
-      label: 'Comparing Retailer Offers',
-      description: 'Comparing canonical products, stock availability and prices',
+      label: 'Comparing Offers',
+      description: 'Evaluating prices, availability, and shipping',
       icon: Scale,
       status: 'pending',
     },
     {
       id: 'refreshing_details',
-      label: 'Refreshing Real-Time Data',
-      description: 'Fetching fresh live stock, shipping and condition facts',
+      label: 'Verifying Stock & Price',
+      description: 'Confirming live merchant inventory and pricing',
       icon: RefreshCw,
       status: 'pending',
     },
     {
       id: 'guardrails',
-      label: 'Running Purchase Rules',
-      description: 'Executing deterministic B8 guardrails and KERNEL verification',
+      label: 'Policy Verification',
+      description: 'Validating mandate guardrails and limits',
       icon: CheckCircle2,
       status: 'pending',
     },
     {
       id: 'proposal_ready',
-      label: 'Preparing Purchase Proposal',
-      description: 'Computing final Decimal subtotal and reserving budget in B3',
+      label: 'Preparing Proposal',
+      description: 'Finalizing purchase details for your approval',
       icon: FileCheck2,
       status: 'pending',
     },
   ])
 
-  const [currentMessage, setCurrentMessage] = useState('Initializing agent loop...')
+  const [currentMessage, setCurrentMessage] = useState('Starting search...')
   const [isCompleted, setIsCompleted] = useState(false)
   const [hasError, setHasError] = useState<string | null>(null)
   const [activeProposalId, setActiveProposalId] = useState<string | null>(null)
+
+  const completedCount = steps.filter((s) => s.status === 'completed').length
+  const progressPct = Math.round((completedCount / steps.length) * 100)
 
   useEffect(() => {
     let eventSource: EventSource | null = null
@@ -99,7 +102,7 @@ export const SseProgressTracker: React.FC<SseProgressTrackerProps> = ({
       eventSource = new EventSource(streamUrl)
 
       eventSource.onopen = () => {
-        setCurrentMessage('Connected to Carti Agent event stream.')
+        setCurrentMessage('Connected to live progress feed.')
       }
 
       eventSource.onmessage = (event) => {
@@ -129,17 +132,15 @@ export const SseProgressTracker: React.FC<SseProgressTrackerProps> = ({
           }
 
           if (data.status === 'failed' || data.error) {
-            setHasError(data.error || 'Agent loop failed to find an eligible product.')
+            setHasError(data.error || 'Unable to find an eligible product matching all criteria.')
             eventSource?.close()
           }
         } catch {
-          // Plain text event
           setCurrentMessage(event.data)
         }
       }
 
       eventSource.onerror = () => {
-        // Fallback to simulated verified pipeline if SSE connection drops (e.g. offline dev mode)
         eventSource?.close()
         startFallbackSimulation()
       }
@@ -169,16 +170,16 @@ export const SseProgressTracker: React.FC<SseProgressTrackerProps> = ({
               return { ...s, status: 'pending' }
             })
           )
-          setCurrentMessage(`Executing: ${stepIds[stepIndex].replace('_', ' ')}...`)
+          setCurrentMessage(`Step ${stepIndex + 1} of ${stepIds.length}: ${stepIds[stepIndex].replace(/_/g, ' ')}...`)
           stepIndex++
         } else {
           clearInterval(simulationTimer)
           setSteps((prev) => prev.map((s) => ({ ...s, status: 'completed' })))
           setIsCompleted(true)
           setActiveProposalId('prop_98765432-1111-2222-3333-444455556666')
-          setCurrentMessage('Purchase proposal verified and prepared.')
+          setCurrentMessage('Proposal ready for review.')
         }
-      }, 700)
+      }, 650)
     }
 
     return () => {
@@ -188,106 +189,91 @@ export const SseProgressTracker: React.FC<SseProgressTrackerProps> = ({
   }, [requestId])
 
   return (
-    <div className="w-full rounded-[28px] p-6 md:p-8 bg-white dark:bg-[#16181D] border border-neutral-200/80 dark:border-neutral-800 shadow-[0_4px_24px_rgba(0,0,0,0.03)] flex flex-col gap-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-neutral-100 dark:border-neutral-800">
-        <div>
-          <div className="flex items-center gap-2">
-            <span
-              className={`w-3 h-3 rounded-full ${
-                isCompleted
-                  ? 'bg-emerald-500'
-                  : hasError
-                  ? 'bg-rose-500'
-                  : 'bg-[#98EC6A] dark:bg-[#2CE5B5] animate-ping'
-              }`}
-            />
-            <h3 className="text-lg font-black text-neutral-900 dark:text-white">
-              {isCompleted
-                ? 'Proposal Ready For Review'
-                : hasError
-                ? 'Agent Halted'
-                : 'Agent Concierge Active'}
+    <div className="w-full rounded-2xl p-5 sm:p-6 bg-white dark:bg-[#16181D] border border-neutral-200 dark:border-neutral-800 shadow-xs flex flex-col gap-4">
+      {/* Top Status Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-neutral-100 dark:border-neutral-800">
+        <div className="flex items-center gap-2.5">
+          <span
+            className={`w-2.5 h-2.5 rounded-full ${
+              isCompleted ? 'bg-emerald-500' : hasError ? 'bg-rose-500' : 'bg-[#98EC6A] dark:bg-[#2CE5B5] animate-pulse'
+            }`}
+          />
+          <div>
+            <h3 className="text-base font-bold text-neutral-900 dark:text-white">
+              {isCompleted ? 'Proposal Ready' : hasError ? 'Search Stopped' : 'Searching Products'}
             </h3>
+            <p className="text-xs text-neutral-500 dark:text-neutral-400">
+              {currentMessage}
+            </p>
           </div>
-          <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-1 font-mono">
-            Request ID: {requestId}
-          </p>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
           {!isCompleted && !hasError && (
-            <Button variant="outline" size="sm" onClick={onCancel} icon={<XCircle size={14} />}>
-              Cancel Request
+            <Button variant="outline" size="sm" onClick={onCancel} icon={<XCircle size={13} />}>
+              Cancel
             </Button>
           )}
           {isCompleted && (
             <Button
               variant="primary"
-              size="md"
+              size="sm"
               onClick={() => onComplete(activeProposalId || undefined)}
-              icon={<ArrowRight size={16} />}
+              icon={<ArrowRight size={14} />}
             >
-              Review Purchase Proposal
+              Review Proposal
             </Button>
           )}
         </div>
       </div>
 
-      {/* Live Status Message Banner */}
-      <div className="p-3.5 px-4 rounded-2xl bg-neutral-50 dark:bg-[#1A1D23] border border-neutral-200/70 dark:border-neutral-800 flex items-center justify-between">
-        <span className="text-xs font-semibold text-neutral-700 dark:text-neutral-300">
-          {currentMessage}
-        </span>
-        <span className="text-[11px] font-mono text-neutral-400">Live SSE Stream</span>
+      {/* Progress Bar */}
+      <div className="w-full bg-neutral-100 dark:bg-neutral-800 h-2 rounded-full overflow-hidden">
+        <div
+          className="bg-[#98EC6A] dark:bg-[#2CE5B5] h-full transition-all duration-300"
+          style={{ width: `${isCompleted ? 100 : Math.max(10, progressPct)}%` }}
+        />
       </div>
 
-      {/* Progress Steps Timeline */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+      {/* Compact Steps Grid */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2 pt-1">
         {steps.map((step, idx) => {
-          const Icon = step.icon
           const isDone = step.status === 'completed'
           const isActive = step.status === 'in_progress'
 
           return (
             <div
               key={step.id}
-              className={`p-4 rounded-2xl border transition-all flex items-start gap-3 ${
+              className={`p-2.5 rounded-xl border text-center flex flex-col items-center gap-1 transition-colors ${
                 isDone
-                  ? 'bg-emerald-500/5 dark:bg-emerald-950/20 border-emerald-500/30'
+                  ? 'bg-emerald-500/5 dark:bg-emerald-950/20 border-emerald-500/20'
                   : isActive
-                  ? 'bg-[#98EC6A]/10 dark:bg-[#2CE5B5]/10 border-[#98EC6A] dark:border-[#2CE5B5] shadow-xs'
-                  : 'bg-neutral-50/50 dark:bg-neutral-900/40 border-neutral-200/60 dark:border-neutral-800 opacity-60'
+                  ? 'bg-[#98EC6A]/10 dark:bg-[#2CE5B5]/10 border-[#98EC6A] dark:border-[#2CE5B5]'
+                  : 'bg-neutral-50 dark:bg-neutral-900/40 border-neutral-200/50 dark:border-neutral-800 opacity-50'
               }`}
             >
               <div
-                className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 mt-0.5 ${
+                className={`w-6 h-6 rounded-full flex items-center justify-center text-xs ${
                   isDone
                     ? 'bg-emerald-500 text-white'
                     : isActive
-                    ? 'bg-[#98EC6A] dark:bg-[#2CE5B5] text-[#0A2610] dark:text-[#05261F] animate-pulse font-bold'
+                    ? 'bg-[#98EC6A] dark:bg-[#2CE5B5] text-[#0A2610] font-bold'
                     : 'bg-neutral-200 dark:bg-neutral-800 text-neutral-500'
                 }`}
               >
-                {isDone ? <CheckCircle2 size={16} /> : <Icon size={16} />}
+                {isDone ? <CheckCircle2 size={13} /> : idx + 1}
               </div>
-              <div>
-                <div className="text-xs font-bold text-neutral-900 dark:text-white flex items-center gap-1.5">
-                  <span>
-                    {idx + 1}. {step.label}
-                  </span>
-                </div>
-                <div className="text-[11px] text-neutral-500 dark:text-neutral-400 mt-0.5 leading-snug">
-                  {step.description}
-                </div>
-              </div>
+              <span className="text-[11px] font-semibold text-neutral-800 dark:text-neutral-200 truncate max-w-full">
+                {step.label}
+              </span>
             </div>
           )
         })}
       </div>
 
       {hasError && (
-        <div className="p-4 rounded-2xl bg-rose-500/10 border border-rose-500/30 text-rose-700 dark:text-rose-400 text-sm flex items-center gap-2">
-          <AlertTriangle size={18} />
+        <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-700 dark:text-rose-400 text-xs flex items-center gap-2">
+          <AlertTriangle size={15} />
           <span>{hasError}</span>
         </div>
       )}
