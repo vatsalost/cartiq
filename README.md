@@ -1,16 +1,17 @@
 <div align="center">
 
-# 🛒 CartiQ — Agentic Shopping Concierge
+# 🛒 Carti — Autonomous AI Purchasing Concierge
 
-### Autonomous AI-Powered Shopping Assistant with Deterministic Financial Guardrails & PayPal Checkout
+### Natural Language Shopping Assistant with Pure Deterministic Financial Guardrails & Server-Side PayPal Orders v2 Settlement
 
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115+-009688.svg)](https://fastapi.tiangolo.com)
-[![SQLAlchemy 2.0](https://img.shields.io/badge/SQLAlchemy-2.0+-red.svg)](https://www.sqlalchemy.org/)
-[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16+-336791.svg)](https://www.postgresql.org/)
-[![PayPal Orders v2](https://img.shields.io/badge/PayPal-Orders_v2_API-003087.svg)](https://developer.paypal.com/docs/api/orders/v2/)
-[![Tests Passing](https://img.shields.io/badge/tests-127%20passed-brightgreen.svg)](server/tests)
-[![Security](https://img.shields.io/badge/Security-Argon2id%20%7C%20IDOR%20Defense-orange.svg)](docs/module-b2-verification-report.md)
+[![React 19](https://img.shields.io/badge/React-19+-61DAFB.svg)](https://react.dev/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.7+-3178C6.svg)](https://www.typescriptlang.org/)
+[![Tailwind CSS v4](https://img.shields.io/badge/Tailwind_CSS-v4-38B2AC.svg)](https://tailwindcss.com/)
+[![PayPal Orders v2](https://img.shields.io/badge/PayPal-Orders_v2_REST_API-003087.svg)](https://developer.paypal.com/docs/api/orders/v2/)
+[![Tests Passing](https://img.shields.io/badge/tests-266%20passed%20%7C%20100%25-brightgreen.svg)](server/tests)
+[![Security](https://img.shields.io/badge/Security-Argon2id%20%7C%20IDOR%20Defense%20%7C%20SHA--256-orange.svg)](docs/module-b2-verification-report.md)
 
 **Built for the PayPal AI Hackathon 2026**
 
@@ -20,35 +21,40 @@
 
 ## 📖 Executive Summary
 
-**CartiQ** is an autonomous agentic shopping concierge designed to transform natural language shopping requests into high-fidelity, verified retailer product offers. Unlike traditional shopping bots that merely link out or hallucinate purchase actions, CartiQ provides a secure end-to-end shopping journey:
+**Carti** is an autonomous agentic shopping concierge that bridges the gap between natural language AI reasoning and strict, auditable enterprise financial execution. Unlike conventional AI shopping bots that hallucinate purchase actions or expose payment credentials to generative models, Carti enforces an uncompromising architectural boundary:
 
-1. **Natural-Language Understanding:** Interprets complex conversational requests and extracts structured shopping parameters.
-2. **Multi-Retailer Sourcing:** Discovers real-time candidate items across merchant partners via the Channel3 API.
-3. **Deterministic Backend Guardrails:** Strictly evaluates merchant trust, price tolerances, per-item limits, stock availability, and user spending mandates before generating reviewable proposals.
-4. **Server-Side PayPal Sandbox Checkout:** Initiates and captures payments through PayPal's Orders v2 REST API using secure idempotency and row-level reservation locks.
-5. **Real-time Event Streaming:** Streams live concierge reasoning, candidate evaluation logs, and state updates using Server-Sent Events (SSE).
+> **"AI Reasons, the Backend Decides, and PayPal Settles."**
+
+1. **Conversational Intent to Structured Reality:** Converts natural language shopping queries (*"Find an aesthetic warm desk lamp under $50 with brass finish"*) into structured constraints, domain whitelists, and real-time multi-merchant catalog queries.
+2. **Multi-Retailer Discovery:** Discovers and scores live candidate offers across merchants (Target, Amazon, Best Buy, Wayfair) via Channel3 and real-time retailer stock verification.
+3. **Pure Deterministic Guardrails:** Evaluates 8 strict financial rules—per-item price caps, exact remaining budget, allowed merchant whitelists, blocked category exclusions, and stock availability—using exact Python `Decimal` arithmetic.
+4. **Server-Side PayPal Sandbox Integration:** Creates, authorizes, and captures orders strictly server-side using PayPal Orders v2 REST APIs with `PayPal-Request-Id` idempotency keys and row-level database reservation locks.
+5. **Cryptographic Tamper-Evident Auditability:** Every state transition, LLM tool execution, budget reservation, and payment capture is recorded into an append-only, SHA-256 block-chained audit ledger.
+6. **Modern Linear/Stripe SaaS Interface:** Features a 7-route navigation architecture with real-time financial trajectory visualization, 57% donut utilization gauge, 3-card comparison matrices, and dark/light theme support.
 
 ---
 
-## 🏛️ Core Architectural Philosophy
+## 🏛️ The Three Architectural Pillars
 
 ```
-+-----------------------------------------------------------------------------------+
-|                              THE THREE CARTIQ PILLARS                             |
-+-----------------------------------------------------------------------------------+
-|  1. AI Reasons, Backend Decides                                                   |
-|     The LLM acts strictly as a recommendation engine. It has ZERO credentials,   |
-|     ZERO payment tools, and cannot authorize or initiate financial charges.       |
-|                                                                                   |
-|  2. Pure Deterministic Mandates                                                   |
-|     User-defined financial limits (total budget, per-item caps, domain            |
-|     whitelists, max quantities) are enforced by Python code using exact Decimal   |
-|     arithmetic and row-level database locking.                                    |
-|                                                                                   |
-|  3. Safe Human-in-the-Loop Checkout                                               |
-|     Every purchase requires explicit user proposal review and standard PayPal     |
-|     popup buyer authorization. The backend captures only after validation.        |
-+-----------------------------------------------------------------------------------+
+┌───────────────────────────────────────────────────────────────────────────────────┐
+│                              THE THREE CARTI PILLARS                              │
+├───────────────────────────────────────────────────────────────────────────────────┤
+│  1. Zero Financial Authority for AI                                              │
+│     The LLM acts purely as a product discovery and comparison advisor. It possesses│
+│     ZERO payment API credentials, cannot invoke PayPal APIs, and cannot modify     │
+│     user budget allocations.                                                      │
+│                                                                                   │
+│  2. Pure Deterministic Mandates & Exact Decimal Math                              │
+│     Spending limits (total budget, per-item caps, whitelisted retailers, blocked  │
+│     categories) are enforced exclusively by backend code using exact Decimal       │
+│     arithmetic and row-level database locks (SELECT ... FOR UPDATE).              │
+│                                                                                   │
+│  3. Human-in-the-Loop Safe Authorization                                          │
+│     Purchases require explicit user proposal confirmation followed by standard    │
+│     PayPal popup authentication. The backend captures only after validation of    │
+│     the locked mandate version snapshot.                                          │
+└───────────────────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
@@ -58,275 +64,291 @@
 ```mermaid
 sequenceDiagram
     autonumber
-    actor User as User / Frontend
-    participant Gateway as FastAPI Gateway
-    participant Auth as B2 Auth Boundary
-    participant Mandate as B3 Mandate Engine
-    participant Agent as AI Agent (Gemini)
-    participant Channel3 as Channel3 API
-    participant PayPal as PayPal Orders v2 API
-    participant Audit as Immutable Audit Log
+    actor User as Buyer (React Frontend)
+    participant Gateway as FastAPI API Gateway (B1)
+    participant Auth as Auth & Ownership Boundary (B2)
+    participant Mandate as Mandate Financial Engine (B3)
+    participant Lifecycle as Request Lifecycle State Machine (B4)
+    participant Agent as Agent Loop & Tool Gateway (B5)
+    participant Channel3 as Channel3 Multi-Retailer Client (B6)
+    participant Guardrails as Deterministic Guardrails & Proposals (B9)
+    participant PayPal as PayPal Orders v2 API (B10)
+    participant Audit as SHA-256 Cryptographic Audit Log (B13)
 
-    User->>Gateway: POST /api/mandates (Set Budget $100, Cap $50)
+    User->>Gateway: POST /api/mandates (Budget $150, Cap $60, Tolerance ±10%)
     Gateway->>Auth: Validate Session / Bearer Token
-    Gateway->>Mandate: Version & Persist Active Mandate (V1)
-    Mandate->>Audit: Record mandate_created
+    Gateway->>Mandate: Version & Persist Active Mandate (v2)
+    Mandate->>Audit: Record mandate_created (SHA-256 Chained)
 
-    User->>Gateway: POST /api/requests ("Find a desk lamp under $40")
-    Gateway->>Agent: Initiate Agent Orchestration
+    User->>Gateway: POST /api/requests ("Warm desk lamp under $50 with brass finish")
+    Gateway->>Lifecycle: Initialize Request (status: queued -> running)
     Gateway-->>User: 202 Accepted + SSE Stream URL
 
+    Lifecycle->>Agent: Run Autonomous Agent Loop
     Agent->>Channel3: Query Product Offers & Real-Time Stock
-    Channel3-->>Agent: Candidate Items & Retailer Offers
-    Agent->>Gateway: Run Deterministic Guardrails
-    Gateway->>Mandate: Check Cap ($40 <= $50) & Categories
-    Gateway-->>User: 200 Proposal Ready (Lumina Lamp: $34.99)
+    Channel3-->>Agent: Candidate Items (Target $49.99, Amazon $42.50, Wayfair $54.99)
+    Agent->>Guardrails: Evaluate Candidate Offers against Mandate v2
+    Guardrails->>Mandate: Verify Cap ($49.99 <= $60.00), Category & Whitelist
+    Guardrails-->>Lifecycle: Generate Proposal #prop_98765432 + Lock $49.99 Reservation
+    Lifecycle-->>User: SSE Event "proposal_ready"
 
-    User->>Gateway: POST /api/proposals/:id/order (Approve Proposal)
-    Gateway->>Mandate: Lock Mandate & Reserve $34.99
-    Mandate->>Audit: Record budget_reservation_created
-    Gateway->>PayPal: Create Order (PayPal-Request-Id: idempotency)
-    PayPal-->>Gateway: Return paypal_order_id
-    Gateway-->>User: Order Initialized
+    User->>Gateway: POST /api/proposals/:id/order (User Accepts Proposal)
+    Gateway->>Mandate: Validate Active Reservation #res_11223344
+    Gateway->>PayPal: Create Order (POST /v2/checkout/orders, Idempotent)
+    PayPal-->>Gateway: Return paypal_order_id (5X982341KL678901M)
+    Gateway-->>User: Return Order Approval URL
 
-    User->>PayPal: Authorize Payment (PayPal JS SDK Popup)
-    PayPal-->>User: Buyer Approval Granted
+    User->>PayPal: Authorize Payment via PayPal JS SDK Popup
+    PayPal-->>User: Approval Granted
 
     User->>Gateway: POST /api/orders/:id/capture
-    Gateway->>PayPal: Capture Payment (PayPal Orders v2 API)
-    PayPal-->>Gateway: Capture Confirmed
-    Gateway->>Mandate: Convert Reservation to Captured Spend
+    Gateway->>PayPal: Capture Payment (POST /v2/checkout/orders/:id/capture)
+    PayPal-->>Gateway: Capture Confirmed (CAP_876543210987)
+    Gateway->>Mandate: Convert Reservation to Captured Spending ($34.99)
     Mandate->>Audit: Record budget_reservation_captured
-    Gateway-->>User: 200 Order Completed & Receipt
+    Gateway-->>User: 200 OK + Official Receipt & Delivery Tracking
 ```
 
 ---
 
-## 🧩 Backend Module Breakdown
+## 🧩 Complete Module Matrix
 
-### 🛡️ Module B1: API Gateway & Request Validation
-- **Pydantic v2 Schemas**: Strict type checking and request boundary validation.
-- **SSE Event Replay**: Real-time event streaming (`GET /api/requests/{id}/stream`) with historical buffer replay.
-- **Centralized Error Envelope**: Standardized structured error responses (`{ "error": { "code", "message", "retryable", "details" } }`).
-- **Rate Limiting**: Sliding-window rate limiters protecting public, creation, and checkout endpoints.
+### ⚙️ Backend Core Modules (B1–B10 & B13)
 
-### 🔐 Module B2: Authentication & User Ownership Boundary
-- **Argon2id Cryptographic Hashing**: Secure password storage utilizing memory-hard `argon2-cffi`.
-- **Hashed Session Tokens**: Raw cookies/tokens are never stored in plaintext; only `SHA-256(raw_token)` is indexed in the database.
-- **Dual Transport Authentication**: Full interoperability between secure HTTP-only SameSite cookies (`carti_session`) and `Authorization: Bearer <token>` headers.
-- **Strict IDOR Prevention**: Every database query verifies resource ownership against the authenticated caller.
-- **Anti-Enumeration Defense**: Constant-time comparison using dummy hash calculations prevents user enumeration.
-
-### 💰 Module B3: Mandate Service & Financial Engine
-- **Immutable Versioning**: Creating a new mandate increments the version (`v1 -> v2 -> v3`) and marks previous records `superseded` without destructive updates.
-- **Authoritative Budget Formula**:
-  $$\text{Available Budget} = \max(0.00, \text{Total Budget} - \text{Captured Spending} - \text{Active Reservations})$$
-- **No Floating-Point Math**: All financial computations utilize Python `Decimal` and PostgreSQL `NUMERIC(12, 2)`.
-- **Committed Spend Ceiling**: Prevents lowering a mandate total budget below active committed and reserved spending.
-- **Concurrency & Race Defenses**: Row-level locking (`SELECT ... FOR UPDATE`) prevents concurrent checkout attempts from over-reserving available funds.
-- **Automatic Lifecycle Invalidation**: Detects expiration and revocation, immediately blocking subsequent checkouts.
-
-### 💳 Module B10: PayPal Orders v2 & Webhook Pipeline
-- **Server-Side Order Creation**: Initiates PayPal sandbox orders without exposing API credentials to clients.
-- **Safe Capture Engine**: Enforces idempotency via `PayPal-Request-Id` headers.
-- **Automated Refund Pipeline**: Processes full refunds for completed purchases, immediately restoring spendable mandate budget.
-- **Webhook Reconciliation**: Cryptographically verifies PayPal webhook headers to handle `PAYMENT.CAPTURE.COMPLETED`, `DENIED`, and `REFUNDED` events.
+| Module | Name | Responsibility & Technical Highlights |
+| :--- | :--- | :--- |
+| **B1** | **API Gateway & Schemas** | FastAPI async routes, strict Pydantic v2 schemas, decimal serialization, CORS origin restriction, and standard error taxonomy. |
+| **B2** | **Authentication & IDOR Boundaries** | Argon2id password hashing, database-backed sessions, timing attack defense, and strict user ownership boundaries across all resources. |
+| **B3** | **Mandate Financial Engine** | Immutable versioned spending authority ($v_1, v_2, \dots$), row-level concurrency locks (`SELECT ... FOR UPDATE`), exact Decimal arithmetic, and reservation isolation. |
+| **B4** | **Request Lifecycle & Orchestration** | Strict state machine (`queued -> running -> proposal_ready \| no_match \| blocked \| failed \| cancelled`), distributed database worker leases, checkpoint cancellation, and sanitized SSE event streaming. |
+| **B5** | **Agent Loop & LLM Tool Gateway** | Controlled LLM agent loop (Gemini / OpenAI), bounded tool calls, allowlisted tool execution, adversarial prompt injection defense, and factual grounding. |
+| **B6** | **Channel3 Multi-Retailer Client** | Sourcing client querying partner merchant catalogs, normalized offer parsing, and retailer trust evaluation. |
+| **B7** | **Candidate Ranking & Explanations** | Multi-factor weighted candidate scoring, query constraint alignment, and human-readable ranking rationale. |
+| **B8** | **Kernel Real-Time Stock Verification** | Real-time merchant page extraction verifying in-stock availability and price accuracy prior to proposal generation. |
+| **B9** | **Proposal Service & Deterministic Guardrails** | 8 deterministic guardrail checks (category allowed, merchant whitelisted, per-item cap, remaining budget, currency match, quantity limits, stock status, price tolerance), atomic budget reservations. |
+| **B10** | **PayPal Orders v2 Payment Service** | Full payment lifecycle: OAuth2 token management, idempotent order creation (`PayPal-Request-Id`), server-side capture, refund execution, and webhook signature verification. |
+| **B13** | **Cryptographic Audit Trail** | Tamper-evident append-only ledger where each event is cryptographically hashed (`SHA-256(prev_hash + event_data)`) with complete verification utilities. |
 
 ---
 
-## 📡 API Reference Matrix
+### 🎨 Frontend Architecture & SaaS Redesign (F1–F8)
 
-### Authentication
-| Method | Endpoint | Description | Auth Required |
-|---|---|---|---|
-| `POST` | `/api/auth/register` | Register new user account with Argon2id hash | No |
-| `POST` | `/api/auth/login` | Authenticate credentials and rotate session | No |
-| `POST` | `/api/auth/demo` | Instant demo login (development/test only) | No |
-| `POST` | `/api/auth/logout` | Revoke session and clear HTTP-only cookie | Yes |
-| `GET` | `/api/auth/me` | Retrieve authenticated user profile | Yes |
-| `GET` | `/api/auth/status` | Lightweight session check | No |
+The frontend is built with **React 19**, **Vite**, **TypeScript**, and **Tailwind CSS**, styled after modern financial platforms like Linear, Stripe, and Ramp:
 
-### Mandates & Financial Engine
-| Method | Endpoint | Description | Auth Required |
-|---|---|---|---|
-| `GET` | `/api/mandates/current` | Active mandate with remaining budget breakdown & summary | Yes |
-| `POST` | `/api/mandates` | Create new mandate version (supersedes prior active version) | Yes |
-| `GET` | `/api/mandates/current/budget` | Standalone real-time available budget calculation | Yes |
-| `GET` | `/api/mandates/versions/{version}` | Historical mandate version lookup | Yes |
-| `POST` | `/api/mandates/{id}/revoke` | Revoke mandate, halting future agent checkouts | Yes |
-| `GET` | `/api/mandates/{id}` | Direct mandate lookup by ID with ownership check | Yes |
-
-### Shopping Requests & Concierge Agent
-| Method | Endpoint | Description | Auth Required |
-|---|---|---|---|
-| `POST` | `/api/requests` | Submit natural-language request (returns HTTP 202 Accepted) | Yes |
-| `GET` | `/api/requests/{id}` | Inspect shopping request status & extracted intent | Yes |
-| `GET` | `/api/requests/{id}/stream` | Server-Sent Events (SSE) real-time progress & event replay | Yes |
-| `POST` | `/api/requests/{id}/cancel` | Cancel in-flight agent search | Yes |
-| `GET` | `/api/requests/{id}/candidates` | Retrieve candidate items & retailer offers | Yes |
-
-### Purchase Proposals & Checkout
-| Method | Endpoint | Description | Auth Required |
-|---|---|---|---|
-| `GET` | `/api/proposals/{id}` | Proposal review snapshot, policy checks & rationale | Yes |
-| `POST` | `/api/proposals/{id}/order` | Revalidate facts, lock budget, and initialize PayPal order | Yes |
-| `POST` | `/api/orders/{id}/capture` | Server-side capture after buyer approval | Yes |
-| `POST` | `/api/orders/{id}/refund` | Process full refund for captured payment | Yes |
-| `GET` | `/api/orders` | Paginated purchase history | Yes |
-| `GET` | `/api/orders/{id}` | Detailed receipt with product & refund breakdown | Yes |
-| `POST` | `/api/webhooks/paypal` | PayPal webhook event receiver & signature validation | HMAC |
-
-### System Health
-| Method | Endpoint | Description | Auth Required |
-|---|---|---|---|
-| `GET` | `/api/health` | Service status, API version, and database connectivity | No |
+| Route | Page | Purpose & Visual Features |
+| :--- | :--- | :--- |
+| `/` | **Overview Dashboard** | • Top greeting with demo-user profile and "+ New Shopping Request" button.<br>• 4 Metric cards: Available Budget ($65.02), Committed ($84.98), Pending Proposals (1), Completed Orders (1).<br>• **Spending Overview Card:** Recharts area trajectory curve + circular SVG donut gauge displaying **57% Utilized** alongside a 4-item financial ledger.<br>• **Recent Activity & Quick Actions:** 4-item timeline with event status dots and a 2x2 action grid. |
+| `/shopping` | **Shopping Assistant** | • Conversational query input with attachment support and Preferences drawer (category, max price, brand, retailer).<br>• Recent searches pills (*Warm-light desk lamp*, *French press coffee maker*, *Wireless headphones*, *Ergonomic desk chair*).<br>• Live SSE progress tracker showing real-time agent reasoning.<br>• **3-Card Product Comparison Matrix:** Best Match badge, star ratings, external retailer links, 4-point recommendation checklists, and "Select for Proposal" actions. |
+| `/proposals` | **Purchase Proposal Review** | • Metadata pills: `Proposal #prop_98765432`, `✓ All Checks Passed`, `Mandate v2`, `Stock Verified`.<br>• **2-Column Layout:** Left displays product specs (*Modern Brass Desk Lamp with Dimmer* from Target, $49.99 USD), "Why Carti Selected This Product" checklist, and "Mandate & Compliance" checklist.<br>• Right displays itemized price breakdown (FREE shipping, $0.00 tax), Budget Impact analysis, PayPal Sandbox demo banner, and checkout action buttons. |
+| `/orders` | **Orders & Transactions** | • Summary metric cards: Total Orders (1), Total Captured ($34.99), Refunds & Disputes (0).<br>• Filter tabs: All Orders (1), Completed (1), Pending (0), Refunded (0) + search input.<br>• Transactions table with clickable rows.<br>• **Detailed Order Panel:** Payment Details (PayPal Order ID, Capture ID, Captured At, Amount) + Mandate Details (Reservation ID, Version, Category, Price Check) + action buttons for Receipt Modal and Refund Modal. |
+| `/mandate` | **Spending Controls** | • Top header with "Edit Mandate" revision action.<br>• **Dark Authorized Budget Hero Card:** Total Budget $150.00, 57% utilization progress bar, Available $65.02, Captured $34.99, Reserved $49.99.<br>• Stacked cards for Per-Item Cap ($60.00) and Price Tolerance (±10%).<br>• Purchasing Permissions card (allowed categories & approved retailers) alongside Purchasing Restrictions card (blocked categories & guardrail rules). |
+| `/activity` | **Activity & Audit Trail** | • Master-detail layout with requests list on left and audit timeline on right.<br>• Sub-tabs: Audit Timeline, Details, Candidate Comparison.<br>• **Cryptographic Verification Record:** Expandable panel with event SHA-256 hash, previous block hash, copy buttons, and verified status badge. |
+| `/settings` | **Settings & Diagnostics** | • Comprehensive configuration tabs: General (theme, auto-approval), Account, Third-Party Integrations (PayPal Sandbox, Channel3, OpenAI/Gemini), Notifications, and Module B1–B10 live status diagnostics. |
 
 ---
 
-## 🛠️ Technology Stack
+## 🔒 Security & Financial Integrity Guarantees
 
-| Layer | Technology | Purpose |
-|---|---|---|
-| **Language** | Python 3.11+ | Type-annotated, high-performance async runtime |
-| **API Framework** | FastAPI | OpenAPI documentation, Pydantic validation, dependency injection |
-| **ASGI Server** | Uvicorn | Production-ready asynchronous web server |
-| **ORM & Database** | SQLAlchemy 2.0 / PostgreSQL | Async-capable ORM, row-level locks, transactional integrity |
-| **Database Migrations** | Alembic | Version-controlled, schema migration management |
-| **Validation** | Pydantic v2 | High-throughput data modeling and input sanitization |
-| **Authentication** | Argon2id (`argon2-cffi`) | Memory-hard cryptographic password hashing |
-| **Payments** | PayPal REST APIs v2 | Server-side Orders v2, Captures, Refunds, Webhooks |
-| **Retailer Sourcing** | Channel3 API | Live multi-retailer catalog discovery & stock verification |
-| **LLM Provider** | Google Gemini (2.5-flash) | Natural language intent extraction & ranking explanation |
-| **Testing** | Pytest / AnyIO | Automated unit, integration, and security verification |
+1. **Exact Decimal Accounting:** All financial sums, taxes, shipping fees, tolerances, and balances are calculated using Python `Decimal` objects. Floating-point arithmetic is prohibited across the codebase.
+2. **Row-Level Concurrency Locks:** Concurrent checkout attempts for the same mandate are serialized via PostgreSQL/SQLite row-level locks (`SELECT ... FOR UPDATE`), preventing double-spend and race conditions.
+3. **Cross-Resource IDOR Defense:** Every API endpoint validates that the target request, mandate, proposal, order, or refund is owned strictly by the authenticated user session.
+4. **Adversarial Prompt Defense:** Natural language prompts undergo pattern scanning for prompt injection, jailbreaks, and delimiter manipulation before being passed to LLM reasoning pipelines.
+5. **Idempotent PayPal Operations:** Every PayPal Order creation and capture request transmits a deterministic, unique `PayPal-Request-Id` header to eliminate duplicate billing during network timeouts or retries.
+6. **No Client-Side Credentials:** PayPal client secrets, Channel3 API keys, and LLM tokens remain exclusively on the server.
 
 ---
 
-## 🚀 Getting Started
+## 🧪 Automated Test Suite (266 / 266 Passing)
 
-### 1. Prerequisites
-- **Python 3.11+** installed
-- **PostgreSQL 16+** (or use the built-in SQLite development fallback)
-- **Git**
-
-### 2. Clone the Repository
-```bash
-git clone -b vatsal https://github.com/vatsalost/cartiq.git
-cd cartiq
-```
-
-### 3. Environment Configuration
-Copy `.env.example` to `.env`:
-```bash
-cp .env.example .env
-```
-
-Configure your environment variables:
-```dotenv
-APP_ENV=development
-APP_BASE_URL=http://localhost:8000
-CLIENT_BASE_URL=http://localhost:5173
-
-# Database (PostgreSQL with SQLite fallback for local dev)
-DATABASE_URL=postgresql+psycopg://postgres:postgres@localhost:5432/carti_db
-SQLITE_FALLBACK=true
-
-# AI & Channel3 Settings
-LLM_PROVIDER=gemini
-LLM_API_KEY=your_gemini_api_key
-CHANNEL3_API_KEY=your_channel3_api_key
-
-# PayPal Sandbox Credentials
-PAYPAL_ENV=sandbox
-PAYPAL_CLIENT_ID=your_paypal_sandbox_client_id
-PAYPAL_CLIENT_SECRET=your_paypal_sandbox_client_secret
-PAYPAL_WEBHOOK_ID=your_paypal_webhook_id
-
-# Security
-SESSION_SECRET=generate_a_random_32_character_string_here
-```
-
-### 4. Install Dependencies
-```bash
-python -m pip install -r server/requirements.txt
-```
-
-### 5. Apply Database Migrations
-```bash
-python -m alembic -c server/alembic.ini upgrade head
-```
-
-### 6. Start the API Server
-```bash
-python -m uvicorn server.app.main:app --reload --port 8000
-```
-
-- **Interactive Swagger UI:** [http://localhost:8000/docs](http://localhost:8000/docs)
-- **ReDoc UI:** [http://localhost:8000/redoc](http://localhost:8000/redoc)
-- **Health Check Endpoint:** [http://localhost:8000/api/health](http://localhost:8000/api/health)
-
----
-
-## 🧪 Comprehensive Automated Test Suite
-
-CartiQ features a comprehensive automated test suite with **127 automated tests** covering unit logic, database migrations, IDOR ownership boundaries, financial calculation states, and concurrency safety:
+The project includes an exhaustive automated test suite covering all modules, edge cases, financial calculations, IDOR ownership boundaries, and PayPal lifecycle events:
 
 ```bash
 python -m pytest server/tests -v
 ```
 
-### Test Suite Coverage Breakdown
+### Test Coverage Summary:
 
 ```
-============================= test session starts =============================
-server/tests/test_auth.py                      [14 passed]  Auth, Argon2id, session rotation, logout
-server/tests/test_b2_security_audit.py         [22 passed]  IDOR defenses, cross-user isolation
-server/tests/test_b3_financial_audit.py        [11 passed]  15 financial scenarios, Decimal precision
-server/tests/test_mandates_b3.py               [37 passed]  Full B3 lifecycle, versioning, reservations
-server/tests/test_mandates.py                  [ 3 passed]  Mandate validation and normalization
-server/tests/test_orders.py                    [ 3 passed]  PayPal capture & refund delegation
-server/tests/test_ownership_b2.py              [ 7 passed]  Cross-resource ownership boundaries
-server/tests/test_proposals.py                 [ 4 passed]  Proposal evaluation & checkout order creation
-server/tests/test_rate_limit_and_payloads.py   [ 2 passed]  Sliding-window rate limiters & payload caps
-server/tests/test_requests.py                  [ 5 passed]  Shopping request lifecycle & cancellation
-server/tests/test_security_and_edge_cases.py   [13 passed]  Idempotency keys, injection, token tamper
-server/tests/test_webhooks.py                  [ 2 passed]  PayPal webhook verification & replay
-server/tests/test_health.py                    [ 2 passed]  Service health & database connectivity
-server/tests/test_candidates.py                [ 2 passed]  Candidate ranking and offer mapping
-======================= 127 passed, 1 warning in 14.05s =======================
+server\tests\test_auth.py                      [ 14 passed]  Session creation, Argon2id verification, logout
+server\tests\test_b10_paypal.py                [ 37 passed]  PayPal order creation, capture, refunds, idempotency, isolation
+server\tests\test_b2_security_audit.py         [ 22 passed]  Cross-resource IDOR boundaries & unauthorized access
+server\tests\test_b3_financial_audit.py        [ 11 passed]  Decimal arithmetic, rounding safety, over-reservation checks
+server\tests\test_b4_lifecycle.py              [ 13 passed]  State machine transitions, worker leases, timeout recovery
+server\tests\test_b4_orchestration.py          [ 17 passed]  Pipeline execution, checkpoints, SSE event streaming
+server\tests\test_b5_agent_loop.py             [ 35 passed]  LLM provider, tool gateway, bounded iterations, prompt defense
+server\tests\test_b9_proposals.py              [ 37 passed]  8 guardrail checks, retailer verification, atomic reservations
+server\tests\test_candidates.py                [  2 passed]  Candidate ranking and offer mapping
+server\tests\test_health.py                    [  2 passed]  Health endpoints and database connectivity
+server\tests\test_mandates.py                  [  3 passed]  Mandate CRUD and validation
+server\tests\test_mandates_b3.py               [ 37 passed]  Mandate versioning, budget calculations, concurrency safety
+server\tests\test_orders.py                    [  3 passed]  Order state transitions and listings
+server\tests\test_ownership_b2.py              [  7 passed]  Ownership boundaries and session verification
+server\tests\test_proposals.py                 [  4 passed]  Proposal acceptance, rejection, and expiration
+server\tests\test_rate_limit_and_payloads.py   [  2 passed]  Rate limiting and oversized payload rejection
+server\tests\test_requests.py                  [  5 passed]  Shopping request submission and validation
+server\tests\test_security_and_edge_cases.py   [ 13 passed]  Edge cases, negative values, and token expiry
+server\tests\test_webhooks.py                  [  2 passed]  PayPal webhook signature verification & replay defense
+====================== 266 passed, 1 warning in 7.44s =======================
 ```
 
 ---
 
-## 📑 Formal Verification & Audit Reports
+## 🚀 Quickstart & Installation
 
-Detailed audit and verification reports are available in the [`docs/`](docs/) directory:
-- [Module B1 Verification Report](docs/module-b1-verification-report.md) — API Routes & Request Validation
-- [Module B2 Implementation Report](docs/module-b2-implementation-report.md) — Authentication & Security Model
-- [Module B2 Security Audit Report](docs/module-b2-verification-report.md) — Cross-Resource IDOR Verification
-- [Module B3 Implementation Report](docs/module-b3-implementation-report.md) — Mandate Service Architecture
-- [Module B3 Financial Logic Audit Report](docs/module-b3-verification-report.md) — Financial Verification & Concurrency Audit
+### Prerequisites
+
+- **Python:** 3.11+
+- **Node.js:** 18+ and `npm`
 
 ---
 
-## 🔒 Security Best Practices
+### 1. Repository Setup
 
-1. **No Client-Supplied Prices**: The client never sends product prices, amounts, or currency codes to payment endpoints. All monetary amounts are computed strictly from verified database proposal snapshots.
-2. **Stable Idempotency Keys**: All financial operations use cryptographic idempotency keys (`PayPal-Request-Id`) derived from internal entity IDs to prevent duplicate charges upon network retries.
-3. **Strict Separation of Concerns**: AI components are isolated to recommendation and ranking. Financial rules and payment captures are executed in deterministic Python services.
-4. **Append-Only Audit Trail**: Every mandate modification, budget reservation, capture, and cancellation records an immutable event in the `audit_events` table.
+```bash
+git clone https://github.com/vatsalost/cartiq.git
+cd cartiq
+```
 
 ---
 
-## 👥 Authors & Acknowledgments
+### 2. Backend Setup & Run
 
-- **Lead Developers**:
-  - [Vatsal Chaudhary](https://github.com/vatsalost)
-  - [Aditi Pandey](https://github.com/aditispandey)
-- **Event**: Built for the **PayPal AI Hackathon 2026**
-- **Special Thanks**: PayPal Developer Platform
+```bash
+# 1. Create and activate virtual environment
+python -m venv venv
+# On Windows:
+.\venv\Scripts\activate
+# On Linux/macOS:
+source venv/bin/activate
+
+# 2. Install dependencies
+pip install -r server/requirements.txt
+
+# 3. Configure environment variables
+cp .env.example .env
+# Edit .env with your PayPal Sandbox credentials, Gemini/OpenAI API key (optional, mock fallback available)
+
+# 4. Start the FastAPI development server
+python -m uvicorn server.app.main:app --host 127.0.0.1 --port 8000 --reload
+```
+
+The backend API and interactive documentation will be available at:
+- **API Base:** `http://127.0.0.1:8000/api`
+- **Swagger Docs:** `http://127.0.0.1:8000/docs`
+- **Health Check:** `http://127.0.0.1:8000/api/health`
+
+---
+
+### 3. Frontend Setup & Run
+
+In a new terminal window:
+
+```bash
+cd client
+
+# 1. Install frontend dependencies
+npm install
+
+# 2. Start Vite development server
+npm run dev
+```
+
+The frontend application will be running at `http://localhost:5173`.
+
+To verify a production build:
+
+```bash
+npm run build
+npm run preview
+```
+
+---
+
+## 📁 Repository Structure
+
+```
+.
+├── .env.example                        # Template for backend & PayPal environment variables
+├── .gitignore                          # Root git ignore rules
+├── README.md                           # Master project documentation
+├── SPECIFICATION.md                    # Carti Core Module Specification v1.0
+│
+├── client/                             # React 19 + TypeScript + Tailwind CSS Frontend
+│   ├── package.json                    # Frontend dependencies & scripts
+│   ├── vite.config.ts                  # Vite build and proxy configuration
+│   ├── src/
+│   │   ├── api/                        # API client, types, and fallback mock fixtures
+│   │   ├── components/                 # Modular UI component library
+│   │   │   ├── checkout/               # PayPal SDK button & checkout modal
+│   │   │   ├── common/                 # Reusable Button, Card, Badge, Modal, Input
+│   │   │   ├── concierge/              # Shopping prompt form, SSE progress tracker
+│   │   │   ├── dashboard/              # Stat cards, spending area chart, donut gauge
+│   │   │   ├── discovery/              # Comparison cards, offer matrix modal
+│   │   │   ├── layout/                 # 230px Sidebar, compact Header, AppLayout
+│   │   │   ├── mandate/                # Mandate control cards and revision forms
+│   │   │   ├── proposal/               # Proposal summary & guardrail checks panel
+│   │   │   └── receipt/                # Receipt view & refund modals
+│   │   ├── context/                    # AuthContext, ThemeContext
+│   │   ├── pages/                      # 7 Application route pages
+│   │   │   ├── DashboardPage.tsx       # Overview Dashboard (F1)
+│   │   │   ├── ShoppingPage.tsx        # Shopping Assistant (F2)
+│   │   │   ├── ProposalsPage.tsx       # Purchase Proposal Review (F3)
+│   │   │   ├── OrdersPage.tsx          # Orders & Transactions (F5)
+│   │   │   ├── MandatePage.tsx         # Spending Controls (F4)
+│   │   │   ├── ActivityPage.tsx        # Activity & Cryptographic Audit (F6)
+│   │   │   └── SettingsPage.tsx        # System Settings & Diagnostics (F7)
+│   │   └── routes/                     # React Router configuration
+│
+├── docs/                               # Architecture and verification audit reports
+│   ├── module-b1-verification-report.md
+│   ├── module-b2-verification-report.md
+│   ├── module-b3-verification-report.md
+│   ├── module-b4-verification-report.md
+│   ├── module-b5-verification-report.md
+│   ├── module-b9-verification-report.md
+│   ├── module-b10-verification-report.md
+│   └── ui-ux-redesign-report.md
+│
+└── server/                             # FastAPI Backend (Modules B1–B10 & B13)
+    ├── alembic.ini                     # Database migration configuration
+    ├── requirements.txt                # Python backend dependencies
+    ├── app/
+    │   ├── agent/                      # Agent Loop, LLM provider, Tool Gateway (B5)
+    │   ├── api/                        # Route controllers & dependencies (B1, B2)
+    │   ├── core/                       # Config, errors, rate limiting, security
+    │   ├── db/                         # SQLAlchemy session and Alembic migrations
+    │   ├── models/                     # Database models (User, Mandate, Order, Audit, etc.)
+    │   ├── schemas/                    # Pydantic v2 validation schemas
+    │   └── services/                   # Business logic (Mandate B3, Lifecycle B4, B9, B10)
+    └── tests/                          # Complete automated pytest suite (266 tests)
+```
+
+---
+
+## 💳 PayPal Sandbox Integration Details
+
+Carti integrates with the **PayPal Orders v2 REST API** following standard fintech security best practices:
+
+1. **Two-Stage Authorization & Capture:**
+   - The user triggers proposal checkout $\rightarrow$ Backend initiates an order with PayPal (`INTENT=CAPTURE`).
+   - The user approves in the PayPal popup modal.
+   - The backend validates the return payload against the locked mandate reservation and executes `POST /v2/checkout/orders/{id}/capture`.
+2. **Idempotency Defense:**
+   - Every order creation and capture call includes a unique `PayPal-Request-Id` based on the internal order attempt ID, preventing duplicate charges across retries.
+3. **Refund Processing:**
+   - Settled orders can be refunded via `POST /api/orders/{id}/refund`, which triggers `POST /v2/payments/captures/{id}/refund` and restores the balance to the active mandate upon confirmation.
+
+---
+
+## 👥 Contributors & Special Thanks
+
+- **Vatsal Chaudhary** — System Architecture, Backend Financial & Security Engineering, Frontend Redesign
+- **Aditi Pandey** — Lead Developer, AI Agent Orchestration & Module Integration
+
+*Special thanks to the PayPal Developer Platform team and the organizers of the PayPal AI Hackathon 2026.*
 
 ---
 
 <div align="center">
-<sub>Built with precision, security, and financial integrity for the PayPal AI Hackathon 2026.</sub>
+  <sub>Carti — Autonomous AI Purchasing Concierge • Built with ❤️ for PayPal AI Hackathon 2026</sub>
 </div>
