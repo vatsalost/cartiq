@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Plus, X, Save, AlertCircle } from 'lucide-react'
+import { Plus, X, Save, AlertCircle, CheckCircle2 } from 'lucide-react'
 import { Mandate, BudgetBreakdown } from '../../api/types'
 import { Button } from '../common/Button'
 import { Input } from '../common/Input'
@@ -129,22 +129,23 @@ export const MandateForm: React.FC<{
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+    <form onSubmit={handleSubmit} className="flex flex-col gap-5">
       {error && (
-        <div className="p-4 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-700 dark:text-rose-400 text-sm flex items-center gap-2">
-          <AlertCircle size={18} className="shrink-0" />
+        <div className="p-3.5 rounded-lg bg-rose-50 border border-rose-200 text-rose-700 dark:bg-rose-500/10 dark:border-rose-500/20 dark:text-rose-400 text-xs flex items-center gap-2">
+          <AlertCircle size={16} className="shrink-0" />
           <span>{error}</span>
         </div>
       )}
 
       {successMessage && (
-        <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-700 dark:text-emerald-400 text-sm font-semibold">
-          {successMessage}
+        <div className="p-3.5 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-700 dark:bg-emerald-500/10 dark:border-emerald-500/20 dark:text-emerald-400 text-xs font-semibold flex items-center gap-2">
+          <CheckCircle2 size={16} className="shrink-0" />
+          <span>{successMessage}</span>
         </div>
       )}
 
       {/* Main Numerical Limits */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         <Input
           label="Total Budget ($)"
           type="number"
@@ -164,13 +165,13 @@ export const MandateForm: React.FC<{
           required
         />
         <div className="flex flex-col gap-1.5">
-          <label className="text-xs font-semibold tracking-wide uppercase text-neutral-600 dark:text-neutral-400">
+          <label className="text-xs font-medium text-neutral-700 dark:text-neutral-300">
             Currency
           </label>
           <select
             value={currency}
             onChange={(e) => setCurrency(e.target.value)}
-            className="w-full rounded-full bg-white dark:bg-[#1C1E24] text-neutral-900 dark:text-neutral-100 border border-neutral-200 dark:border-neutral-700 text-sm py-2.5 px-4 outline-hidden"
+            className="w-full rounded-lg bg-white dark:bg-[#1C1F24] text-neutral-900 dark:text-neutral-100 border border-neutral-200 dark:border-neutral-700/80 text-xs py-2 px-3 outline-hidden"
           >
             <option value="USD">USD ($)</option>
             <option value="EUR">EUR (€)</option>
@@ -179,7 +180,7 @@ export const MandateForm: React.FC<{
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <Input
           label="Max Quantity per Item"
           type="number"
@@ -201,132 +202,124 @@ export const MandateForm: React.FC<{
         />
       </div>
 
-      {/* Allowed Categories Tag Editor */}
-      <div className="flex flex-col gap-2">
-        <label className="text-xs font-semibold tracking-wide uppercase text-neutral-600 dark:text-neutral-400">
-          Allowed Shopping Categories
+      {/* Category & Retailer Tag Editors */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+        {/* Allowed Categories */}
+        <div className="p-4 rounded-xl bg-neutral-50 dark:bg-[#141619] border border-neutral-200/80 dark:border-neutral-800 flex flex-col gap-2.5">
+          <label className="text-xs font-semibold text-neutral-800 dark:text-neutral-200">
+            Allowed Categories
+          </label>
+          <div className="flex flex-wrap gap-1.5 min-h-[40px]">
+            {allowedCategories.map((cat) => (
+              <span
+                key={cat}
+                className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-xs font-medium bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 text-neutral-800 dark:text-neutral-200"
+              >
+                {cat}
+                <button
+                  type="button"
+                  onClick={() => handleRemoveCategory(cat)}
+                  className="text-neutral-400 hover:text-neutral-700 dark:hover:text-white"
+                >
+                  <X size={12} />
+                </button>
+              </span>
+            ))}
+          </div>
+          <div className="flex items-center gap-2 mt-1">
+            <input
+              type="text"
+              placeholder="Add category (e.g. Electronics)"
+              value={newCatInput}
+              onChange={(e) => setNewCatInput(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddCategory())}
+              className="flex-1 text-xs rounded-lg bg-white dark:bg-[#1C1F24] border border-neutral-200 dark:border-neutral-700/80 px-3 py-1.5 outline-hidden text-neutral-900 dark:text-white"
+            />
+            <Button type="button" variant="outline" size="xs" onClick={handleAddCategory}>
+              Add
+            </Button>
+          </div>
+        </div>
+
+        {/* Approved Retailers */}
+        <div className="p-4 rounded-xl bg-neutral-50 dark:bg-[#141619] border border-neutral-200/80 dark:border-neutral-800 flex flex-col gap-2.5">
+          <label className="text-xs font-semibold text-neutral-800 dark:text-neutral-200">
+            Approved Retailers
+          </label>
+          <div className="flex flex-wrap gap-1.5 min-h-[40px]">
+            {allowedRetailers.map((ret) => (
+              <span
+                key={ret}
+                className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-xs font-medium bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 text-neutral-800 dark:text-neutral-200"
+              >
+                {ret}
+                <button
+                  type="button"
+                  onClick={() => handleRemoveRetailer(ret)}
+                  className="text-neutral-400 hover:text-neutral-700 dark:hover:text-white"
+                >
+                  <X size={12} />
+                </button>
+              </span>
+            ))}
+          </div>
+          <div className="flex items-center gap-2 mt-1">
+            <input
+              type="text"
+              placeholder="Add domain (e.g. amazon.com)"
+              value={newRetailerInput}
+              onChange={(e) => setNewRetailerInput(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddRetailer())}
+              className="flex-1 text-xs rounded-lg bg-white dark:bg-[#1C1F24] border border-neutral-200 dark:border-neutral-700/80 px-3 py-1.5 outline-hidden text-neutral-900 dark:text-white"
+            />
+            <Button type="button" variant="outline" size="xs" onClick={handleAddRetailer}>
+              Add
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      {/* Blocked Categories */}
+      <div className="p-4 rounded-xl bg-rose-50/40 dark:bg-rose-950/10 border border-rose-200/60 dark:border-rose-900/30 flex flex-col gap-2.5">
+        <label className="text-xs font-semibold text-rose-800 dark:text-rose-300">
+          Strictly Blocked Categories
         </label>
-        <div className="flex flex-wrap gap-2 mb-2">
-          {allowedCategories.map((cat) => (
+        <div className="flex flex-wrap gap-1.5 min-h-[36px]">
+          {blockedCategories.map((cat) => (
             <span
               key={cat}
-              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-neutral-100 dark:bg-neutral-800 text-neutral-800 dark:text-neutral-200 border border-neutral-200 dark:border-neutral-700"
+              className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-xs font-medium bg-white dark:bg-neutral-900 border border-rose-200 dark:border-rose-800 text-rose-700 dark:text-rose-400"
             >
               {cat}
               <button
                 type="button"
-                onClick={() => handleRemoveCategory(cat)}
-                className="text-neutral-400 hover:text-neutral-700 dark:hover:text-white"
-              >
-                <X size={12} />
-              </button>
-            </span>
-          ))}
-        </div>
-        <div className="flex gap-2">
-          <Input
-            placeholder="Add category (e.g. Lighting, Electronics)"
-            value={newCatInput}
-            onChange={(e) => setNewCatInput(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                e.preventDefault()
-                handleAddCategory()
-              }
-            }}
-          />
-          <Button type="button" variant="outline" size="sm" onClick={handleAddCategory}>
-            <Plus size={14} /> Add
-          </Button>
-        </div>
-      </div>
-
-      {/* Allowed Retailers Tag Editor */}
-      <div className="flex flex-col gap-2">
-        <label className="text-xs font-semibold tracking-wide uppercase text-neutral-600 dark:text-neutral-400">
-          Approved Retailer Domains
-        </label>
-        <div className="flex flex-wrap gap-2 mb-2">
-          {allowedRetailers.map((ret) => (
-            <span
-              key={ret}
-              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-neutral-100 dark:bg-neutral-800 text-neutral-800 dark:text-neutral-200 border border-neutral-200 dark:border-neutral-700"
-            >
-              {ret}
-              <button
-                type="button"
-                onClick={() => handleRemoveRetailer(ret)}
-                className="text-neutral-400 hover:text-neutral-700 dark:hover:text-white"
-              >
-                <X size={12} />
-              </button>
-            </span>
-          ))}
-        </div>
-        <div className="flex gap-2">
-          <Input
-            placeholder="Add retailer domain (e.g. target.com, bestbuy.com)"
-            value={newRetailerInput}
-            onChange={(e) => setNewRetailerInput(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                e.preventDefault()
-                handleAddRetailer()
-              }
-            }}
-          />
-          <Button type="button" variant="outline" size="sm" onClick={handleAddRetailer}>
-            <Plus size={14} /> Add
-          </Button>
-        </div>
-      </div>
-
-      {/* Blocked Categories Tag Editor */}
-      <div className="flex flex-col gap-2">
-        <label className="text-xs font-semibold tracking-wide uppercase text-neutral-600 dark:text-neutral-400">
-          Strictly Blocked Categories
-        </label>
-        <div className="flex flex-wrap gap-2 mb-2">
-          {blockedCategories.map((cat) => (
-            <span
-              key={cat}
-              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-rose-500/10 text-rose-700 dark:text-rose-400 border border-rose-500/20"
-            >
-              ✕ {cat}
-              <button
-                type="button"
                 onClick={() => handleRemoveBlocked(cat)}
-                className="text-rose-400 hover:text-rose-700 dark:hover:text-rose-300"
+                className="text-rose-400 hover:text-rose-700"
               >
                 <X size={12} />
               </button>
             </span>
           ))}
         </div>
-        <div className="flex gap-2">
-          <Input
-            placeholder="Add blocked category (e.g. Alcohol, Tobacco)"
+        <div className="flex items-center gap-2 mt-1">
+          <input
+            type="text"
+            placeholder="Add blocked category (e.g. Alcohol)"
             value={newBlockedInput}
             onChange={(e) => setNewBlockedInput(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                e.preventDefault()
-                handleAddBlocked()
-              }
-            }}
+            onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddBlocked())}
+            className="flex-1 text-xs rounded-lg bg-white dark:bg-[#1C1F24] border border-rose-200 dark:border-rose-900/50 px-3 py-1.5 outline-hidden text-neutral-900 dark:text-white"
           />
-          <Button type="button" variant="outline" size="sm" onClick={handleAddBlocked}>
-            <Plus size={14} /> Add
+          <Button type="button" variant="outline" size="xs" onClick={handleAddBlocked}>
+            Block
           </Button>
         </div>
       </div>
 
-      <div className="flex items-center justify-end gap-3 pt-4 border-t border-neutral-100 dark:border-neutral-800">
-        <Button type="button" variant="ghost" onClick={onSuccess}>
-          Cancel
-        </Button>
-        <Button type="submit" variant="primary" loading={isSubmitting} icon={<Save size={16} />}>
-          Save Mandate Changes
+      {/* Submit Button */}
+      <div className="flex items-center justify-end gap-3 pt-3 border-t border-neutral-100 dark:border-neutral-800">
+        <Button type="submit" variant="primary" size="md" loading={isSubmitting} icon={<Save size={15} />}>
+          Save New Mandate Version
         </Button>
       </div>
     </form>

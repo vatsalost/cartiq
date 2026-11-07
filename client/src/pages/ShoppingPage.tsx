@@ -1,6 +1,6 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import { Sparkles, ArrowRight, RefreshCw, AlertCircle } from 'lucide-react'
+import { Sparkles, ArrowRight, RefreshCw, AlertCircle, ShieldCheck } from 'lucide-react'
 import { ShoppingForm } from '../components/concierge/ShoppingForm'
 import { SseProgressTracker } from '../components/concierge/SseProgressTracker'
 import { ProductCard } from '../components/discovery/ProductCard'
@@ -27,6 +27,13 @@ export const ShoppingPage: React.FC = () => {
   const [isCompareOpen, setIsCompareOpen] = useState(false)
   const [hasSearched, setHasSearched] = useState(false)
 
+  // Auto-trigger search if query param is provided
+  useEffect(() => {
+    if (queryParam && !hasSearched) {
+      handleStartShopping({ prompt: queryParam })
+    }
+  }, [queryParam])
+
   const handleStartShopping = async (input: ShoppingRequestInput) => {
     setIsLoading(true)
     setHasSearched(true)
@@ -35,7 +42,6 @@ export const ShoppingPage: React.FC = () => {
       setActiveRequestId(req.id)
     } catch (e) {
       console.error('Request creation error:', e)
-      // Use fallback request ID to demonstrate SSE progress
       setActiveRequestId(`req_${Date.now()}`)
     } finally {
       setIsLoading(false)
@@ -43,7 +49,6 @@ export const ShoppingPage: React.FC = () => {
   }
 
   const handleStreamComplete = async (proposalId?: string) => {
-    // When SSE completes, load candidate comparison results or navigate to proposal
     try {
       if (activeRequestId) {
         const cands = await api.getCandidates(activeRequestId)
@@ -56,10 +61,9 @@ export const ShoppingPage: React.FC = () => {
     }
 
     if (proposalId) {
-      // Small pause so user sees the "Completed" state before transitioning
       setTimeout(() => {
         navigate('/proposals')
-      }, 1200)
+      }, 1000)
     }
   }
 
@@ -68,11 +72,25 @@ export const ShoppingPage: React.FC = () => {
   }
 
   return (
-    <div className="flex flex-col gap-8">
-      {/* Search Input Box */}
-      <ShoppingForm onSubmit={handleStartShopping} isLoading={isLoading} />
+    <div className="flex flex-col gap-6">
+      {/* Top Heading */}
+      <div>
+        <h2 className="text-xl font-bold text-neutral-900 dark:text-white tracking-tight">
+          AI Shopping Concierge
+        </h2>
+        <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">
+          Autonomous product search, multi-merchant comparison, and mandate verification
+        </p>
+      </div>
 
-      {/* SSE Progress Timeline when request is active */}
+      {/* Main Conversational Input Form */}
+      <ShoppingForm
+        onSubmit={handleStartShopping}
+        isLoading={isLoading}
+        initialPrompt={queryParam || ''}
+      />
+
+      {/* Live SSE Agent Pipeline Tracker */}
       {activeRequestId && (
         <SseProgressTracker
           requestId={activeRequestId}
@@ -84,30 +102,33 @@ export const ShoppingPage: React.FC = () => {
         />
       )}
 
-      {/* Discovered Candidates Section */}
+      {/* Discovered Matching Candidates */}
       {(candidates.length > 0 || hasSearched) && (
-        <div className="flex flex-col gap-4">
-          <div className="flex items-center justify-between">
+        <div className="flex flex-col gap-4 animate-in fade-in duration-200">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 border-b border-neutral-200/80 dark:border-neutral-800">
             <div>
-              <h3 className="text-lg font-bold text-neutral-900 dark:text-white tracking-tight">
-                Matching Products
+              <h3 className="text-base font-semibold text-neutral-900 dark:text-white flex items-center gap-2">
+                <span>Matching Verified Products</span>
+                <span className="text-xs font-normal text-neutral-400">
+                  ({candidates.length || mockCandidateProducts.length} options found)
+                </span>
               </h3>
               <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">
-                Items matched and verified against your active spending mandate
+                Ranked by AI relevance score and verified against your mandate limits
               </p>
             </div>
 
             <Button
-              variant="primary"
-              size="sm"
+              variant="outline"
+              size="xs"
               onClick={() => navigate('/proposals')}
-              icon={<ArrowRight size={14} />}
+              icon={<ArrowRight size={12} />}
             >
-              View Proposal
+              Go to Purchase Proposal
             </Button>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
             {(candidates.length > 0 ? candidates : mockCandidateProducts).map((product) => (
               <ProductCard
                 key={product.id}
@@ -123,7 +144,7 @@ export const ShoppingPage: React.FC = () => {
         </div>
       )}
 
-      {/* Comparison Modal */}
+      {/* Multi-Retailer Offer Comparison Modal */}
       <OfferComparisonModal
         product={selectedProductForComparison}
         isOpen={isCompareOpen}

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { FileCheck2, ArrowLeft, AlertCircle, ShoppingBag } from 'lucide-react'
+import { ArrowLeft, AlertCircle, ShieldCheck } from 'lucide-react'
 import { ProposalSummaryCard } from '../components/proposal/ProposalSummaryCard'
 import { VerificationChecksPanel } from '../components/proposal/VerificationChecksPanel'
 import { PayPalCheckoutModal } from '../components/checkout/PayPalCheckoutModal'
@@ -24,7 +24,7 @@ export const ProposalsPage: React.FC = () => {
         const prop = await api.getProposal('prop_98765432-1111-2222-3333-444455556666')
         if (prop) setProposal(prop)
       } catch {
-        // Fallback to mock proposal already in state
+        // Fallback to mock proposal
       }
     }
     loadActiveProposal()
@@ -52,31 +52,39 @@ export const ProposalsPage: React.FC = () => {
   return (
     <div className="flex flex-col gap-6">
       {/* Top Navigation Row */}
-      <div className="flex items-center justify-between">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => navigate('/shopping')}
-          icon={<ArrowLeft size={16} />}
-        >
-          Back to Shopping
-        </Button>
-        <span className="text-xs text-neutral-500 font-mono">
-          Mandate Snapshot: v{proposal.mandate_version}
-        </span>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+          <h2 className="text-xl font-bold text-neutral-900 dark:text-white tracking-tight">
+            Purchase Proposals
+          </h2>
+          <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">
+            Review AI recommended products with deterministic mandate verification and checkout
+          </p>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => navigate('/shopping')}
+            icon={<ArrowLeft size={14} />}
+          >
+            Back to Shopping
+          </Button>
+        </div>
       </div>
 
       {rejectSuccess && (
-        <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-800 dark:text-amber-300 text-sm font-medium flex items-center gap-2">
-          <AlertCircle size={18} />
+        <div className="p-3.5 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 dark:bg-amber-950/20 dark:border-amber-800/40 dark:text-amber-300 text-xs font-medium flex items-center gap-2 animate-in fade-in">
+          <AlertCircle size={16} className="shrink-0" />
           <span>
-            Proposal rejected. In-flight budget reservation of ${proposal.total_amount} has been released.
+            Proposal rejected. In-flight budget reservation of ${proposal.total_amount} {proposal.currency} has been released.
           </span>
         </div>
       )}
 
-      {/* Main Review Card & Guardrail Checks */}
-      <div className="flex flex-col gap-6">
+      {/* Main Review Card & 8 Guardrail Checks */}
+      <div className="flex flex-col gap-5">
         <ProposalSummaryCard
           proposal={proposal}
           onProceedToCheckout={() => setIsCheckoutOpen(true)}

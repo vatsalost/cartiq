@@ -3,8 +3,24 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @layer base {
+  :root {
+    --color-primary-green: #95EB68;
+    --color-charcoal: #17191C;
+    --color-bg-light: #F5F6F3;
+    --color-bg-dark: #0F1012;
+    --color-card-light: #FFFFFF;
+    --color-card-dark: #17191C;
+    --color-border-light: #E5E7EB;
+    --color-border-dark: #262930;
+    --color-lavender: #AAB5F8;
+  }
+
   * {
     box-sizing: border-box;
+  }
+
+  html {
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
   }
 
   body {
@@ -12,5 +28,29 @@
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    background-color: #F5F6F3;
+    color: #17191C;
   }
+
+  .dark body,
+  body.dark {
+    background-color: #0F1012;
+    color: #F3F4F6;
+  }
+}
+
+/* Custom subtle scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(150, 150, 150, 0.25);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(150, 150, 150, 0.4);
 }

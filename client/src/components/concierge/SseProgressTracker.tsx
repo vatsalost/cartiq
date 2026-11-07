@@ -1,14 +1,13 @@
 import React, { useEffect, useState } from 'react'
 import {
   Brain,
-  Shield,
+  ShieldCheck,
   Search,
   Scale,
   RefreshCw,
   CheckCircle2,
   FileCheck2,
-  AlertTriangle,
-  XCircle,
+  X,
   ArrowRight,
 } from 'lucide-react'
 import { Button } from '../common/Button'
@@ -36,56 +35,56 @@ export const SseProgressTracker: React.FC<SseProgressTrackerProps> = ({
   const [steps, setSteps] = useState<StepItem[]>([
     {
       id: 'understanding',
-      label: 'Understanding Request',
-      description: 'Parsing product criteria and constraints',
+      label: 'Parsing Intent',
+      description: 'Analyzing product criteria',
       icon: Brain,
       status: 'in_progress',
     },
     {
       id: 'checking_mandate',
       label: 'Checking Mandate',
-      description: 'Verifying budget headroom and allowed categories',
-      icon: Shield,
+      description: 'Verifying budget & limits',
+      icon: ShieldCheck,
       status: 'pending',
     },
     {
       id: 'searching_channel3',
-      label: 'Searching Retailers',
-      description: 'Finding matching products across retailer catalogs',
+      label: 'Catalog Search',
+      description: 'Querying merchant feeds',
       icon: Search,
       status: 'pending',
     },
     {
       id: 'comparing_offers',
-      label: 'Comparing Offers',
-      description: 'Evaluating prices, availability, and shipping',
+      label: 'Offer Comparison',
+      description: 'Evaluating prices & shipping',
       icon: Scale,
       status: 'pending',
     },
     {
       id: 'refreshing_details',
-      label: 'Verifying Stock & Price',
-      description: 'Confirming live merchant inventory and pricing',
+      label: 'Live Verification',
+      description: 'Validating real-time stock',
       icon: RefreshCw,
       status: 'pending',
     },
     {
       id: 'guardrails',
-      label: 'Policy Verification',
-      description: 'Validating mandate guardrails and limits',
+      label: 'Guardrail Audit',
+      description: 'Enforcing 8 policy checks',
       icon: CheckCircle2,
       status: 'pending',
     },
     {
       id: 'proposal_ready',
-      label: 'Preparing Proposal',
-      description: 'Finalizing purchase details for your approval',
+      label: 'Proposal Ready',
+      description: 'Authoritative proposal locked',
       icon: FileCheck2,
       status: 'pending',
     },
   ])
 
-  const [currentMessage, setCurrentMessage] = useState('Starting search...')
+  const [currentMessage, setCurrentMessage] = useState('Initiating autonomous purchasing agent...')
   const [isCompleted, setIsCompleted] = useState(false)
   const [hasError, setHasError] = useState<string | null>(null)
   const [activeProposalId, setActiveProposalId] = useState<string | null>(null)
@@ -102,7 +101,7 @@ export const SseProgressTracker: React.FC<SseProgressTrackerProps> = ({
       eventSource = new EventSource(streamUrl)
 
       eventSource.onopen = () => {
-        setCurrentMessage('Connected to live progress feed.')
+        setCurrentMessage('Connected to live agent pipeline.')
       }
 
       eventSource.onmessage = (event) => {
@@ -132,7 +131,7 @@ export const SseProgressTracker: React.FC<SseProgressTrackerProps> = ({
           }
 
           if (data.status === 'failed' || data.error) {
-            setHasError(data.error || 'Unable to find an eligible product matching all criteria.')
+            setHasError(data.error || 'Unable to find an eligible product matching criteria.')
             eventSource?.close()
           }
         } catch {
@@ -177,9 +176,9 @@ export const SseProgressTracker: React.FC<SseProgressTrackerProps> = ({
           setSteps((prev) => prev.map((s) => ({ ...s, status: 'completed' })))
           setIsCompleted(true)
           setActiveProposalId('prop_98765432-1111-2222-3333-444455556666')
-          setCurrentMessage('Proposal ready for review.')
+          setCurrentMessage('Autonomous proposal synthesized and verified.')
         }
-      }, 650)
+      }, 600)
     }
 
     return () => {
@@ -189,94 +188,106 @@ export const SseProgressTracker: React.FC<SseProgressTrackerProps> = ({
   }, [requestId])
 
   return (
-    <div className="w-full rounded-2xl p-5 sm:p-6 bg-white dark:bg-[#16181D] border border-neutral-200 dark:border-neutral-800 shadow-xs flex flex-col gap-4">
+    <div className="w-full rounded-xl p-5 bg-white dark:bg-[#17191C] border border-neutral-200/90 dark:border-neutral-800 shadow-[0_1px_3px_rgba(0,0,0,0.03)] flex flex-col gap-4 animate-in fade-in duration-200">
       {/* Top Status Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-neutral-100 dark:border-neutral-800">
         <div className="flex items-center gap-2.5">
           <span
             className={`w-2.5 h-2.5 rounded-full ${
-              isCompleted ? 'bg-emerald-500' : hasError ? 'bg-rose-500' : 'bg-[#98EC6A] dark:bg-[#2CE5B5] animate-pulse'
+              isCompleted
+                ? 'bg-emerald-500'
+                : hasError
+                ? 'bg-rose-500'
+                : 'bg-[#95EB68] animate-pulse'
             }`}
           />
           <div>
-            <h3 className="text-base font-bold text-neutral-900 dark:text-white">
-              {isCompleted ? 'Proposal Ready' : hasError ? 'Search Stopped' : 'Searching Products'}
-            </h3>
-            <p className="text-xs text-neutral-500 dark:text-neutral-400">
+            <div className="text-xs font-semibold text-neutral-900 dark:text-white flex items-center gap-1.5">
+              <span>Agent Execution Pipeline</span>
+              <span className="text-[11px] font-mono text-neutral-400">({progressPct}%)</span>
+            </div>
+            <p className="text-[11px] text-neutral-500 dark:text-neutral-400 font-mono mt-0.5">
               {currentMessage}
             </p>
           </div>
         </div>
 
         <div className="flex items-center gap-2">
-          {!isCompleted && !hasError && (
-            <Button variant="outline" size="sm" onClick={onCancel} icon={<XCircle size={13} />}>
-              Cancel
-            </Button>
-          )}
-          {isCompleted && (
+          {isCompleted ? (
             <Button
               variant="primary"
-              size="sm"
+              size="xs"
               onClick={() => onComplete(activeProposalId || undefined)}
-              icon={<ArrowRight size={14} />}
+              icon={<ArrowRight size={12} />}
             >
               Review Proposal
             </Button>
+          ) : (
+            <button
+              onClick={onCancel}
+              className="text-xs text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200 flex items-center gap-1 cursor-pointer"
+            >
+              <X size={13} />
+              <span>Cancel</span>
+            </button>
           )}
         </div>
       </div>
 
       {/* Progress Bar */}
-      <div className="w-full bg-neutral-100 dark:bg-neutral-800 h-2 rounded-full overflow-hidden">
+      <div className="w-full h-1 bg-neutral-100 dark:bg-neutral-800 rounded-full overflow-hidden">
         <div
-          className="bg-[#98EC6A] dark:bg-[#2CE5B5] h-full transition-all duration-300"
-          style={{ width: `${isCompleted ? 100 : Math.max(10, progressPct)}%` }}
+          className={`h-full transition-all duration-300 ${
+            isCompleted
+              ? 'bg-emerald-500'
+              : hasError
+              ? 'bg-rose-500'
+              : 'bg-[#95EB68]'
+          }`}
+          style={{ width: `${progressPct}%` }}
         />
       </div>
 
-      {/* Compact Steps Grid */}
+      {/* Step Stepper */}
       <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2 pt-1">
-        {steps.map((step, idx) => {
+        {steps.map((step) => {
+          const Icon = step.icon
           const isDone = step.status === 'completed'
           const isActive = step.status === 'in_progress'
 
           return (
             <div
               key={step.id}
-              className={`p-2.5 rounded-xl border text-center flex flex-col items-center gap-1 transition-colors ${
+              className={`p-2.5 rounded-lg border text-left transition-all ${
                 isDone
-                  ? 'bg-emerald-500/5 dark:bg-emerald-950/20 border-emerald-500/20'
+                  ? 'bg-emerald-50/50 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-800/40 text-emerald-900 dark:text-emerald-300'
                   : isActive
-                  ? 'bg-[#98EC6A]/10 dark:bg-[#2CE5B5]/10 border-[#98EC6A] dark:border-[#2CE5B5]'
-                  : 'bg-neutral-50 dark:bg-neutral-900/40 border-neutral-200/50 dark:border-neutral-800 opacity-50'
+                  ? 'bg-neutral-50 dark:bg-neutral-800/80 border-[#95EB68] dark:border-[#95EB68] text-neutral-900 dark:text-white shadow-xs'
+                  : 'bg-transparent border-neutral-100 dark:border-neutral-800/80 text-neutral-400'
               }`}
             >
-              <div
-                className={`w-6 h-6 rounded-full flex items-center justify-center text-xs ${
-                  isDone
-                    ? 'bg-emerald-500 text-white'
-                    : isActive
-                    ? 'bg-[#98EC6A] dark:bg-[#2CE5B5] text-[#0A2610] font-bold'
-                    : 'bg-neutral-200 dark:bg-neutral-800 text-neutral-500'
-                }`}
-              >
-                {isDone ? <CheckCircle2 size={13} /> : idx + 1}
+              <div className="flex items-center gap-1.5 mb-1">
+                <Icon
+                  size={13}
+                  className={
+                    isDone
+                      ? 'text-emerald-600 dark:text-emerald-400'
+                      : isActive
+                      ? 'text-[#95EB68] animate-spin'
+                      : 'text-neutral-400'
+                  }
+                />
+                <span className="text-[10px] font-semibold uppercase tracking-wider">
+                  {step.label}
+                </span>
               </div>
-              <span className="text-[11px] font-semibold text-neutral-800 dark:text-neutral-200 truncate max-w-full">
-                {step.label}
-              </span>
+              <p className="text-[10px] leading-tight text-neutral-500 dark:text-neutral-400 truncate">
+                {step.description}
+              </p>
             </div>
           )
         })}
       </div>
-
-      {hasError && (
-        <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-700 dark:text-rose-400 text-xs flex items-center gap-2">
-          <AlertTriangle size={15} />
-          <span>{hasError}</span>
-        </div>
-      )}
     </div>
   )
 }

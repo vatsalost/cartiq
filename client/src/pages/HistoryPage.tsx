@@ -38,11 +38,11 @@ export const HistoryPage: React.FC = () => {
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h2 className="text-lg md:text-xl font-bold text-neutral-900 dark:text-white tracking-tight">
-          History & Audit Trail
+        <h2 className="text-xl font-bold text-neutral-900 dark:text-white tracking-tight">
+          Activity & Audit Trail
         </h2>
         <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">
-          Review previous requests, product comparisons, completed orders, and audit logs
+          Immutable event lineage, shopping queries, merchant comparisons, and capture audit proofs
         </p>
       </div>
 

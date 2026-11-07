@@ -1,26 +1,35 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Outlet, useLocation } from 'react-router-dom'
+import { Sidebar } from './Sidebar'
 import { Header } from './Header'
 
 export const AppLayout: React.FC = () => {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const location = useLocation()
 
   const getPageTitle = (pathname: string): string => {
-    if (pathname === '/') return 'Dashboard'
-    if (pathname.startsWith('/shopping')) return 'Shopping'
+    if (pathname === '/') return 'Overview'
+    if (pathname.startsWith('/shopping')) return 'AI Shopping Assistant'
     if (pathname.startsWith('/mandate')) return 'Spending Mandate'
     if (pathname.startsWith('/proposals')) return 'Purchase Proposals'
-    if (pathname.startsWith('/orders')) return 'Orders & Receipts'
-    if (pathname.startsWith('/history')) return 'History & Audit'
+    if (pathname.startsWith('/orders')) return 'Orders & Transactions'
+    if (pathname.startsWith('/history')) return 'Activity & Audit Trail'
     if (pathname.startsWith('/settings')) return 'Settings'
     return 'Carti'
   }
 
   return (
-    <div className="min-h-screen w-full bg-[#EAECEF] dark:bg-[#0B0C0E] transition-colors duration-200 py-3 md:py-6 px-3 sm:px-4 md:px-8 flex flex-col justify-between pb-12">
-      <div className="w-full max-w-[1400px] mx-auto rounded-3xl bg-white dark:bg-[#14161B] border border-neutral-200/90 dark:border-neutral-800 shadow-sm p-5 md:p-8 transition-colors">
-        <Header pageTitle={getPageTitle(location.pathname)} />
-        <main className="pt-6">
+    <div className="min-h-screen w-full bg-[#F5F6F3] dark:bg-[#0F1012] flex transition-colors duration-150">
+      {/* Fixed Left Sidebar */}
+      <Sidebar isOpen={mobileMenuOpen} onClose={() => setMobileMenuOpen(false)} />
+
+      {/* Main Content Area */}
+      <div className="flex-1 lg:pl-64 flex flex-col min-w-0">
+        <Header
+          pageTitle={getPageTitle(location.pathname)}
+          onOpenMobileMenu={() => setMobileMenuOpen(true)}
+        />
+        <main className="flex-1 p-4 sm:p-6 md:p-8 max-w-7xl w-full mx-auto">
           <Outlet />
         </main>
       </div>

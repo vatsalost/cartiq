@@ -1,67 +1,61 @@
 import React from 'react'
-import { ArrowUpRight, ArrowDownRight, ArrowRightLeft } from 'lucide-react'
+import { Badge } from '../common/Badge'
 
 export interface StatCardProps {
   title: string
   amount: string
   subtitle?: string
-  trend?: string
-  variant: 'lime' | 'lavender' | 'dark'
-  iconType?: 'up' | 'down' | 'neutral'
+  badge?: {
+    text: string
+    variant?: 'success' | 'warning' | 'lime' | 'lavender' | 'neutral'
+  }
+  icon?: React.ReactNode
+  variant?: 'default' | 'accent'
 }
 
 export const StatCard: React.FC<StatCardProps> = ({
   title,
   amount,
   subtitle,
-  variant,
-  iconType = 'up',
+  badge,
+  icon,
+  variant = 'default',
 }) => {
-  const variantStyles = {
-    lime: {
-      card: 'bg-[#98EC6A] dark:bg-[#143228] text-[#0A2610] dark:text-[#2CE5B5] border border-black/10 dark:border-[#1E574F]',
-      iconBox: 'text-[#0A2610] dark:text-[#2CE5B5] bg-black/5 dark:bg-white/5',
-      label: 'text-[#0A2610]/70 dark:text-[#2CE5B5]/70',
-    },
-    lavender: {
-      card: 'bg-[#AAB5F8] dark:bg-[#201D30] text-[#13194B] dark:text-[#D5DCFF] border border-black/10 dark:border-[#383354]',
-      iconBox: 'text-[#13194B] dark:text-[#D5DCFF] bg-black/5 dark:bg-white/5',
-      label: 'text-[#13194B]/70 dark:text-[#D5DCFF]/70',
-    },
-    dark: {
-      card: 'bg-[#121316] text-white border border-neutral-800',
-      iconBox: 'text-neutral-400 bg-white/5',
-      label: 'text-neutral-400',
-    },
-  }[variant]
-
-  const Icon = {
-    up: ArrowUpRight,
-    down: ArrowDownRight,
-    neutral: ArrowRightLeft,
-  }[iconType]
-
   return (
     <div
-      className={`rounded-2xl p-4 sm:p-5 flex flex-col justify-between transition-colors shadow-xs ${variantStyles.card}`}
+      className={`rounded-xl p-4 sm:p-5 flex flex-col justify-between transition-all border ${
+        variant === 'accent'
+          ? 'bg-gradient-to-b from-[#ECFADF]/60 to-white dark:from-[#132817]/40 dark:to-[#17191C] border-[#95EB68]/50 dark:border-[#95EB68]/30 shadow-xs'
+          : 'bg-white dark:bg-[#17191C] border-neutral-200/90 dark:border-neutral-800 shadow-[0_1px_3px_rgba(0,0,0,0.03)]'
+      }`}
     >
-      <div className="flex items-center justify-between">
-        <span className={`text-[11px] font-bold uppercase tracking-wider ${variantStyles.label}`}>
+      <div className="flex items-center justify-between gap-2">
+        <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">
           {title}
         </span>
-        <div className={`p-1 rounded-full ${variantStyles.iconBox}`}>
-          <Icon size={16} />
+        {icon && (
+          <div className="text-neutral-400 dark:text-neutral-500">
+            {icon}
+          </div>
+        )}
+      </div>
+
+      <div className="my-2.5">
+        <div className="text-2xl sm:text-[26px] font-bold tracking-tight text-neutral-900 dark:text-white">
+          {amount}
         </div>
       </div>
 
-      <div className="mt-3">
-        <div className="text-2xl sm:text-3xl font-extrabold tracking-tight">
-          {amount}
-        </div>
+      <div className="flex items-center justify-between gap-2 pt-1 border-t border-neutral-100 dark:border-neutral-800/60 text-xs">
         {subtitle && (
-          <p className={`text-xs mt-0.5 font-medium ${variantStyles.label}`}>
+          <span className="text-[11px] text-neutral-500 dark:text-neutral-400 truncate">
             {subtitle}
-          </p>
+          </span>
+        )}
+        {badge && (
+          <Badge variant={badge.variant || 'neutral'} size="xs">
+            {badge.text}
+          </Badge>
         )}
       </div>
     </div>

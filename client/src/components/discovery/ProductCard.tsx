@@ -1,5 +1,5 @@
 import React from 'react'
-import { Check, AlertCircle } from 'lucide-react'
+import { Check, AlertTriangle, Sparkles, ArrowRight } from 'lucide-react'
 import { CandidateProduct, CandidateOffer } from '../../api/types'
 import { Button } from '../common/Button'
 import { Badge } from '../common/Badge'
@@ -16,64 +16,76 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   onCompare,
 }) => {
   const bestOffer = product.offers.find((o) => o.is_eligible) || product.offers[0]
+  const matchPct = Math.round(parseFloat(product.rank_score) * 100)
 
   return (
-    <div className="rounded-2xl overflow-hidden bg-white dark:bg-[#16181D] border border-neutral-200 dark:border-neutral-800 shadow-xs flex flex-col justify-between transition-colors">
+    <div className="rounded-xl overflow-hidden bg-white dark:bg-[#17191C] border border-neutral-200/90 dark:border-neutral-800 shadow-[0_1px_3px_rgba(0,0,0,0.03)] flex flex-col justify-between transition-all hover:border-neutral-300 dark:hover:border-neutral-700">
       <div>
-        {/* Product Image & Ranking Header */}
-        <div className="relative w-full h-44 bg-neutral-100 dark:bg-neutral-800 overflow-hidden">
+        {/* Product Image & Badges */}
+        <div className="relative w-full h-48 bg-neutral-100 dark:bg-neutral-800 overflow-hidden">
           {product.image_url ? (
             <img
               src={product.image_url}
               alt={product.title}
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center text-neutral-400 text-xs">
-              No Image Available
+              No Product Image
             </div>
           )}
-          <div className="absolute top-2.5 left-2.5">
-            <Badge variant="lime" size="sm">
-              Match: {Math.round(parseFloat(product.rank_score) * 100)}%
+
+          <div className="absolute top-2.5 left-2.5 flex items-center gap-1.5">
+            <Badge variant="lime" size="xs">
+              {matchPct}% Match
+            </Badge>
+            <Badge variant="neutral" size="xs">
+              {product.category || 'General'}
             </Badge>
           </div>
+
           {product.brand && (
-            <div className="absolute top-2.5 right-2.5 px-2 py-0.5 rounded-full bg-black/60 backdrop-blur-xs text-white text-[11px] font-medium">
+            <div className="absolute top-2.5 right-2.5 px-2 py-0.5 rounded-md bg-black/70 backdrop-blur-xs text-white text-[10px] font-medium tracking-wide">
               {product.brand}
             </div>
           )}
         </div>
 
-        {/* Content Details */}
+        {/* Product Information */}
         <div className="p-4 sm:p-5 flex flex-col gap-3">
           <div>
-            <h4 className="text-sm font-bold text-neutral-900 dark:text-white line-clamp-2 leading-snug">
+            <h4 className="text-sm font-semibold text-neutral-900 dark:text-white line-clamp-2 leading-snug">
               {product.title}
             </h4>
-            <div className="text-xs text-neutral-500 dark:text-neutral-400 mt-1">
-              Category: {product.category || 'General'}
+          </div>
+
+          {/* AI Selection Rationale */}
+          <div className="p-2.5 rounded-lg bg-[#F5F6F3] dark:bg-[#131417] border border-neutral-200/70 dark:border-neutral-800/80 text-xs text-neutral-600 dark:text-neutral-400 leading-relaxed flex items-start gap-2">
+            <Sparkles size={14} className="text-[#95EB68] shrink-0 mt-0.5" />
+            <span className="line-clamp-2">{product.rank_reason}</span>
+          </div>
+
+          {/* Retailer Offers Snapshot */}
+          <div className="flex flex-col gap-1.5 mt-1">
+            <div className="flex items-center justify-between text-[11px] font-medium text-neutral-400">
+              <span>Retailer Comparison ({product.offers.length} stores)</span>
+              <button
+                type="button"
+                onClick={() => onCompare(product)}
+                className="text-neutral-600 dark:text-neutral-300 hover:underline cursor-pointer"
+              >
+                Compare matrix
+              </button>
             </div>
-          </div>
 
-          {/* Ranking Explanation */}
-          <div className="p-2.5 rounded-xl bg-neutral-50 dark:bg-[#1A1D23] border border-neutral-200/70 dark:border-neutral-800 text-xs text-neutral-600 dark:text-neutral-400 leading-relaxed">
-            {product.rank_reason}
-          </div>
-
-          {/* Retailer Offers */}
-          <div className="flex flex-col gap-1 mt-1">
-            <span className="text-[11px] font-semibold uppercase tracking-wider text-neutral-400">
-              Retailer Offers ({product.offers.length})
-            </span>
-            <div className="flex flex-col gap-1.5">
-              {product.offers.map((offer) => (
+            <div className="flex flex-col gap-1">
+              {product.offers.slice(0, 2).map((offer) => (
                 <div
                   key={offer.id}
-                  className={`flex items-center justify-between p-2 px-2.5 rounded-lg border text-xs transition-colors ${
+                  className={`flex items-center justify-between p-2 rounded-lg border text-xs transition-colors ${
                     offer.is_eligible
-                      ? 'bg-neutral-50 dark:bg-neutral-800/40 border-neutral-200 dark:border-neutral-700/80'
-                      : 'bg-neutral-100/60 dark:bg-neutral-900/40 border-neutral-200 dark:border-neutral-800 text-neutral-400'
+                      ? 'bg-neutral-50 dark:bg-neutral-800/40 border-neutral-200/80 dark:border-neutral-700/80'
+                      : 'bg-neutral-50/40 dark:bg-neutral-900/40 border-neutral-200/50 dark:border-neutral-800/60 text-neutral-400'
                   }`}
                 >
                   <div className="flex items-center gap-1.5">
@@ -91,7 +103,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
 
                   <div className="flex items-center gap-2">
                     <span
-                      className={`font-bold ${
+                      className={`font-semibold ${
                         offer.is_eligible
                           ? 'text-neutral-900 dark:text-white'
                           : 'text-neutral-400 line-through'
@@ -99,9 +111,13 @@ export const ProductCard: React.FC<ProductCardProps> = ({
                     >
                       ${offer.price_amount}
                     </span>
-                    {!offer.is_eligible && (
-                      <span title={offer.ineligibility_reason || 'Disallowed'}>
-                        <AlertCircle size={12} className="text-amber-500" />
+                    {offer.is_eligible ? (
+                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400">
+                        Eligible
+                      </span>
+                    ) : (
+                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-50 text-amber-700 dark:bg-amber-500/10 dark:text-amber-400 flex items-center gap-0.5">
+                        <AlertTriangle size={9} /> Cap
                       </span>
                     )}
                   </div>
@@ -112,24 +128,28 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         </div>
       </div>
 
-      {/* Card Action Footer */}
-      <div className="p-4 pt-0 sm:p-5 sm:pt-0 flex items-center gap-2">
+      {/* Card Footer Actions */}
+      <div className="p-4 sm:p-5 pt-0 flex items-center gap-2">
         <Button
           variant="outline"
           size="sm"
-          className="w-1/2"
+          className="flex-1"
           onClick={() => onCompare(product)}
         >
-          Compare
+          Compare Offers
         </Button>
-        <Button
-          variant="primary"
-          size="sm"
-          className="w-1/2"
-          onClick={() => onSelectOffer(product, bestOffer)}
-        >
-          Select Offer
-        </Button>
+
+        {bestOffer && (
+          <Button
+            variant="primary"
+            size="sm"
+            className="flex-1"
+            onClick={() => onSelectOffer(product, bestOffer)}
+            icon={<ArrowRight size={13} />}
+          >
+            Review Proposal
+          </Button>
+        )}
       </div>
     </div>
   )

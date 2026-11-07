@@ -5,6 +5,7 @@ interface ModalProps {
   isOpen: boolean
   onClose: () => void
   title?: string
+  description?: string
   children: React.ReactNode
   maxWidth?: 'sm' | 'md' | 'lg' | 'xl'
 }
@@ -13,6 +14,7 @@ export const Modal: React.FC<ModalProps> = ({
   isOpen,
   onClose,
   title,
+  description,
   children,
   maxWidth = 'md',
 }) => {
@@ -40,26 +42,39 @@ export const Modal: React.FC<ModalProps> = ({
   }[maxWidth]
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs transition-opacity animate-fade-in">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs transition-opacity animate-in fade-in duration-200">
       <div
-        className={`w-full ${maxWidthClass} bg-white dark:bg-[#16181D] border border-neutral-200 dark:border-neutral-800 rounded-[28px] shadow-2xl p-6 md:p-8 relative max-h-[90vh] overflow-y-auto`}
+        className={`w-full ${maxWidthClass} bg-white dark:bg-[#17191C] border border-neutral-200 dark:border-neutral-800 rounded-2xl shadow-2xl relative max-h-[90vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-150`}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between pb-4 mb-4 border-b border-neutral-100 dark:border-neutral-800">
-          {title && (
-            <h3 className="text-xl font-bold text-neutral-900 dark:text-white tracking-tight">
-              {title}
-            </h3>
-          )}
-          <button
-            onClick={onClose}
-            className="p-2 text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200 rounded-full hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors ml-auto"
-            aria-label="Close modal"
-          >
-            <X size={20} />
-          </button>
+        {/* Header */}
+        {(title || description) && (
+          <div className="flex items-start justify-between p-5 pb-4 border-b border-neutral-100 dark:border-neutral-800">
+            <div>
+              {title && (
+                <h3 className="text-base md:text-lg font-semibold text-neutral-900 dark:text-white tracking-tight">
+                  {title}
+                </h3>
+              )}
+              {description && (
+                <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">
+                  {description}
+                </p>
+              )}
+            </div>
+            <button
+              onClick={onClose}
+              className="w-7 h-7 rounded-lg flex items-center justify-center text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors cursor-pointer"
+            >
+              <X size={16} />
+            </button>
+          </div>
+        )}
+
+        {/* Content Body */}
+        <div className="p-5 md:p-6 overflow-y-auto max-h-[calc(90vh-80px)]">
+          {children}
         </div>
-        <div>{children}</div>
       </div>
     </div>
   )
