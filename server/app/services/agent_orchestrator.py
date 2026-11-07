@@ -744,4 +744,18 @@ class AgentOrchestrator:
         )
 
 
-agent_orchestrator = AgentOrchestrator()
+from server.app.services.discovery_service import DiscoveryService
+from server.app.services.ranking_service import RankingService
+from server.app.services.guardrail_service import GuardrailEngine
+
+
+def create_default_agent_orchestrator() -> AgentOrchestrator:
+    """Instantiate standard production orchestrator wiring B6, B7, and B8 services."""
+    return AgentOrchestrator(
+        discovery_service=DiscoveryService(),
+        ranking_service=RankingService(),
+        guardrail_engine=GuardrailEngine(),
+    )
+
+
+agent_orchestrator = create_default_agent_orchestrator()

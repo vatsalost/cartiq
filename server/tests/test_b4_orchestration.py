@@ -678,4 +678,3 @@ def test_unauthenticated_request_endpoints_rejected(client):
     res4 = client.post(f"/api/requests/{random_id}/cancel", headers=bad_headers)
     assert res4.status_code == 401
     assert res4.json()["error"]["code"] == CartiErrorCode.AUTHENTICATION_REQUIRED
-

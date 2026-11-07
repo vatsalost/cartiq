@@ -44,6 +44,11 @@ def set_sqlite_pragma(dbapi_connection, connection_record):
     cursor.close()
 
 
+@pytest.fixture
+def anyio_backend():
+    return "asyncio"
+
+
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=test_engine)
 
 from server.app.services.agent_orchestrator import agent_orchestrator

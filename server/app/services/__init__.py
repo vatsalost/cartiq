@@ -9,6 +9,9 @@ from server.app.services.order_service import OrderService
 from server.app.services.webhook_service import WebhookService
 from server.app.services.paypal_service import paypal_service, PayPalService
 from server.app.services.agent_orchestrator import agent_orchestrator, AgentOrchestrator
+from server.app.services.discovery_service import DiscoveryService
+from server.app.services.ranking_service import RankingService
+from server.app.services.guardrail_service import GuardrailEngine
 from server.app.services.event_bus import event_bus, RequestEventBus
 
 __all__ = [
@@ -23,6 +26,9 @@ __all__ = [
     "PayPalService",
     "agent_orchestrator",
     "AgentOrchestrator",
+    "DiscoveryService",
+    "RankingService",
+    "GuardrailEngine",
     "event_bus",
     "RequestEventBus",
 ]
