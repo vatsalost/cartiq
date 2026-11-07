@@ -10,7 +10,7 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.7+-3178C6.svg)](https://www.typescriptlang.org/)
 [![Tailwind CSS v4](https://img.shields.io/badge/Tailwind_CSS-v4-38B2AC.svg)](https://tailwindcss.com/)
 [![PayPal Orders v2](https://img.shields.io/badge/PayPal-Orders_v2_REST_API-003087.svg)](https://developer.paypal.com/docs/api/orders/v2/)
-[![Tests Passing](https://img.shields.io/badge/tests-266%20passed%20%7C%20100%25-brightgreen.svg)](server/tests)
+[![Tests Passing](https://img.shields.io/badge/tests-416%20passed%20%7C%20100%25-brightgreen.svg)](server/tests)
 [![Security](https://img.shields.io/badge/Security-Argon2id%20%7C%20IDOR%20Defense%20%7C%20SHA--256-orange.svg)](docs/module-b2-verification-report.md)
 
 **Built for the PayPal AI Hackathon 2026**
@@ -158,9 +158,9 @@ The frontend is built with **React 19**, **Vite**, **TypeScript**, and **Tailwin
 
 ---
 
-## 🧪 Automated Test Suite (266 / 266 Passing)
+## 🧪 Automated Test Suite (416 / 416 Passing)
 
-The project includes an exhaustive automated test suite covering all modules, edge cases, financial calculations, IDOR ownership boundaries, and PayPal lifecycle events:
+The project includes an exhaustive automated test suite covering all modules, edge cases, financial calculations, IDOR ownership boundaries, Channel3 discovery, ranking, guardrails, and PayPal lifecycle events:
 
 ```bash
 python -m pytest server/tests -v
