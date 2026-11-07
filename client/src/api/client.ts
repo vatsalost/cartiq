@@ -38,13 +38,13 @@ export class CartiApiClient {
   }
 
   // --- HEALTH & STATUS ---
-  async checkHealth(): Promise<{ status: string; environment?: string }> {
+  async checkHealth(): Promise<{ status: string; environment?: string; database?: string }> {
     try {
       const res = await fetch(`${API_BASE}/health`, { method: 'GET' })
       if (!res.ok) throw new Error('Health check failed')
       return await res.json()
     } catch {
-      return { status: 'mock_mode', environment: 'development' }
+      return { status: 'mock_mode', environment: 'development', database: 'mock' }
     }
   }
 
@@ -87,10 +87,33 @@ export class CartiApiClient {
     expires_at?: string
   }): Promise<Mandate> {
     try {
+      // Normalize price_tolerance_pct: if user passes whole number like 10 (10%), scale to 0.10 for backend validation
+      const priceTolerance =
+        Number(payload.price_tolerance_pct) > 0.5
+          ? Number((Number(payload.price_tolerance_pct) / 100).toFixed(4))
+          : Number(Number(payload.price_tolerance_pct).toFixed(4))
+
+      // Ensure valid future ISO expiration timestamp (default +90 days)
+      const expiresAt =
+        payload.expires_at ||
+        new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString()
+
+      const formattedPayload = {
+        total_budget: String(payload.total_budget),
+        per_item_cap: String(payload.per_item_cap),
+        currency: payload.currency || 'USD',
+        allowed_categories: payload.allowed_categories,
+        blocked_categories: payload.blocked_categories || [],
+        allowed_retailers: payload.allowed_retailers || [],
+        max_quantity_per_product: payload.max_quantity_per_product || 1,
+        price_tolerance_pct: priceTolerance,
+        expires_at: expiresAt,
+      }
+
       const res = await fetch(`${API_BASE}/mandates`, {
         method: 'POST',
         headers: this.getHeaders(),
-        body: JSON.stringify(payload),
+        body: JSON.stringify(formattedPayload),
       })
       if (!res.ok) {
         const errorData = await res.json().catch(() => ({}))

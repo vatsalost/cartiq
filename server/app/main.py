@@ -8,6 +8,7 @@ from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from server.app.api.routes import (
     auth_router,
+    audit_router,
     health_router,
     mandates_router,
     orders_router,
@@ -40,6 +41,55 @@ async def lifespan(app: FastAPI):
         logger.info("Database schema validated successfully.")
     except Exception as exc:
         logger.warning("Could not auto-create tables on startup: %s", exc)
+
+    # Auto-seed default spending mandate for demo user if none exists
+    if settings.is_demo_allowed():
+        try:
+            import uuid
+            from datetime import datetime, timedelta, timezone
+            from decimal import Decimal
+            from sqlalchemy import select
+            from server.app.db.session import SessionLocal
+            from server.app.models.mandate import Mandate
+            from server.app.models.user import User
+
+            demo_uuid = uuid.UUID(settings.DEMO_USER_ID)
+            with SessionLocal() as db:
+                user = db.get(User, demo_uuid)
+                if not user:
+                    user = User(
+                        id=demo_uuid,
+                        email=settings.DEMO_USER_EMAIL,
+                        is_active=True,
+                        status="active",
+                    )
+                    db.add(user)
+                    db.commit()
+
+                active_mandate = db.scalars(
+                    select(Mandate).where(Mandate.user_id == demo_uuid, Mandate.status == "active")
+                ).first()
+                if not active_mandate:
+                    now = datetime.now(timezone.utc)
+                    new_mandate = Mandate(
+                        user_id=demo_uuid,
+                        version=1,
+                        status="active",
+                        total_budget=Decimal("150.00"),
+                        per_item_cap=Decimal("60.00"),
+                        currency="USD",
+                        allowed_categories=["Lighting", "Kitchen", "Electronics", "Home Office"],
+                        blocked_categories=[],
+                        allowed_retailers=["amazon.com", "target.com", "bestbuy.com"],
+                        max_quantity_per_product=2,
+                        price_tolerance_pct=Decimal("0.1000"),
+                        expires_at=now + timedelta(days=90),
+                    )
+                    db.add(new_mandate)
+                    db.commit()
+                    logger.info("Seeded initial spending mandate v1 for demo user %s.", demo_uuid)
+        except Exception as exc:
+            logger.warning("Could not auto-seed demo mandate: %s", exc)
 
     yield
 
@@ -131,6 +181,7 @@ app.add_exception_handler(Exception, generic_exception_handler)
 
 # Mount API routers under /api
 app.include_router(auth_router, prefix="/api")
+app.include_router(audit_router, prefix="/api")
 app.include_router(health_router, prefix="/api")
 app.include_router(mandates_router, prefix="/api")
 app.include_router(requests_router, prefix="/api")

@@ -55,8 +55,12 @@ from server.app.schemas.refund import (
 from server.app.schemas.webhook import (
     PayPalWebhookResponse,
 )
+from server.app.schemas.audit import (
+    AuditEventResponse,
+)
 
 __all__ = [
+    "AuditEventResponse",
     "ErrorDetail",
     "ErrorEnvelope",
     "PaginationParams",

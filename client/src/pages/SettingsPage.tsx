@@ -42,7 +42,11 @@ export const SettingsPage: React.FC = () => {
     setPingResult(null)
     try {
       const res = await api.checkHealth()
-      setPingResult(`Health OK: ${res.status} (${res.environment || 'production'})`)
+      if (res.status === 'ok') {
+        setPingResult(`Live Server OK: status=${res.status} | env=${res.environment || 'development'} | db=${res.database || 'connected'}`)
+      } else {
+        setPingResult(`Diagnostic mode: ${res.status}`)
+      }
     } catch {
       setPingResult('Diagnostic completed: Mock fallback active')
     } finally {

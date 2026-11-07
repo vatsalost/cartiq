@@ -16,7 +16,11 @@ export const MandateForm: React.FC<{
   const [perItemCap, setPerItemCap] = useState(currentMandate.per_item_cap)
   const [currency, setCurrency] = useState(currentMandate.currency || 'USD')
   const [maxQuantity, setMaxQuantity] = useState(currentMandate.max_quantity_per_product || 2)
-  const [priceTolerance, setPriceTolerance] = useState(currentMandate.price_tolerance_pct || 10)
+  const initialTolerance =
+    Number(currentMandate.price_tolerance_pct) <= 0.5
+      ? Math.round(Number(currentMandate.price_tolerance_pct) * 100)
+      : Number(currentMandate.price_tolerance_pct || 10)
+  const [priceTolerance, setPriceTolerance] = useState(initialTolerance)
 
   const [allowedCategories, setAllowedCategories] = useState<string[]>([
     ...currentMandate.allowed_categories,

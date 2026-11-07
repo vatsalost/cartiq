@@ -147,7 +147,7 @@ export const MandateCard: React.FC<{
             </div>
             <div className="my-2">
               <div className="text-[30px] font-bold text-neutral-900 dark:text-white tabular-nums leading-none">
-                ±{mandate.price_tolerance_pct || 10}%
+                ±{Number(mandate.price_tolerance_pct) <= 0.5 ? Math.round(Number(mandate.price_tolerance_pct) * 100) : Math.round(Number(mandate.price_tolerance_pct) || 10)}%
               </div>
             </div>
             <div className="text-[12px] text-neutral-500 dark:text-neutral-400">
