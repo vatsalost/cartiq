@@ -17,15 +17,11 @@ export const router = createBrowserRouter([
     children: [
       {
         index: true,
-        element: <DashboardPage />,
+        element: <ShoppingPage />,
       },
       {
         path: 'shopping',
         element: <ShoppingPage />,
-      },
-      {
-        path: 'mandate',
-        element: <MandatePage />,
       },
       {
         path: 'proposals',
@@ -36,12 +32,24 @@ export const router = createBrowserRouter([
         element: <OrdersPage />,
       },
       {
+        path: 'mandate',
+        element: <MandatePage />,
+      },
+      {
         path: 'activity',
         element: <ActivityPage />,
       },
       {
         path: 'history',
         element: <Navigate to="/activity" replace />,
+      },
+      {
+        path: 'overview',
+        element: <DashboardPage />,
+      },
+      {
+        path: 'dashboard',
+        element: <Navigate to="/overview" replace />,
       },
       {
         path: 'settings',
