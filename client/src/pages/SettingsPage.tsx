@@ -67,11 +67,11 @@ export const SettingsPage: React.FC = () => {
     <div className="flex flex-col gap-6">
       {/* Top Heading */}
       <div>
-        <h2 className="text-xl font-bold text-neutral-900 dark:text-white tracking-tight">
+        <h1 className="text-2xl font-bold text-neutral-900 dark:text-white tracking-tight">
           Settings & Configuration
-        </h2>
+        </h1>
         <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">
-          Manage system preferences, user authorization, third-party integrations and developer diagnostics
+          Manage system preferences, user authorization, third-party integrations, and developer diagnostics.
         </p>
       </div>
 

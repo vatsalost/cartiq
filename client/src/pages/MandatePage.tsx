@@ -1,9 +1,8 @@
 import React, { useState } from 'react'
-import { ShieldCheck, Edit3, RotateCcw, Plus } from 'lucide-react'
+import { Edit3, RotateCcw } from 'lucide-react'
 import { MandateCard } from '../components/mandate/MandateCard'
 import { MandateForm } from '../components/mandate/MandateForm'
 import { Button } from '../components/common/Button'
-import { Modal } from '../components/common/Modal'
 import { useAuth } from '../context/AuthContext'
 import { mockMandate } from '../api/mockData'
 
@@ -15,26 +14,26 @@ export const MandatePage: React.FC = () => {
 
   return (
     <div className="flex flex-col gap-6">
-      {/* Top Controls Row */}
+      {/* Top Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h2 className="text-xl font-bold text-neutral-900 dark:text-white tracking-tight">
-            Spending Mandate & Governance
-          </h2>
+          <h1 className="text-2xl font-bold text-neutral-900 dark:text-white tracking-tight">
+            Spending Controls
+          </h1>
           <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">
-            Configure financial authority boundaries, per-item spend caps, and retailer white-listing
+            Autonomous purchasing authority, budget allocation, and category guardrails.
           </p>
         </div>
 
         <div className="flex items-center gap-2">
           {!isEditing ? (
             <Button
-              variant="primary"
+              variant="outline"
               size="sm"
               icon={<Edit3 size={14} />}
               onClick={() => setIsEditing(true)}
             >
-              Modify Mandate
+              Edit Mandate
             </Button>
           ) : (
             <Button

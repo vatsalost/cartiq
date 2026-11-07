@@ -7,6 +7,7 @@ import { MandatePage } from '../pages/MandatePage'
 import { ProposalsPage } from '../pages/ProposalsPage'
 import { OrdersPage } from '../pages/OrdersPage'
 import { HistoryPage } from '../pages/HistoryPage'
+import { ActivityPage } from '../pages/ActivityPage'
 import { SettingsPage } from '../pages/SettingsPage'
 
 export const router = createBrowserRouter([
@@ -35,8 +36,12 @@ export const router = createBrowserRouter([
         element: <OrdersPage />,
       },
       {
+        path: 'activity',
+        element: <ActivityPage />,
+      },
+      {
         path: 'history',
-        element: <HistoryPage />,
+        element: <Navigate to="/activity" replace />,
       },
       {
         path: 'settings',
