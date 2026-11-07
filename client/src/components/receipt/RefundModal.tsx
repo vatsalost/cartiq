@@ -46,10 +46,10 @@ export const RefundModal: React.FC<RefundModalProps> = ({
     <Modal isOpen={isOpen} onClose={onClose} title="Confirm Full Order Refund" maxWidth="sm">
       <div className="flex flex-col gap-5">
         <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-800 dark:text-amber-300 text-xs flex items-start gap-2.5 leading-relaxed">
-          <AlertTriangle size={16} className="shrink-0 mt-0.5" />
+          <AlertTriangle size={16} strokeWidth={1.8} className="shrink-0 mt-0.5" />
           <span>
-            You are requesting a full refund of <strong>${order.amount} {order.currency}</strong> for PayPal Capture ID{' '}
-            <code className="font-mono">{order.paypal_capture_id}</code>. This action is non-reversible.
+            You are requesting a full refund of <strong className="tabular-nums">${order.amount} {order.currency}</strong> for PayPal Capture ID{' '}
+            <code className="font-mono text-[11px] tabular-nums">{order.paypal_capture_id}</code>. This action is non-reversible.
           </span>
         </div>
 
@@ -60,7 +60,7 @@ export const RefundModal: React.FC<RefundModalProps> = ({
         )}
 
         <div className="flex flex-col gap-1.5">
-          <label className="text-xs font-semibold uppercase text-neutral-600 dark:text-neutral-400">
+          <label className="text-xs font-semibold uppercase text-neutral-600 dark:text-neutral-400 tracking-wider">
             Refund Reason (Sent to PayPal Payer note)
           </label>
           <textarea
@@ -78,7 +78,7 @@ export const RefundModal: React.FC<RefundModalProps> = ({
           <Button
             variant="danger"
             size="md"
-            icon={<RotateCcw size={16} />}
+            icon={<RotateCcw size={16} strokeWidth={1.8} />}
             loading={isProcessing}
             onClick={handleConfirmRefund}
           >

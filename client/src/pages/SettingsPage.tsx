@@ -67,10 +67,10 @@ export const SettingsPage: React.FC = () => {
     <div className="flex flex-col gap-6">
       {/* Top Heading */}
       <div>
-        <h1 className="text-2xl font-bold text-neutral-900 dark:text-white tracking-tight">
+        <h1 className="text-[28px] font-bold text-neutral-900 dark:text-white tracking-tight leading-tight">
           Settings & Configuration
         </h1>
-        <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">
+        <p className="text-[12px] font-normal text-neutral-500 dark:text-neutral-400 mt-0.5">
           Manage system preferences, user authorization, third-party integrations, and developer diagnostics.
         </p>
       </div>
@@ -87,7 +87,7 @@ export const SettingsPage: React.FC = () => {
                 : 'text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white hover:bg-neutral-50 dark:hover:bg-neutral-800/50'
             }`}
           >
-            <Sliders size={14} className={activeTab === 'general' ? 'text-[#95EB68]' : 'text-neutral-400'} />
+            <Sliders size={16} strokeWidth={1.8} className={activeTab === 'general' ? 'text-[#95EB68]' : 'text-neutral-400'} />
             <span>General</span>
           </button>
 
@@ -99,7 +99,7 @@ export const SettingsPage: React.FC = () => {
                 : 'text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white hover:bg-neutral-50 dark:hover:bg-neutral-800/50'
             }`}
           >
-            <User size={14} className={activeTab === 'account' ? 'text-[#95EB68]' : 'text-neutral-400'} />
+            <User size={16} strokeWidth={1.8} className={activeTab === 'account' ? 'text-[#95EB68]' : 'text-neutral-400'} />
             <span>Account</span>
           </button>
 
@@ -111,7 +111,7 @@ export const SettingsPage: React.FC = () => {
                 : 'text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white hover:bg-neutral-50 dark:hover:bg-neutral-800/50'
             }`}
           >
-            <CreditCard size={14} className={activeTab === 'integrations' ? 'text-[#95EB68]' : 'text-neutral-400'} />
+            <CreditCard size={16} strokeWidth={1.8} className={activeTab === 'integrations' ? 'text-[#95EB68]' : 'text-neutral-400'} />
             <span>Integrations</span>
           </button>
 
@@ -123,7 +123,7 @@ export const SettingsPage: React.FC = () => {
                 : 'text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white hover:bg-neutral-50 dark:hover:bg-neutral-800/50'
             }`}
           >
-            <Bell size={14} className={activeTab === 'notifications' ? 'text-[#95EB68]' : 'text-neutral-400'} />
+            <Bell size={16} strokeWidth={1.8} className={activeTab === 'notifications' ? 'text-[#95EB68]' : 'text-neutral-400'} />
             <span>Notifications</span>
           </button>
 
@@ -135,7 +135,7 @@ export const SettingsPage: React.FC = () => {
                 : 'text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white hover:bg-neutral-50 dark:hover:bg-neutral-800/50'
             }`}
           >
-            <Code2 size={14} className={activeTab === 'developer' ? 'text-[#95EB68]' : 'text-neutral-400'} />
+            <Code2 size={16} strokeWidth={1.8} className={activeTab === 'developer' ? 'text-[#95EB68]' : 'text-neutral-400'} />
             <span>Developer Settings</span>
           </button>
         </div>
@@ -146,17 +146,17 @@ export const SettingsPage: React.FC = () => {
           {activeTab === 'general' && (
             <div className="flex flex-col gap-6 animate-in fade-in duration-150">
               <div className="pb-3 border-b border-neutral-100 dark:border-neutral-800">
-                <h3 className="text-base font-semibold text-neutral-900 dark:text-white">
+                <h3 className="text-[18px] font-semibold text-neutral-900 dark:text-white">
                   Appearance & Regional
                 </h3>
-                <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">
+                <p className="text-[12px] font-normal text-neutral-500 dark:text-neutral-400 mt-0.5">
                   Customize the interface theme and locale formatting
                 </p>
               </div>
 
               {/* Theme Selector */}
               <div>
-                <label className="text-xs font-medium text-neutral-700 dark:text-neutral-300 block mb-3">
+                <label className="text-[14px] font-medium text-neutral-700 dark:text-neutral-300 block mb-3">
                   Interface Theme
                 </label>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -170,14 +170,14 @@ export const SettingsPage: React.FC = () => {
                   >
                     <div className="flex items-center justify-between mb-3">
                       <div className="flex items-center gap-2">
-                        <Sun size={16} className="text-amber-500" />
-                        <span className="text-xs font-bold">Light Theme</span>
+                        <Sun size={16} strokeWidth={1.8} className="text-amber-500" />
+                        <span className="text-[14px] font-bold">Light Theme</span>
                       </div>
                       {theme === 'light' && (
                         <Badge variant="lime" size="xs">Active</Badge>
                       )}
                     </div>
-                    <div className="text-[11px] text-neutral-500 leading-relaxed">
+                    <div className="text-[12px] text-neutral-500 leading-relaxed">
                       SaaS neutral background (#F5F6F3) with crisp white cards and green (#95EB68) accents.
                     </div>
                   </button>
@@ -192,14 +192,14 @@ export const SettingsPage: React.FC = () => {
                   >
                     <div className="flex items-center justify-between mb-3">
                       <div className="flex items-center gap-2">
-                        <Moon size={16} className="text-[#95EB68]" />
-                        <span className="text-xs font-bold text-white">Dark Theme</span>
+                        <Moon size={16} strokeWidth={1.8} className="text-[#95EB68]" />
+                        <span className="text-[14px] font-bold text-white">Dark Theme</span>
                       </div>
                       {theme === 'dark' && (
                         <Badge variant="lime" size="xs">Active</Badge>
                       )}
                     </div>
-                    <div className="text-[11px] text-neutral-400 leading-relaxed">
+                    <div className="text-[12px] text-neutral-400 leading-relaxed">
                       Deep charcoal background (#0F1012) with elevated surfaces (#17191C) and luminous green glow.
                     </div>
                   </button>
@@ -241,10 +241,10 @@ export const SettingsPage: React.FC = () => {
           {activeTab === 'account' && (
             <div className="flex flex-col gap-5 animate-in fade-in duration-150">
               <div className="pb-3 border-b border-neutral-100 dark:border-neutral-800">
-                <h3 className="text-base font-semibold text-neutral-900 dark:text-white">
+                <h3 className="text-[18px] font-semibold text-neutral-900 dark:text-white">
                   User Account & Session
                 </h3>
-                <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">
+                <p className="text-[12px] font-normal text-neutral-500 dark:text-neutral-400 mt-0.5">
                   Active authentication session and purchasing credentials
                 </p>
               </div>
@@ -255,10 +255,10 @@ export const SettingsPage: React.FC = () => {
                     {userEmail.charAt(0).toUpperCase()}
                   </div>
                   <div>
-                    <div className="text-sm font-bold text-neutral-900 dark:text-white">
+                    <div className="text-[14px] font-bold text-neutral-900 dark:text-white">
                       {userEmail}
                     </div>
-                    <div className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5 flex items-center gap-2">
+                    <div className="text-[12px] text-neutral-500 dark:text-neutral-400 mt-0.5 flex items-center gap-2">
                       <span>Role: Authorized Purchasing Agent</span>
                       <span>•</span>
                       <Badge variant="success" size="xs" dot>Active Session</Badge>
@@ -278,10 +278,10 @@ export const SettingsPage: React.FC = () => {
           {activeTab === 'integrations' && (
             <div className="flex flex-col gap-4 animate-in fade-in duration-150">
               <div className="pb-3 border-b border-neutral-100 dark:border-neutral-800">
-                <h3 className="text-base font-semibold text-neutral-900 dark:text-white">
+                <h3 className="text-[18px] font-semibold text-neutral-900 dark:text-white">
                   External Provider Integrations
                 </h3>
-                <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">
+                <p className="text-[12px] font-normal text-neutral-500 dark:text-neutral-400 mt-0.5">
                   Connections powering payment authorization, product feeds, and headless browser validation
                 </p>
               </div>
@@ -290,13 +290,13 @@ export const SettingsPage: React.FC = () => {
                 <div className="p-4 rounded-xl border border-neutral-200/80 dark:border-neutral-800 bg-neutral-50/60 dark:bg-[#141619] flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div className="w-9 h-9 rounded-lg bg-neutral-200 dark:bg-neutral-800 flex items-center justify-center text-neutral-700 dark:text-neutral-300">
-                      <CreditCard size={18} />
+                      <CreditCard size={18} strokeWidth={1.8} />
                     </div>
                     <div>
-                      <div className="text-xs font-bold text-neutral-900 dark:text-white">
+                      <div className="text-[14px] font-semibold text-neutral-900 dark:text-white">
                         PayPal Developer Sandbox
                       </div>
-                      <div className="text-[11px] text-neutral-500 dark:text-neutral-400">
+                      <div className="text-[12px] text-neutral-500 dark:text-neutral-400">
                         Order authorization and server-side capture (B10)
                       </div>
                     </div>
@@ -307,13 +307,13 @@ export const SettingsPage: React.FC = () => {
                 <div className="p-4 rounded-xl border border-neutral-200/80 dark:border-neutral-800 bg-neutral-50/60 dark:bg-[#141619] flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div className="w-9 h-9 rounded-lg bg-neutral-200 dark:bg-neutral-800 flex items-center justify-center text-neutral-700 dark:text-neutral-300">
-                      <Globe size={18} />
+                      <Globe size={18} strokeWidth={1.8} />
                     </div>
                     <div>
-                      <div className="text-xs font-bold text-neutral-900 dark:text-white">
+                      <div className="text-[14px] font-semibold text-neutral-900 dark:text-white">
                         Channel3 Product Catalog
                       </div>
-                      <div className="text-[11px] text-neutral-500 dark:text-neutral-400">
+                      <div className="text-[12px] text-neutral-500 dark:text-neutral-400">
                         Multi-retailer structured product feeds (B6)
                       </div>
                     </div>
@@ -324,13 +324,13 @@ export const SettingsPage: React.FC = () => {
                 <div className="p-4 rounded-xl border border-neutral-200/80 dark:border-neutral-800 bg-neutral-50/60 dark:bg-[#141619] flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div className="w-9 h-9 rounded-lg bg-neutral-200 dark:bg-neutral-800 flex items-center justify-center text-neutral-700 dark:text-neutral-300">
-                      <ShieldCheck size={18} />
+                      <ShieldCheck size={18} strokeWidth={1.8} />
                     </div>
                     <div>
-                      <div className="text-xs font-bold text-neutral-900 dark:text-white">
+                      <div className="text-[14px] font-semibold text-neutral-900 dark:text-white">
                         Kernel Browser Verification Engine
                       </div>
-                      <div className="text-[11px] text-neutral-500 dark:text-neutral-400">
+                      <div className="text-[12px] text-neutral-500 dark:text-neutral-400">
                         Headless verification of real-time merchant stock & cart price (B8)
                       </div>
                     </div>
@@ -345,10 +345,10 @@ export const SettingsPage: React.FC = () => {
           {activeTab === 'notifications' && (
             <div className="flex flex-col gap-4 animate-in fade-in duration-150">
               <div className="pb-3 border-b border-neutral-100 dark:border-neutral-800">
-                <h3 className="text-base font-semibold text-neutral-900 dark:text-white">
+                <h3 className="text-[18px] font-semibold text-neutral-900 dark:text-white">
                   Notifications & Alerts
                 </h3>
-                <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">
+                <p className="text-[12px] font-normal text-neutral-500 dark:text-neutral-400 mt-0.5">
                   Configure alerts for budget thresholds and purchasing milestones
                 </p>
               </div>
@@ -356,10 +356,10 @@ export const SettingsPage: React.FC = () => {
               <div className="flex flex-col divide-y divide-neutral-100 dark:divide-neutral-800">
                 <div className="py-3.5 flex items-center justify-between">
                   <div>
-                    <div className="text-xs font-semibold text-neutral-900 dark:text-white">
+                    <div className="text-[14px] font-semibold text-neutral-900 dark:text-white">
                       Proposal Ready Alerts
                     </div>
-                    <div className="text-[11px] text-neutral-500 dark:text-neutral-400">
+                    <div className="text-[12px] text-neutral-500 dark:text-neutral-400">
                       Notify immediately when an autonomous search generates a verified purchase proposal
                     </div>
                   </div>
@@ -373,10 +373,10 @@ export const SettingsPage: React.FC = () => {
 
                 <div className="py-3.5 flex items-center justify-between">
                   <div>
-                    <div className="text-xs font-semibold text-neutral-900 dark:text-white">
+                    <div className="text-[14px] font-semibold text-neutral-900 dark:text-white">
                       Mandate Budget Threshold Warning
                     </div>
-                    <div className="text-[11px] text-neutral-500 dark:text-neutral-400">
+                    <div className="text-[12px] text-neutral-500 dark:text-neutral-400">
                       Send notice when available unreserved balance drops below 20%
                     </div>
                   </div>
@@ -390,10 +390,10 @@ export const SettingsPage: React.FC = () => {
 
                 <div className="py-3.5 flex items-center justify-between">
                   <div>
-                    <div className="text-xs font-semibold text-neutral-900 dark:text-white">
+                    <div className="text-[14px] font-semibold text-neutral-900 dark:text-white">
                       Payment Capture Receipts
                     </div>
-                    <div className="text-[11px] text-neutral-500 dark:text-neutral-400">
+                    <div className="text-[12px] text-neutral-500 dark:text-neutral-400">
                       Deliver official receipt when a PayPal order is successfully captured
                     </div>
                   </div>
@@ -407,10 +407,10 @@ export const SettingsPage: React.FC = () => {
 
                 <div className="py-3.5 flex items-center justify-between">
                   <div>
-                    <div className="text-xs font-semibold text-neutral-900 dark:text-white">
+                    <div className="text-[14px] font-semibold text-neutral-900 dark:text-white">
                       Refund Completion Notice
                     </div>
-                    <div className="text-[11px] text-neutral-500 dark:text-neutral-400">
+                    <div className="text-[12px] text-neutral-500 dark:text-neutral-400">
                       Notify when a refund transaction is finalized and funds restored to mandate
                     </div>
                   </div>
@@ -429,11 +429,11 @@ export const SettingsPage: React.FC = () => {
           {activeTab === 'developer' && (
             <div className="flex flex-col gap-5 animate-in fade-in duration-150">
               <div className="pb-3 border-b border-neutral-100 dark:border-neutral-800">
-                <h3 className="text-base font-semibold text-neutral-900 dark:text-white flex items-center gap-2">
-                  <Code2 size={16} className="text-[#95EB68]" />
+                <h3 className="text-[18px] font-semibold text-neutral-900 dark:text-white flex items-center gap-2">
+                  <Code2 size={18} strokeWidth={1.8} className="text-[#95EB68]" />
                   <span>Developer & System Diagnostics</span>
                 </h3>
-                <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">
+                <p className="text-[12px] font-normal text-neutral-500 dark:text-neutral-400 mt-0.5">
                   Internal module statuses, backend endpoints, UUIDs, and technical diagnostics
                 </p>
               </div>
@@ -442,7 +442,7 @@ export const SettingsPage: React.FC = () => {
               <div className="p-4 rounded-xl bg-neutral-50 dark:bg-[#141619] border border-neutral-200/80 dark:border-neutral-800 flex flex-col gap-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2 text-xs font-bold text-neutral-900 dark:text-white">
-                    <Server size={14} className="text-[#95EB68]" />
+                    <Server size={16} strokeWidth={1.8} className="text-[#95EB68]" />
                     <span>Backend API Gateway (FastAPI)</span>
                   </div>
                   <Badge variant={backendConnected ? 'success' : 'neutral'} size="xs" dot>
@@ -455,21 +455,21 @@ export const SettingsPage: React.FC = () => {
                     type="text"
                     value="http://127.0.0.1:8000/api"
                     disabled
-                    className="flex-1 text-xs font-mono rounded-lg bg-white dark:bg-[#1C1F24] border border-neutral-200 dark:border-neutral-700/80 px-3 py-1.5 text-neutral-500"
+                    className="flex-1 text-xs font-mono rounded-lg bg-white dark:bg-[#1C1F24] border border-neutral-200 dark:border-neutral-700/80 px-3 py-1.5 text-neutral-500 tabular-nums"
                   />
                   <Button
                     variant="outline"
                     size="xs"
                     loading={isPinging}
                     onClick={handlePingBackend}
-                    icon={<RefreshCw size={12} />}
+                    icon={<RefreshCw size={14} strokeWidth={1.8} />}
                   >
                     Ping Health
                   </Button>
                 </div>
 
                 {pingResult && (
-                  <div className="text-[11px] font-mono text-emerald-600 dark:text-emerald-400 bg-white dark:bg-[#1C1F24] p-2 rounded border border-neutral-200/60 dark:border-neutral-700/60">
+                  <div className="text-[11px] font-mono text-emerald-600 dark:text-emerald-400 bg-white dark:bg-[#1C1F24] p-2 rounded border border-neutral-200/60 dark:border-neutral-700/60 tabular-nums">
                     {pingResult}
                   </div>
                 )}
@@ -479,14 +479,14 @@ export const SettingsPage: React.FC = () => {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs font-mono">
                 <div className="p-3 rounded-lg bg-neutral-50 dark:bg-[#141619] border border-neutral-200/70 dark:border-neutral-800">
                   <span className="text-[10px] text-neutral-400 block font-sans uppercase">Authenticated User UUID</span>
-                  <span className="text-neutral-800 dark:text-neutral-200 text-[11px] font-semibold truncate block mt-0.5">
+                  <span className="text-neutral-800 dark:text-neutral-200 text-[11px] font-semibold truncate block mt-0.5 tabular-nums">
                     {userId}
                   </span>
                 </div>
 
                 <div className="p-3 rounded-lg bg-neutral-50 dark:bg-[#141619] border border-neutral-200/70 dark:border-neutral-800">
                   <span className="text-[10px] text-neutral-400 block font-sans uppercase">Database Engine</span>
-                  <span className="text-neutral-800 dark:text-neutral-200 text-[11px] font-semibold truncate block mt-0.5">
+                  <span className="text-neutral-800 dark:text-neutral-200 text-[11px] font-semibold truncate block mt-0.5 tabular-nums">
                     sqlite:///./carti_dev.db (Dev Fallback)
                   </span>
                 </div>
@@ -494,7 +494,7 @@ export const SettingsPage: React.FC = () => {
 
               {/* Core Modules Status Matrix (B1–B10) */}
               <div className="flex flex-col gap-2">
-                <span className="text-xs font-semibold text-neutral-800 dark:text-neutral-200">
+                <span className="text-[15px] font-semibold text-neutral-800 dark:text-neutral-200">
                   Core Module Verification Matrix (B1–B10)
                 </span>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
@@ -504,10 +504,10 @@ export const SettingsPage: React.FC = () => {
                       className="p-2.5 rounded-lg bg-neutral-50/70 dark:bg-[#141619] border border-neutral-200/70 dark:border-neutral-800 flex items-center justify-between"
                     >
                       <div className="flex items-center gap-2">
-                        <span className="font-mono font-bold text-[11px] px-1.5 py-0.2 rounded bg-neutral-200 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300">
+                        <span className="font-mono font-bold text-[11px] px-1.5 py-0.2 rounded bg-neutral-200 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 tabular-nums">
                           {m.id}
                         </span>
-                        <span className="text-neutral-800 dark:text-neutral-200 text-[11px] truncate max-w-[180px]">
+                        <span className="text-neutral-800 dark:text-neutral-200 text-[12px] truncate max-w-[180px]">
                           {m.name}
                         </span>
                       </div>

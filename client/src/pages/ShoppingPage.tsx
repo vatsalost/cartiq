@@ -135,10 +135,10 @@ export const ShoppingPage: React.FC = () => {
     <div className="flex flex-col gap-6">
       {/* Page Header */}
       <div>
-        <h1 className="text-2xl font-bold text-neutral-900 dark:text-white tracking-tight">
+        <h1 className="text-[28px] font-bold text-neutral-900 dark:text-white tracking-tight leading-tight">
           Shopping Assistant
         </h1>
-        <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">
+        <p className="text-[12px] font-normal text-neutral-500 dark:text-neutral-400 mt-0.5">
           Autonomous product discovery, comparison, and mandate-compliant purchasing.
         </p>
       </div>
@@ -171,7 +171,7 @@ export const ShoppingPage: React.FC = () => {
                   onClick={() => alert('Reference image attachment active')}
                   className="p-1.5 rounded-lg text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors cursor-pointer"
                 >
-                  <Paperclip size={14} />
+                  <Paperclip size={16} strokeWidth={1.8} />
                 </button>
 
                 {/* Preferences pill */}
@@ -184,7 +184,7 @@ export const ShoppingPage: React.FC = () => {
                       : 'text-neutral-500 hover:text-neutral-800 dark:hover:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-800'
                   }`}
                 >
-                  <SlidersHorizontal size={12} />
+                  <SlidersHorizontal size={16} strokeWidth={1.8} />
                   <span>
                     Preferences
                     {category || maxPrice || brand || retailer ? ' (Active)' : ''}
@@ -199,7 +199,7 @@ export const ShoppingPage: React.FC = () => {
                 className="px-4 py-1.5 rounded-lg text-xs font-semibold bg-[#95EB68] text-[#17191C] hover:bg-[#85da58] active:scale-[0.98] transition-all flex items-center gap-1.5 shadow-xs cursor-pointer"
               >
                 <span>Search</span>
-                <ArrowRight size={13} />
+                <ArrowRight size={16} strokeWidth={1.8} />
               </button>
             </div>
           </div>
@@ -311,10 +311,10 @@ export const ShoppingPage: React.FC = () => {
       {/* Found Products Section */}
       <div className="flex flex-col gap-4">
         <div>
-          <h2 className="text-base font-semibold text-neutral-900 dark:text-white">
+          <h2 className="text-[18px] font-semibold text-neutral-900 dark:text-white leading-snug">
             Found 3 Products for &apos;{activeSearchChip}&apos;
           </h2>
-          <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">
+          <p className="text-[12px] font-normal text-neutral-500 dark:text-neutral-400 mt-0.5">
             Ranked by AI relevance score and verified against your mandate limits
           </p>
         </div>

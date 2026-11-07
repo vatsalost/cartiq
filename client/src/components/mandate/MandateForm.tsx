@@ -132,14 +132,14 @@ export const MandateForm: React.FC<{
     <form onSubmit={handleSubmit} className="flex flex-col gap-5">
       {error && (
         <div className="p-3.5 rounded-lg bg-rose-50 border border-rose-200 text-rose-700 dark:bg-rose-500/10 dark:border-rose-500/20 dark:text-rose-400 text-xs flex items-center gap-2">
-          <AlertCircle size={16} className="shrink-0" />
+          <AlertCircle size={16} strokeWidth={1.8} className="shrink-0" />
           <span>{error}</span>
         </div>
       )}
 
       {successMessage && (
         <div className="p-3.5 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-700 dark:bg-emerald-500/10 dark:border-emerald-500/20 dark:text-emerald-400 text-xs font-semibold flex items-center gap-2">
-          <CheckCircle2 size={16} className="shrink-0" />
+          <CheckCircle2 size={16} strokeWidth={1.8} className="shrink-0" />
           <span>{successMessage}</span>
         </div>
       )}
@@ -318,7 +318,7 @@ export const MandateForm: React.FC<{
 
       {/* Submit Button */}
       <div className="flex items-center justify-end gap-3 pt-3 border-t border-neutral-100 dark:border-neutral-800">
-        <Button type="submit" variant="primary" size="md" loading={isSubmitting} icon={<Save size={15} />}>
+        <Button type="submit" variant="primary" size="md" loading={isSubmitting} icon={<Save size={16} strokeWidth={1.8} />}>
           Save New Mandate Version
         </Button>
       </div>

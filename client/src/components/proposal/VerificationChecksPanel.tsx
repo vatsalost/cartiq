@@ -12,8 +12,8 @@ export const VerificationChecksPanel: React.FC<{
     <div className="rounded-xl p-5 bg-white dark:bg-[#17191C] border border-neutral-200/90 dark:border-neutral-800 shadow-[0_1px_3px_rgba(0,0,0,0.03)] flex flex-col gap-3">
       <div className="flex items-center justify-between pb-3 border-b border-neutral-100 dark:border-neutral-800">
         <div className="flex items-center gap-2">
-          <ShieldCheck size={16} className="text-[#95EB68]" />
-          <h3 className="text-xs font-semibold text-neutral-900 dark:text-white uppercase tracking-wider">
+          <ShieldCheck size={16} strokeWidth={1.8} className="text-[#95EB68]" />
+          <h3 className="text-[12px] font-semibold text-neutral-900 dark:text-white uppercase tracking-wider">
             Deterministic Purchase Guardrails (8-Point Policy Audit)
           </h3>
         </div>
@@ -34,9 +34,9 @@ export const VerificationChecksPanel: React.FC<{
           >
             <div className="flex items-center gap-2 mb-1">
               {check.passed ? (
-                <CheckCircle2 size={14} className="text-emerald-500 shrink-0" />
+                <CheckCircle2 size={14} strokeWidth={2} className="text-emerald-500 shrink-0" />
               ) : (
-                <XCircle size={14} className="text-rose-500 shrink-0" />
+                <XCircle size={14} strokeWidth={2} className="text-rose-500 shrink-0" />
               )}
               <span className="text-xs font-semibold text-neutral-800 dark:text-neutral-200 capitalize truncate">
                 {check.rule.replace(/_/g, ' ')}
@@ -46,7 +46,7 @@ export const VerificationChecksPanel: React.FC<{
               {check.reason}
             </p>
             {(check.actual || check.limit) && (
-              <div className="text-[10px] text-neutral-400 font-mono mt-1 pt-1 border-t border-neutral-200/40 dark:border-neutral-800/60">
+              <div className="text-[10px] text-neutral-400 font-mono mt-1 pt-1 border-t border-neutral-200/40 dark:border-neutral-800/60 tabular-nums">
                 {check.actual && `Actual: ${check.actual}`}
                 {check.limit && ` | Cap: ${check.limit}`}
               </div>

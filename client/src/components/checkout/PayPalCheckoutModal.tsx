@@ -89,7 +89,7 @@ export const PayPalCheckoutModal: React.FC<PayPalCheckoutModalProps> = ({
         <div className="p-3.5 rounded-xl bg-neutral-50 dark:bg-[#141619] border border-neutral-200/80 dark:border-neutral-800 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-lg bg-neutral-200 dark:bg-neutral-800 flex items-center justify-center text-neutral-700 dark:text-neutral-300">
-              <ShoppingBag size={16} />
+              <ShoppingBag size={16} strokeWidth={1.8} />
             </div>
             <div>
               <div className="text-xs font-semibold text-neutral-900 dark:text-white line-clamp-1">
@@ -101,16 +101,16 @@ export const PayPalCheckoutModal: React.FC<PayPalCheckoutModalProps> = ({
             </div>
           </div>
           <div className="text-right">
-            <div className="text-base font-bold text-neutral-900 dark:text-white font-mono">
+            <div className="text-base font-bold text-neutral-900 dark:text-white font-mono tabular-nums">
               ${proposal.total_amount}
             </div>
-            <div className="text-[10px] text-neutral-400">{proposal.currency}</div>
+            <div className="text-[10px] text-neutral-400 uppercase">{proposal.currency}</div>
           </div>
         </div>
 
         {errorMessage && (
           <div className="p-3 rounded-lg bg-rose-50 border border-rose-200 text-rose-700 dark:bg-rose-500/10 dark:border-rose-500/20 dark:text-rose-400 text-xs flex items-center gap-2">
-            <AlertCircle size={15} className="shrink-0" />
+            <AlertCircle size={16} strokeWidth={1.8} className="shrink-0" />
             <span>{errorMessage}</span>
           </div>
         )}

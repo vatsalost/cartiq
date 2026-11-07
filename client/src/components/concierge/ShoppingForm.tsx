@@ -49,17 +49,17 @@ export const ShoppingForm: React.FC<ShoppingFormProps> = ({
       {/* Header with Mandate Context */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-neutral-100 dark:border-neutral-800">
         <div>
-          <h2 className="text-base font-semibold text-neutral-900 dark:text-white flex items-center gap-2">
-            <Sparkles size={16} className="text-[#95EB68]" />
+          <h2 className="text-[18px] font-semibold text-neutral-900 dark:text-white flex items-center gap-2">
+            <Sparkles size={18} strokeWidth={1.8} className="text-[#95EB68]" />
             <span>Autonomous AI Shopping Assistant</span>
           </h2>
-          <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">
+          <p className="text-[12px] font-normal text-neutral-500 dark:text-neutral-400 mt-0.5">
             Describe the product you want. Carti handles search, retailer stock checks, and guardrails.
           </p>
         </div>
 
-        <div className="flex items-center gap-2 text-xs text-neutral-500 dark:text-neutral-400 self-start sm:self-auto bg-neutral-50 dark:bg-neutral-800/60 px-2.5 py-1 rounded-md border border-neutral-200/60 dark:border-neutral-700/60 font-mono">
-          <ShieldCheck size={13} className="text-[#95EB68]" />
+        <div className="flex items-center gap-2 text-xs text-neutral-500 dark:text-neutral-400 self-start sm:self-auto bg-neutral-50 dark:bg-neutral-800/60 px-2.5 py-1 rounded-md border border-neutral-200/60 dark:border-neutral-700/60 font-mono tabular-nums">
+          <ShieldCheck size={14} strokeWidth={1.8} className="text-[#95EB68]" />
           <span>Cap: ${mandate?.per_item_cap || '60.00'}/item</span>
           <span>•</span>
           <span>Avail: ${breakdown?.available_budget || '65.02'}</span>
@@ -94,7 +94,7 @@ export const ShoppingForm: React.FC<ShoppingFormProps> = ({
                   : 'text-neutral-500 hover:text-neutral-800 dark:hover:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-800'
               }`}
             >
-              <SlidersHorizontal size={12} />
+              <SlidersHorizontal size={14} strokeWidth={1.8} />
               <span>
                 Preferences
                 {category || maxPrice || brand || retailer ? ' (Active)' : ''}
@@ -110,7 +110,7 @@ export const ShoppingForm: React.FC<ShoppingFormProps> = ({
                 variant="primary"
                 size="sm"
                 loading={isLoading}
-                icon={<Sparkles size={13} />}
+                icon={<Sparkles size={16} strokeWidth={1.8} />}
               >
                 <span>Search</span>
               </Button>

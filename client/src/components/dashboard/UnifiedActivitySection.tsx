@@ -72,10 +72,10 @@ export const UnifiedActivitySection: React.FC<UnifiedActivitySectionProps> = ({
       {/* Header & Tabs */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-neutral-100 dark:border-neutral-800">
         <div>
-          <h3 className="text-sm font-semibold text-neutral-900 dark:text-white">
+          <h3 className="text-[15px] font-semibold text-neutral-900 dark:text-white">
             Recent Activity
           </h3>
-          <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">
+          <p className="text-[12px] font-normal text-neutral-500 dark:text-neutral-400 mt-0.5">
             Real-time feed of shopping queries, proposals and settled captures
           </p>
         </div>
@@ -90,7 +90,7 @@ export const UnifiedActivitySection: React.FC<UnifiedActivitySectionProps> = ({
                 : 'text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white'
             }`}
           >
-            All ({combinedItems.length})
+            All (<span className="tabular-nums">{combinedItems.length}</span>)
           </button>
           <button
             onClick={() => setActiveTab('requests')}
@@ -100,7 +100,7 @@ export const UnifiedActivitySection: React.FC<UnifiedActivitySectionProps> = ({
                 : 'text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white'
             }`}
           >
-            Requests ({requests.length})
+            Requests (<span className="tabular-nums">{requests.length}</span>)
           </button>
           <button
             onClick={() => setActiveTab('orders')}
@@ -110,7 +110,7 @@ export const UnifiedActivitySection: React.FC<UnifiedActivitySectionProps> = ({
                 : 'text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white'
             }`}
           >
-            Orders ({orders.length})
+            Orders (<span className="tabular-nums">{orders.length}</span>)
           </button>
         </div>
       </div>
@@ -136,9 +136,9 @@ export const UnifiedActivitySection: React.FC<UnifiedActivitySectionProps> = ({
                   }`}
                 >
                   {item.type === 'request' ? (
-                    <Sparkles size={14} />
+                    <Sparkles size={16} strokeWidth={1.8} />
                   ) : (
-                    <Receipt size={14} />
+                    <Receipt size={16} strokeWidth={1.8} />
                   )}
                 </div>
 
@@ -149,14 +149,14 @@ export const UnifiedActivitySection: React.FC<UnifiedActivitySectionProps> = ({
                   <div className="text-[11px] text-neutral-500 dark:text-neutral-400 flex items-center gap-1.5 mt-0.5">
                     <span>{item.subtitle}</span>
                     <span>•</span>
-                    <span>{item.time}</span>
+                    <span className="tabular-nums">{item.time}</span>
                   </div>
                 </div>
               </div>
 
               <div className="flex items-center gap-3 shrink-0">
                 {item.amount && (
-                  <div className="text-xs font-bold text-neutral-900 dark:text-white">
+                  <div className="text-xs font-bold text-neutral-900 dark:text-white tabular-nums">
                     {item.amount}
                   </div>
                 )}
@@ -166,7 +166,7 @@ export const UnifiedActivitySection: React.FC<UnifiedActivitySectionProps> = ({
                   className="hidden sm:flex items-center gap-1 text-[11px] font-medium text-neutral-500 hover:text-neutral-900 dark:hover:text-white group-hover:underline transition-colors"
                 >
                   <span>{item.actionLabel}</span>
-                  <ArrowRight size={11} />
+                  <ArrowRight size={14} strokeWidth={1.8} />
                 </Link>
               </div>
             </div>

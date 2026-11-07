@@ -58,7 +58,7 @@ export const ShoppingComparisonCard: React.FC<ShoppingComparisonCardProps> = ({
         {/* Product Details */}
         <div className="p-4 sm:p-5 flex flex-col gap-3">
           <div>
-            <h4 className="text-sm font-semibold text-neutral-900 dark:text-white leading-snug line-clamp-1">
+            <h4 className="text-[15px] font-semibold text-neutral-900 dark:text-white leading-snug line-clamp-1">
               {title}
             </h4>
 
@@ -76,12 +76,12 @@ export const ShoppingComparisonCard: React.FC<ShoppingComparisonCardProps> = ({
                     className="hover:text-neutral-900 dark:hover:text-white inline-flex items-center"
                     title={`Open on ${retailer}`}
                   >
-                    <ExternalLink size={11} />
+                    <ExternalLink size={14} strokeWidth={1.8} />
                   </a>
                 )}
               </div>
 
-              <div className="text-base font-bold text-neutral-900 dark:text-white">
+              <div className="text-lg font-bold text-neutral-900 dark:text-white tabular-nums">
                 {price}
               </div>
             </div>
@@ -89,13 +89,13 @@ export const ShoppingComparisonCard: React.FC<ShoppingComparisonCardProps> = ({
             {/* Rating */}
             <div className="flex items-center gap-1.5 mt-1 text-xs text-neutral-500 dark:text-neutral-400">
               <div className="flex items-center text-amber-500">
-                <Star size={12} className="fill-amber-400 text-amber-400" />
-                <span className="font-semibold ml-1 text-neutral-800 dark:text-neutral-200">
+                <Star size={13} strokeWidth={1.8} className="fill-amber-400 text-amber-400" />
+                <span className="font-semibold ml-1 text-neutral-800 dark:text-neutral-200 tabular-nums">
                   {rating.toFixed(1)}
                 </span>
               </div>
               <span className="text-neutral-300 dark:text-neutral-600">•</span>
-              <span className="text-[11px] text-neutral-400">({reviewsCount} reviews)</span>
+              <span className="text-[11px] text-neutral-400 tabular-nums">({reviewsCount} reviews)</span>
             </div>
           </div>
 
@@ -108,10 +108,11 @@ export const ShoppingComparisonCard: React.FC<ShoppingComparisonCardProps> = ({
               {recommendationReasons.map((reason, idx) => (
                 <li
                   key={idx}
-                  className="flex items-start gap-2 text-[11px] text-neutral-600 dark:text-neutral-400 leading-tight"
+                  className="flex items-start gap-2 text-[12px] text-neutral-600 dark:text-neutral-400 leading-tight"
                 >
                   <Check
-                    size={12}
+                    size={14}
+                    strokeWidth={2}
                     className="text-[#1D4A18] dark:text-[#95EB68] shrink-0 mt-0.5"
                   />
                   <span>{reason}</span>
@@ -130,7 +131,7 @@ export const ShoppingComparisonCard: React.FC<ShoppingComparisonCardProps> = ({
             size="sm"
             className="w-full justify-center"
             onClick={onSelect}
-            icon={<ArrowRight size={13} />}
+            icon={<ArrowRight size={16} strokeWidth={1.8} />}
           >
             <span>Select for Proposal</span>
           </Button>

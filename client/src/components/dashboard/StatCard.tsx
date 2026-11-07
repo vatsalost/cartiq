@@ -34,21 +34,21 @@ export const StatCard: React.FC<StatCardProps> = ({
           {title}
         </span>
         {icon && (
-          <div className="text-neutral-400 dark:text-neutral-500">
+          <div className="text-neutral-400 dark:text-neutral-500 flex items-center">
             {icon}
           </div>
         )}
       </div>
 
       <div className="my-2.5">
-        <div className="text-2xl sm:text-[26px] font-bold tracking-tight text-neutral-900 dark:text-white">
+        <div className="text-[30px] font-bold tracking-tight text-neutral-900 dark:text-white tabular-nums leading-none">
           {amount}
         </div>
       </div>
 
       <div className="flex items-center justify-between gap-2 pt-1 border-t border-neutral-100 dark:border-neutral-800/60 text-xs">
         {subtitle && (
-          <span className="text-[11px] text-neutral-500 dark:text-neutral-400 truncate">
+          <span className="text-[12px] text-neutral-500 dark:text-neutral-400 truncate">
             {subtitle}
           </span>
         )}

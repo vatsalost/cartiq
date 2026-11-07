@@ -109,13 +109,13 @@ export const ActivityPage: React.FC = () => {
       {/* Header section with Icon */}
       <div className="flex items-start gap-3.5">
         <div className="w-10 h-10 rounded-xl bg-[#ECFADF] dark:bg-[#142617] text-[#1D4A18] dark:text-[#95EB68] flex items-center justify-center shrink-0">
-          <History size={20} />
+          <History size={20} strokeWidth={1.8} />
         </div>
         <div>
-          <h2 className="text-xl font-bold text-neutral-900 dark:text-white tracking-tight">
+          <h1 className="text-[28px] font-bold text-neutral-900 dark:text-white tracking-tight leading-tight">
             Activity & Audit
-          </h2>
-          <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">
+          </h1>
+          <p className="text-[12px] font-normal text-neutral-500 dark:text-neutral-400 mt-0.5">
             Track every request, decision and transaction made by Carti.
           </p>
         </div>
@@ -133,9 +133,9 @@ export const ActivityPage: React.FC = () => {
                 : 'bg-white dark:bg-[#17191C] text-neutral-600 dark:text-neutral-400 border border-[#E4E7E1] dark:border-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-800'
             }`}
           >
-            <FileText size={13} />
+            <FileText size={16} strokeWidth={1.8} />
             <span>Requests</span>
-            <span className="text-[10px] opacity-75">{requests.length}</span>
+            <span className="text-[10px] opacity-75 tabular-nums">{requests.length}</span>
           </button>
 
           <button
@@ -146,9 +146,9 @@ export const ActivityPage: React.FC = () => {
                 : 'bg-white dark:bg-[#17191C] text-neutral-600 dark:text-neutral-400 border border-[#E4E7E1] dark:border-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-800'
             }`}
           >
-            <Scale size={13} />
+            <Scale size={16} strokeWidth={1.8} />
             <span>Comparisons</span>
-            <span className="text-[10px] opacity-75">{candidates.length}</span>
+            <span className="text-[10px] opacity-75 tabular-nums">{candidates.length}</span>
           </button>
 
           <button
@@ -159,9 +159,9 @@ export const ActivityPage: React.FC = () => {
                 : 'bg-white dark:bg-[#17191C] text-neutral-600 dark:text-neutral-400 border border-[#E4E7E1] dark:border-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-800'
             }`}
           >
-            <ShoppingBag size={13} />
+            <ShoppingBag size={16} strokeWidth={1.8} />
             <span>Orders</span>
-            <span className="text-[10px] opacity-75">{orders.length}</span>
+            <span className="text-[10px] opacity-75 tabular-nums">{orders.length}</span>
           </button>
 
           <button
@@ -172,7 +172,7 @@ export const ActivityPage: React.FC = () => {
                 : 'bg-white dark:bg-[#17191C] text-neutral-600 dark:text-neutral-400 border border-[#E4E7E1] dark:border-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-800'
             }`}
           >
-            <History size={13} />
+            <History size={16} strokeWidth={1.8} />
             <span>Audit Timeline</span>
           </button>
         </div>
@@ -190,7 +190,7 @@ export const ActivityPage: React.FC = () => {
           </select>
 
           <div className="relative w-48 sm:w-60">
-            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" />
+            <Search size={16} strokeWidth={1.8} className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" />
             <input
               type="text"
               value={searchQuery}
@@ -208,10 +208,10 @@ export const ActivityPage: React.FC = () => {
           {/* Left Column: Shopping Requests List (5 cols) */}
           <div className="lg:col-span-5 rounded-2xl p-5 bg-white dark:bg-[#17191C] border border-[#E4E7E1] dark:border-neutral-800 shadow-[0_1px_3px_rgba(0,0,0,0.03)] flex flex-col gap-3">
             <div>
-              <h3 className="text-sm font-bold text-neutral-900 dark:text-white">
+              <h3 className="text-[15px] font-semibold text-neutral-900 dark:text-white">
                 Shopping Requests ({requests.length})
               </h3>
-              <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">
+              <p className="text-[12px] font-normal text-neutral-500 dark:text-neutral-400 mt-0.5">
                 All purchase requests and their current status.
               </p>
             </div>
@@ -244,15 +244,15 @@ export const ActivityPage: React.FC = () => {
                               : 'bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400'
                           }`}
                         >
-                          <Sparkles size={14} />
+                          <Sparkles size={16} strokeWidth={1.8} />
                         </div>
                         <div className="min-w-0">
-                          <div className="text-xs font-bold text-neutral-900 dark:text-white truncate">
+                          <div className="text-xs font-semibold text-neutral-900 dark:text-white truncate">
                             {req.prompt}
                           </div>
-                          <div className="flex items-center gap-1.5 text-[11px] text-neutral-400 mt-0.5 font-mono">
+                          <div className="flex items-center gap-1.5 text-[11px] text-neutral-400 mt-0.5 font-mono tabular-nums">
                             <span>{req.id}</span>
-                            <ExternalLink size={10} />
+                            <ExternalLink size={12} strokeWidth={1.8} />
                           </div>
                         </div>
                       </div>
@@ -265,11 +265,11 @@ export const ActivityPage: React.FC = () => {
                           >
                             {req.status === 'proposal_ready' ? 'Proposal Ready' : req.status === 'completed' ? 'Completed' : req.status}
                           </Badge>
-                          <div className="text-[10px] text-neutral-400 mt-1">
+                          <div className="text-[10px] text-neutral-400 mt-1 font-mono tabular-nums">
                             {new Date(req.created_at).toLocaleDateString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
                           </div>
                         </div>
-                        <ChevronRight size={14} className="text-neutral-400" />
+                        <ChevronRight size={16} strokeWidth={1.8} className="text-neutral-400" />
                       </div>
                     </div>
                   )
@@ -284,15 +284,15 @@ export const ActivityPage: React.FC = () => {
               <div className="flex items-start justify-between gap-3 pb-3 border-b border-neutral-100 dark:border-neutral-800">
                 <div className="flex items-start gap-3">
                   <div className="w-9 h-9 rounded-xl bg-[#ECFADF] dark:bg-[#142617] text-[#1D4A18] dark:text-[#95EB68] flex items-center justify-center shrink-0 mt-0.5">
-                    <Sparkles size={16} />
+                    <Sparkles size={18} strokeWidth={1.8} />
                   </div>
                   <div>
-                    <h3 className="text-base font-bold text-neutral-900 dark:text-white leading-snug">
+                    <h3 className="text-[18px] font-semibold text-neutral-900 dark:text-white leading-snug">
                       {selectedRequest?.prompt}
                     </h3>
-                    <div className="flex items-center gap-1.5 text-xs text-neutral-500 font-mono mt-1">
+                    <div className="flex items-center gap-1.5 text-xs text-neutral-500 font-mono mt-1 tabular-nums">
                       <span>Request ID: {selectedRequest?.id}</span>
-                      <ExternalLink size={11} />
+                      <ExternalLink size={12} strokeWidth={1.8} />
                     </div>
                   </div>
                 </div>
@@ -312,7 +312,7 @@ export const ActivityPage: React.FC = () => {
                       : 'bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400'
                   }`}
                 >
-                  <GitCommit size={13} />
+                  <GitCommit size={16} strokeWidth={1.8} />
                   <span>Audit Timeline</span>
                 </button>
 
@@ -324,7 +324,7 @@ export const ActivityPage: React.FC = () => {
                       : 'bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400'
                   }`}
                 >
-                  <FileText size={13} />
+                  <FileText size={16} strokeWidth={1.8} />
                   <span>Details</span>
                 </button>
 
@@ -336,7 +336,7 @@ export const ActivityPage: React.FC = () => {
                       : 'bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400'
                   }`}
                 >
-                  <Scale size={13} />
+                  <Scale size={16} strokeWidth={1.8} />
                   <span>Candidate Comparison</span>
                 </button>
               </div>
@@ -349,22 +349,22 @@ export const ActivityPage: React.FC = () => {
                       {/* Timeline dot icon */}
                       <span className="absolute -left-6 top-0.5 w-5 h-5 rounded-full bg-white dark:bg-[#17191C] border border-neutral-200 dark:border-neutral-700 flex items-center justify-center">
                         {evt.status === 'completed' ? (
-                          <CheckCircle2 size={13} className="text-emerald-500 fill-emerald-100 dark:fill-emerald-950/40" />
+                          <CheckCircle2 size={14} strokeWidth={2} className="text-emerald-500 fill-emerald-100 dark:fill-emerald-950/40" />
                         ) : (
                           <span className="w-2 h-2 rounded-full border border-neutral-400" />
                         )}
                       </span>
 
                       <div>
-                        <div className="font-bold text-neutral-900 dark:text-white">
+                        <div className="text-[14px] font-semibold text-neutral-900 dark:text-white">
                           {evt.title}
                         </div>
-                        <div className="text-[11px] text-neutral-500 dark:text-neutral-400 mt-0.5">
+                        <div className="text-[12px] text-neutral-500 dark:text-neutral-400 mt-0.5">
                           {evt.desc}
                         </div>
                       </div>
 
-                      <div className="text-[10px] text-neutral-400 font-mono shrink-0">
+                      <div className="text-[11px] text-neutral-400 font-mono tabular-nums shrink-0">
                         {evt.time}
                       </div>
                     </div>
@@ -374,7 +374,7 @@ export const ActivityPage: React.FC = () => {
 
               {rightSubTab === 'details' && (
                 <div className="p-3.5 rounded-xl bg-neutral-50 dark:bg-[#141619] border border-[#E4E7E1] dark:border-neutral-800 text-xs font-mono text-neutral-600 dark:text-neutral-400">
-                  <pre className="overflow-x-auto text-[11px]">
+                  <pre className="overflow-x-auto text-[11px] tabular-nums">
                     {JSON.stringify(selectedRequest, null, 2)}
                   </pre>
                 </div>
@@ -385,8 +385,8 @@ export const ActivityPage: React.FC = () => {
                   {candidates.map((c) => (
                     <div key={c.id} className="p-3 rounded-xl bg-neutral-50 dark:bg-[#141619] border border-neutral-200 dark:border-neutral-800 flex items-center justify-between">
                       <div>
-                        <span className="font-semibold text-neutral-900 dark:text-white">{c.title}</span>
-                        <div className="text-[11px] text-neutral-400">Score: {c.rank_score} • {c.offers.length} stores</div>
+                        <span className="text-[14px] font-semibold text-neutral-900 dark:text-white">{c.title}</span>
+                        <div className="text-[11px] text-neutral-400 tabular-nums">Score: {c.rank_score} • {c.offers.length} stores</div>
                       </div>
                       <Badge variant="lime" size="xs">Best Match</Badge>
                     </div>
@@ -403,51 +403,51 @@ export const ActivityPage: React.FC = () => {
               >
                 <div className="flex items-center gap-2.5">
                   <div className="w-7 h-7 rounded-lg bg-[#ECFADF] dark:bg-[#142617] text-[#1D4A18] dark:text-[#95EB68] flex items-center justify-center shrink-0">
-                    <ShieldCheck size={16} />
+                    <ShieldCheck size={16} strokeWidth={1.8} />
                   </div>
                   <div>
-                    <h4 className="text-xs font-bold text-neutral-900 dark:text-white">
+                    <h4 className="text-[15px] font-semibold text-neutral-900 dark:text-white">
                       Verification & Audit Record
                     </h4>
-                    <p className="text-[11px] text-neutral-400">
+                    <p className="text-[12px] text-neutral-400">
                       Cryptographic proof and ledger information for this request.
                     </p>
                   </div>
                 </div>
 
                 <button className="text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200">
-                  {isRecordExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                  {isRecordExpanded ? <ChevronUp size={16} strokeWidth={1.8} /> : <ChevronDown size={16} strokeWidth={1.8} />}
                 </button>
               </div>
 
               {isRecordExpanded && (
                 <div className="pt-2 border-t border-neutral-100 dark:border-neutral-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
-                  <div className="flex items-center gap-2 flex-wrap font-mono text-[11px]">
+                  <div className="flex items-center gap-2 flex-wrap font-mono text-[11px] tabular-nums">
                     <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700">
                       <span className="text-neutral-500 font-sans">Event Hash</span>
-                      <span className="text-neutral-800 dark:text-neutral-200 font-bold">3f4a6e9c7b2d1e8f...</span>
+                      <span className="text-neutral-800 dark:text-neutral-200 font-bold tabular-nums">3f4a6e9c7b2d1e8f...</span>
                       <button
                         onClick={() => handleCopy('3f4a6e9c7b2d1e8f990142', 'event')}
-                        className="text-neutral-400 hover:text-neutral-700 dark:hover:text-white ml-1"
+                        className="text-neutral-400 hover:text-neutral-700 dark:hover:text-white ml-1 cursor-pointer"
                       >
-                        {copiedHash === 'event' ? <Check size={11} className="text-emerald-500" /> : <Copy size={11} />}
+                        {copiedHash === 'event' ? <Check size={14} strokeWidth={1.8} className="text-emerald-500" /> : <Copy size={14} strokeWidth={1.8} />}
                       </button>
                     </div>
 
                     <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700">
                       <span className="text-neutral-500 font-sans">Prev Hash</span>
-                      <span className="text-neutral-800 dark:text-neutral-200 font-bold">8c1e2d4f9a0b7d3c...</span>
+                      <span className="text-neutral-800 dark:text-neutral-200 font-bold tabular-nums">8c1e2d4f9a0b7d3c...</span>
                       <button
                         onClick={() => handleCopy('8c1e2d4f9a0b7d3c114589', 'prev')}
-                        className="text-neutral-400 hover:text-neutral-700 dark:hover:text-white ml-1"
+                        className="text-neutral-400 hover:text-neutral-700 dark:hover:text-white ml-1 cursor-pointer"
                       >
-                        {copiedHash === 'prev' ? <Check size={11} className="text-emerald-500" /> : <Copy size={11} />}
+                        {copiedHash === 'prev' ? <Check size={14} strokeWidth={1.8} className="text-emerald-500" /> : <Copy size={14} strokeWidth={1.8} />}
                       </button>
                     </div>
                   </div>
 
                   <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400 text-xs font-semibold self-start sm:self-auto">
-                    <CheckCircle2 size={13} /> Verified
+                    <CheckCircle2 size={14} strokeWidth={1.8} /> Verified
                   </span>
                 </div>
               )}
@@ -461,7 +461,7 @@ export const ActivityPage: React.FC = () => {
         <div className="rounded-2xl p-5 bg-white dark:bg-[#17191C] border border-[#E4E7E1] dark:border-neutral-800">
           <table className="w-full text-left text-xs border-collapse">
             <thead>
-              <tr className="border-b border-neutral-200 dark:border-neutral-800 text-neutral-400 uppercase text-[10px] tracking-wider">
+              <tr className="border-b border-neutral-200 dark:border-neutral-800 text-neutral-400 uppercase text-[10px] tracking-wider font-semibold">
                 <th className="py-2.5 px-3">Product Name</th>
                 <th className="py-2.5 px-3">Retailer</th>
                 <th className="py-2.5 px-3">Price</th>
@@ -475,7 +475,7 @@ export const ActivityPage: React.FC = () => {
                   <tr key={off.id} className="hover:bg-neutral-50/60 dark:hover:bg-neutral-800/40">
                     <td className="py-3 px-3 font-semibold text-neutral-900 dark:text-white">{cand.title}</td>
                     <td className="py-3 px-3">{off.domain}</td>
-                    <td className="py-3 px-3 font-bold font-mono">${off.price_amount}</td>
+                    <td className="py-3 px-3 font-bold font-mono tabular-nums">${off.price_amount}</td>
                     <td className="py-3 px-3 text-emerald-600 font-medium">{off.availability}</td>
                     <td className="py-3 px-3">
                       <Badge variant={off.is_eligible ? 'success' : 'danger'} size="xs">
@@ -495,7 +495,7 @@ export const ActivityPage: React.FC = () => {
         <div className="rounded-2xl p-5 bg-white dark:bg-[#17191C] border border-[#E4E7E1] dark:border-neutral-800">
           <table className="w-full text-left text-xs border-collapse">
             <thead>
-              <tr className="border-b border-neutral-200 dark:border-neutral-800 text-neutral-400 uppercase text-[10px] tracking-wider">
+              <tr className="border-b border-neutral-200 dark:border-neutral-800 text-neutral-400 uppercase text-[10px] tracking-wider font-semibold">
                 <th className="py-2.5 px-3">Order ID</th>
                 <th className="py-2.5 px-3">Product Title</th>
                 <th className="py-2.5 px-3">Amount</th>
@@ -506,10 +506,10 @@ export const ActivityPage: React.FC = () => {
             <tbody className="divide-y divide-neutral-100 dark:divide-neutral-800">
               {orders.map((o) => (
                 <tr key={o.id} className="hover:bg-neutral-50/60 dark:hover:bg-neutral-800/40">
-                  <td className="py-3 px-3 font-mono font-medium">{o.id}</td>
+                  <td className="py-3 px-3 font-mono font-medium tabular-nums">{o.id}</td>
                   <td className="py-3 px-3 font-semibold">{o.product_title || 'Item'}</td>
-                  <td className="py-3 px-3 font-bold font-mono">${o.amount} {o.currency}</td>
-                  <td className="py-3 px-3 font-mono text-emerald-600">{o.paypal_capture_id || 'CAP-SIMULATED'}</td>
+                  <td className="py-3 px-3 font-bold font-mono tabular-nums">${o.amount} {o.currency}</td>
+                  <td className="py-3 px-3 font-mono text-emerald-600 tabular-nums">{o.paypal_capture_id || 'CAP-SIMULATED'}</td>
                   <td className="py-3 px-3 text-right">
                     <Badge variant="success" size="xs">Completed</Badge>
                   </td>
@@ -526,13 +526,13 @@ export const ActivityPage: React.FC = () => {
           {auditEvents.map((ev) => (
             <div key={ev.id} className="p-3.5 rounded-xl bg-neutral-50 dark:bg-[#141619] border border-neutral-200/80 dark:border-neutral-800 flex items-center justify-between text-xs">
               <div className="flex items-center gap-2.5">
-                <CheckCircle2 size={15} className="text-emerald-500" />
+                <CheckCircle2 size={16} strokeWidth={1.8} className="text-emerald-500" />
                 <div>
                   <span className="font-bold text-neutral-900 dark:text-white uppercase tracking-wider">{ev.event_type.replace(/_/g, ' ')}</span>
                   <div className="text-[11px] text-neutral-400">{ev.reason}</div>
                 </div>
               </div>
-              <span className="text-[10px] text-neutral-400 font-mono">{new Date(ev.created_at).toLocaleString()}</span>
+              <span className="text-[11px] text-neutral-400 font-mono tabular-nums">{new Date(ev.created_at).toLocaleString()}</span>
             </div>
           ))}
         </div>

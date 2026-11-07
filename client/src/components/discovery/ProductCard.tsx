@@ -54,14 +54,14 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         {/* Product Information */}
         <div className="p-4 sm:p-5 flex flex-col gap-3">
           <div>
-            <h4 className="text-sm font-semibold text-neutral-900 dark:text-white line-clamp-2 leading-snug">
+            <h4 className="text-[15px] font-semibold text-neutral-900 dark:text-white line-clamp-2 leading-snug">
               {product.title}
             </h4>
           </div>
 
           {/* AI Selection Rationale */}
           <div className="p-2.5 rounded-lg bg-[#F5F6F3] dark:bg-[#131417] border border-neutral-200/70 dark:border-neutral-800/80 text-xs text-neutral-600 dark:text-neutral-400 leading-relaxed flex items-start gap-2">
-            <Sparkles size={14} className="text-[#95EB68] shrink-0 mt-0.5" />
+            <Sparkles size={16} strokeWidth={1.8} className="text-[#95EB68] shrink-0 mt-0.5" />
             <span className="line-clamp-2">{product.rank_reason}</span>
           </div>
 
@@ -94,7 +94,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
                     </span>
                     {offer.availability === 'InStock' ? (
                       <span className="text-[10px] text-emerald-600 dark:text-emerald-400 flex items-center gap-0.5">
-                        <Check size={10} /> In Stock
+                        <Check size={12} strokeWidth={2} /> In Stock
                       </span>
                     ) : (
                       <span className="text-[10px] text-rose-500">Out of Stock</span>
@@ -103,7 +103,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
 
                   <div className="flex items-center gap-2">
                     <span
-                      className={`font-semibold ${
+                      className={`font-semibold tabular-nums ${
                         offer.is_eligible
                           ? 'text-neutral-900 dark:text-white'
                           : 'text-neutral-400 line-through'
@@ -112,12 +112,12 @@ export const ProductCard: React.FC<ProductCardProps> = ({
                       ${offer.price_amount}
                     </span>
                     {offer.is_eligible ? (
-                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400">
+                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400 font-medium">
                         Eligible
                       </span>
                     ) : (
-                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-50 text-amber-700 dark:bg-amber-500/10 dark:text-amber-400 flex items-center gap-0.5">
-                        <AlertTriangle size={9} /> Cap
+                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-50 text-amber-700 dark:bg-amber-500/10 dark:text-amber-400 flex items-center gap-0.5 font-medium">
+                        <AlertTriangle size={12} strokeWidth={1.8} /> Cap
                       </span>
                     )}
                   </div>
@@ -145,7 +145,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             size="sm"
             className="flex-1"
             onClick={() => onSelectOffer(product, bestOffer)}
-            icon={<ArrowRight size={13} />}
+            icon={<ArrowRight size={16} strokeWidth={1.8} />}
           >
             Review Proposal
           </Button>

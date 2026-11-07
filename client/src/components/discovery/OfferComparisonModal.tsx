@@ -60,18 +60,18 @@ export const OfferComparisonModal: React.FC<OfferComparisonModalProps> = ({
                           rel="noreferrer"
                           className="text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200"
                         >
-                          <ExternalLink size={11} />
+                          <ExternalLink size={14} strokeWidth={1.8} />
                         </a>
                       )}
                     </div>
                   </td>
-                  <td className="py-3 px-3.5 font-bold text-neutral-900 dark:text-white">
+                  <td className="py-3 px-3.5 font-bold text-neutral-900 dark:text-white tabular-nums">
                     ${offer.price_amount} <span className="text-[10px] text-neutral-400 font-normal">{offer.currency}</span>
                   </td>
                   <td className="py-3 px-3.5">
                     {offer.availability === 'InStock' ? (
                       <span className="text-emerald-600 dark:text-emerald-400 font-medium flex items-center gap-1">
-                        <Check size={12} /> In Stock
+                        <Check size={14} strokeWidth={2} /> In Stock
                       </span>
                     ) : (
                       <span className="text-rose-500 font-medium">Out of Stock</span>

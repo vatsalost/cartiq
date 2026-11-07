@@ -45,10 +45,10 @@ export const DashboardPage: React.FC = () => {
       {/* Top Header / Greeting */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <div className="text-xs font-medium text-neutral-500 dark:text-neutral-400">
+          <div className="text-[12px] font-normal text-neutral-500 dark:text-neutral-400">
             Good to see you, {userEmail ? userEmail.split('@')[0] : 'demo-user'}
           </div>
-          <h1 className="text-2xl font-bold text-neutral-900 dark:text-white tracking-tight mt-0.5">
+          <h1 className="text-[28px] font-bold text-neutral-900 dark:text-white tracking-tight mt-0.5 leading-tight">
             Overview
           </h1>
         </div>
@@ -58,7 +58,7 @@ export const DashboardPage: React.FC = () => {
             variant="primary"
             size="sm"
             onClick={() => navigate('/shopping')}
-            icon={<Plus size={15} />}
+            icon={<Plus size={16} strokeWidth={1.8} />}
           >
             New Shopping Request
           </Button>
@@ -72,7 +72,7 @@ export const DashboardPage: React.FC = () => {
           amount={`$${availableAmount}`}
           subtitle={`of $${mandate?.total_budget || '150.00'} total cap`}
           badge={{ text: '43.3% available', variant: 'lime' }}
-          icon={<ShieldCheck size={16} />}
+          icon={<ShieldCheck size={20} strokeWidth={1.8} />}
           variant="accent"
         />
 
@@ -81,7 +81,7 @@ export const DashboardPage: React.FC = () => {
           amount={`$${totalCommitted}`}
           subtitle="Captured + in-flight"
           badge={{ text: 'Active Mandate', variant: 'neutral' }}
-          icon={<CreditCard size={16} />}
+          icon={<CreditCard size={20} strokeWidth={1.8} />}
         />
 
         <StatCard
@@ -89,7 +89,7 @@ export const DashboardPage: React.FC = () => {
           amount="1"
           subtitle={`$${reservedAmount.toFixed(2)} held in reservation`}
           badge={{ text: 'Needs Review', variant: 'lavender' }}
-          icon={<Clock size={16} />}
+          icon={<Clock size={20} strokeWidth={1.8} />}
         />
 
         <StatCard
@@ -97,7 +97,7 @@ export const DashboardPage: React.FC = () => {
           amount={`${orders.length}`}
           subtitle="100% retailer verified"
           badge={{ text: 'This Mandate', variant: 'success' }}
-          icon={<CheckCircle2 size={16} />}
+          icon={<CheckCircle2 size={20} strokeWidth={1.8} />}
         />
       </div>
 

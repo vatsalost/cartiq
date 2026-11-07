@@ -110,17 +110,17 @@ export const OrdersPage: React.FC = () => {
     <div className="flex flex-col gap-6">
       {/* Top Header */}
       <div>
-        <h1 className="text-2xl font-bold text-neutral-900 dark:text-white tracking-tight">
+        <h1 className="text-[28px] font-bold text-neutral-900 dark:text-white tracking-tight leading-tight">
           Orders & Transactions
         </h1>
-        <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">
+        <p className="text-[12px] font-normal text-neutral-500 dark:text-neutral-400 mt-0.5">
           Settled purchases, delivery status, and PayPal transaction receipts.
         </p>
       </div>
 
       {refundAlert && (
         <div className="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 dark:bg-emerald-950/20 dark:border-emerald-800/40 dark:text-emerald-300 text-xs font-semibold flex items-center gap-2 animate-in fade-in">
-          <CheckCircle2 size={16} className="shrink-0" />
+          <CheckCircle2 size={16} strokeWidth={1.8} className="shrink-0" />
           <span>{refundAlert}</span>
         </div>
       )}
@@ -130,11 +130,11 @@ export const OrdersPage: React.FC = () => {
         <div className="rounded-xl p-5 bg-white dark:bg-[#17191C] border border-neutral-200/90 dark:border-neutral-800 shadow-[0_1px_3px_rgba(0,0,0,0.03)] flex flex-col justify-between">
           <div className="flex items-center justify-between text-xs text-neutral-500 dark:text-neutral-400 font-medium">
             <span>Total Orders</span>
-            <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 font-semibold">
+            <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 font-semibold tabular-nums">
               100% Fulfilled
             </span>
           </div>
-          <div className="text-2xl font-bold text-neutral-900 dark:text-white mt-2">
+          <div className="text-[30px] font-bold text-neutral-900 dark:text-white mt-2 tabular-nums">
             {orders.length}
           </div>
         </div>
@@ -142,11 +142,11 @@ export const OrdersPage: React.FC = () => {
         <div className="rounded-xl p-5 bg-white dark:bg-[#17191C] border border-neutral-200/90 dark:border-neutral-800 shadow-[0_1px_3px_rgba(0,0,0,0.03)] flex flex-col justify-between">
           <div className="flex items-center justify-between text-xs text-neutral-500 dark:text-neutral-400 font-medium">
             <span>Total Captured</span>
-            <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 font-semibold">
+            <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 font-semibold tabular-nums">
               PayPal Settled
             </span>
           </div>
-          <div className="text-2xl font-bold text-neutral-900 dark:text-white mt-2">
+          <div className="text-[30px] font-bold text-neutral-900 dark:text-white mt-2 tabular-nums">
             ${totalCapturedAmount.toFixed(2)}
           </div>
         </div>
@@ -154,11 +154,11 @@ export const OrdersPage: React.FC = () => {
         <div className="rounded-xl p-5 bg-white dark:bg-[#17191C] border border-neutral-200/90 dark:border-neutral-800 shadow-[0_1px_3px_rgba(0,0,0,0.03)] flex flex-col justify-between">
           <div className="flex items-center justify-between text-xs text-neutral-500 dark:text-neutral-400 font-medium">
             <span>Refunds & Disputes</span>
-            <span className="text-[10px] px-2 py-0.5 rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 font-semibold">
+            <span className="text-[10px] px-2 py-0.5 rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 font-semibold tabular-nums">
               0.0% Rate
             </span>
           </div>
-          <div className="text-2xl font-bold text-neutral-900 dark:text-white mt-2">
+          <div className="text-[30px] font-bold text-neutral-900 dark:text-white mt-2 tabular-nums">
             {refundedOrders.length}
           </div>
         </div>
@@ -212,7 +212,7 @@ export const OrdersPage: React.FC = () => {
 
         {/* Search */}
         <div className="relative w-full sm:w-72">
-          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" />
+          <Search size={16} strokeWidth={1.8} className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" />
           <input
             type="text"
             value={searchQuery}
@@ -258,7 +258,7 @@ export const OrdersPage: React.FC = () => {
                           : 'hover:bg-neutral-50 dark:hover:bg-neutral-800/40'
                       }`}
                     >
-                      <td className="py-3.5 px-4 font-mono text-[11px] font-medium text-neutral-700 dark:text-neutral-300">
+                      <td className="py-3.5 px-4 font-mono text-[11px] font-medium text-neutral-700 dark:text-neutral-300 tabular-nums">
                         {order.id.slice(0, 12)}
                       </td>
                       <td className="py-3.5 px-4 font-medium text-neutral-900 dark:text-white max-w-[220px] truncate">
@@ -267,7 +267,7 @@ export const OrdersPage: React.FC = () => {
                       <td className="py-3.5 px-4 text-neutral-600 dark:text-neutral-400">
                         {order.retailer_domain?.replace('.com', '') || 'Amazon'}
                       </td>
-                      <td className="py-3.5 px-4 font-bold text-neutral-900 dark:text-white">
+                      <td className="py-3.5 px-4 font-bold text-neutral-900 dark:text-white tabular-nums">
                         ${order.amount}
                       </td>
                       <td className="py-3.5 px-4">
@@ -287,7 +287,7 @@ export const OrdersPage: React.FC = () => {
                           </span>
                         )}
                       </td>
-                      <td className="py-3.5 px-4 text-neutral-500 dark:text-neutral-400">
+                      <td className="py-3.5 px-4 text-neutral-500 dark:text-neutral-400 tabular-nums">
                         May 10, 2026
                       </td>
                       <td className="py-3.5 px-4 text-right">
@@ -317,17 +317,17 @@ export const OrdersPage: React.FC = () => {
           {/* Header */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-neutral-100 dark:border-neutral-800">
             <div>
-              <h3 className="text-base font-semibold text-neutral-900 dark:text-white">
+              <h3 className="text-[15px] font-semibold text-neutral-900 dark:text-white">
                 {selectedOrder.product_title || 'Anker USB-C Hub 7-in-1 with 4K HDMI'}
               </h3>
-              <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">
+              <p className="text-[12px] font-normal text-neutral-500 dark:text-neutral-400 mt-0.5 tabular-nums">
                 {selectedOrder.retailer_domain || 'Amazon'} • Ordered May 10, 2026 at 4:30 PM
               </p>
             </div>
 
             <div className="flex items-center gap-2">
               <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-[#ECFADF] text-[#1D4A18] dark:bg-[#142617] dark:text-[#95EB68] flex items-center gap-1.5">
-                <CheckCircle2 size={13} />
+                <CheckCircle2 size={14} strokeWidth={1.8} />
                 <span>Verified PayPal Capture</span>
               </span>
             </div>
@@ -337,14 +337,14 @@ export const OrdersPage: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             {/* Payment Details */}
             <div className="p-4 rounded-xl bg-neutral-50 dark:bg-[#141619] border border-neutral-200/70 dark:border-neutral-800/80 flex flex-col gap-2.5">
-              <div className="text-xs font-semibold text-neutral-900 dark:text-white pb-1 border-b border-neutral-200/60 dark:border-neutral-800">
+              <div className="text-[15px] font-semibold text-neutral-900 dark:text-white pb-1 border-b border-neutral-200/60 dark:border-neutral-800">
                 Payment Details
               </div>
 
               <div className="space-y-2 text-xs">
                 <div className="flex items-center justify-between">
                   <span className="text-neutral-500 dark:text-neutral-400">PayPal Order ID</span>
-                  <div className="flex items-center gap-1.5 font-mono text-[11px] text-neutral-800 dark:text-neutral-200">
+                  <div className="flex items-center gap-1.5 font-mono text-[11px] text-neutral-800 dark:text-neutral-200 tabular-nums">
                     <span>{selectedOrder.paypal_order_id || '5X982341KL678901M'}</span>
                     <button
                       type="button"
@@ -357,9 +357,9 @@ export const OrdersPage: React.FC = () => {
                       className="text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-200 cursor-pointer"
                     >
                       {copiedField === 'paypal_order' ? (
-                        <Check size={11} className="text-emerald-500" />
+                        <Check size={14} strokeWidth={1.8} className="text-emerald-500" />
                       ) : (
-                        <Copy size={11} />
+                        <Copy size={14} strokeWidth={1.8} />
                       )}
                     </button>
                   </div>
@@ -367,7 +367,7 @@ export const OrdersPage: React.FC = () => {
 
                 <div className="flex items-center justify-between">
                   <span className="text-neutral-500 dark:text-neutral-400">Capture ID</span>
-                  <div className="flex items-center gap-1.5 font-mono text-[11px] text-neutral-800 dark:text-neutral-200">
+                  <div className="flex items-center gap-1.5 font-mono text-[11px] text-neutral-800 dark:text-neutral-200 tabular-nums">
                     <span>{selectedOrder.paypal_capture_id || 'CAP_876543210987'}</span>
                     <button
                       type="button"
@@ -380,9 +380,9 @@ export const OrdersPage: React.FC = () => {
                       className="text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-200 cursor-pointer"
                     >
                       {copiedField === 'capture_id' ? (
-                        <Check size={11} className="text-emerald-500" />
+                        <Check size={14} strokeWidth={1.8} className="text-emerald-500" />
                       ) : (
-                        <Copy size={11} />
+                        <Copy size={14} strokeWidth={1.8} />
                       )}
                     </button>
                   </div>
@@ -390,14 +390,14 @@ export const OrdersPage: React.FC = () => {
 
                 <div className="flex items-center justify-between">
                   <span className="text-neutral-500 dark:text-neutral-400">Captured At</span>
-                  <span className="text-neutral-800 dark:text-neutral-200">
+                  <span className="text-neutral-800 dark:text-neutral-200 tabular-nums">
                     May 10, 2026, 4:30 PM
                   </span>
                 </div>
 
                 <div className="flex items-center justify-between">
                   <span className="text-neutral-500 dark:text-neutral-400">Amount</span>
-                  <span className="font-bold text-neutral-900 dark:text-white">
+                  <span className="font-bold text-neutral-900 dark:text-white tabular-nums">
                     ${selectedOrder.amount} {selectedOrder.currency}
                   </span>
                 </div>
@@ -413,21 +413,21 @@ export const OrdersPage: React.FC = () => {
 
             {/* Mandate Details */}
             <div className="p-4 rounded-xl bg-neutral-50 dark:bg-[#141619] border border-neutral-200/70 dark:border-neutral-800/80 flex flex-col gap-2.5">
-              <div className="text-xs font-semibold text-neutral-900 dark:text-white pb-1 border-b border-neutral-200/60 dark:border-neutral-800">
+              <div className="text-[15px] font-semibold text-neutral-900 dark:text-white pb-1 border-b border-neutral-200/60 dark:border-neutral-800">
                 Mandate Details
               </div>
 
               <div className="space-y-2 text-xs">
                 <div className="flex items-center justify-between">
                   <span className="text-neutral-500 dark:text-neutral-400">Reservation ID</span>
-                  <span className="font-mono text-[11px] text-neutral-800 dark:text-neutral-200">
+                  <span className="font-mono text-[11px] text-neutral-800 dark:text-neutral-200 tabular-nums">
                     res_11223344
                   </span>
                 </div>
 
                 <div className="flex items-center justify-between">
                   <span className="text-neutral-500 dark:text-neutral-400">Mandate Version</span>
-                  <span className="font-mono text-[11px] text-neutral-800 dark:text-neutral-200">
+                  <span className="font-mono text-[11px] text-neutral-800 dark:text-neutral-200 tabular-nums">
                     v2
                   </span>
                 </div>
@@ -441,15 +441,15 @@ export const OrdersPage: React.FC = () => {
 
                 <div className="flex items-center justify-between">
                   <span className="text-neutral-500 dark:text-neutral-400">Price Check</span>
-                  <span className="text-emerald-600 dark:text-emerald-400 font-medium flex items-center gap-1">
-                    <Check size={12} />
+                  <span className="text-emerald-600 dark:text-emerald-400 font-medium flex items-center gap-1 tabular-nums">
+                    <Check size={14} strokeWidth={2} />
                     <span>${selectedOrder.amount} &le; $60.00 cap (Passed)</span>
                   </span>
                 </div>
 
                 <div className="flex items-center justify-between">
                   <span className="text-neutral-500 dark:text-neutral-400">Tolerance Check</span>
-                  <span className="text-neutral-800 dark:text-neutral-200">
+                  <span className="text-neutral-800 dark:text-neutral-200 tabular-nums">
                     0.0% variance (Passed)
                   </span>
                 </div>
@@ -467,7 +467,7 @@ export const OrdersPage: React.FC = () => {
                   setSelectedOrderForReceipt(selectedOrder)
                   setIsReceiptOpen(true)
                 }}
-                icon={<Receipt size={13} />}
+                icon={<Receipt size={16} strokeWidth={1.8} />}
               >
                 View Receipt
               </Button>
@@ -480,7 +480,7 @@ export const OrdersPage: React.FC = () => {
                     setSelectedOrderForRefund(selectedOrder)
                     setIsRefundModalOpen(true)
                   }}
-                  icon={<RotateCcw size={13} />}
+                  icon={<RotateCcw size={16} strokeWidth={1.8} />}
                 >
                   Request Refund
                 </Button>
@@ -495,7 +495,7 @@ export const OrdersPage: React.FC = () => {
                 className="inline-flex items-center gap-1.5 text-xs font-medium text-neutral-600 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white"
               >
                 <span>View on Retailer</span>
-                <ExternalLink size={12} />
+                <ExternalLink size={14} strokeWidth={1.8} />
               </a>
             )}
           </div>

@@ -26,11 +26,11 @@ export const ProposalSummaryCard: React.FC<ProposalSummaryCardProps> = ({
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-neutral-100 dark:border-neutral-800">
         <div className="flex items-center gap-2.5">
           <div className="w-8 h-8 rounded-lg bg-[#ECFADF] dark:bg-[#142617] text-[#1D4A18] dark:text-[#95EB68] flex items-center justify-center font-bold">
-            <ShieldCheck size={18} />
+            <ShieldCheck size={18} strokeWidth={1.8} />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h3 className="text-base font-bold text-neutral-900 dark:text-white">
+              <h3 className="text-[15px] font-semibold text-neutral-900 dark:text-white">
                 Purchase Proposal
               </h3>
               <Badge variant="lime" size="xs">
@@ -40,7 +40,7 @@ export const ProposalSummaryCard: React.FC<ProposalSummaryCardProps> = ({
                 Approved
               </Badge>
             </div>
-            <p className="text-[11px] text-neutral-400 font-mono mt-0.5">
+            <p className="text-[11px] text-neutral-400 font-mono mt-0.5 tabular-nums">
               ID: {proposal.id}
             </p>
           </div>
@@ -48,7 +48,7 @@ export const ProposalSummaryCard: React.FC<ProposalSummaryCardProps> = ({
 
         {proposal.verification_status === 'verified' && (
           <span className="text-xs font-medium px-2.5 py-1 rounded-md bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/20 flex items-center gap-1.5 self-start sm:self-auto">
-            <CheckCircle2 size={13} /> Live Stock Verified
+            <CheckCircle2 size={14} strokeWidth={1.8} /> Live Stock Verified
           </span>
         )}
       </div>
@@ -80,7 +80,7 @@ export const ProposalSummaryCard: React.FC<ProposalSummaryCardProps> = ({
           {/* Details & Expandable Rationale */}
           <div className="flex-1 flex flex-col justify-between gap-3 min-w-0">
             <div>
-              <h4 className="text-sm md:text-base font-semibold text-neutral-900 dark:text-white leading-snug">
+              <h4 className="text-[15px] font-semibold text-neutral-900 dark:text-white leading-snug">
                 {proposal.product?.title || 'Selected Verified Product'}
               </h4>
 
@@ -90,7 +90,7 @@ export const ProposalSummaryCard: React.FC<ProposalSummaryCardProps> = ({
                 </span>
                 <span>•</span>
                 <span>
-                  Quantity: <strong className="text-neutral-800 dark:text-neutral-200">{proposal.quantity} unit</strong>
+                  Quantity: <strong className="text-neutral-800 dark:text-neutral-200 tabular-nums">{proposal.quantity} unit</strong>
                 </span>
                 {proposal.offer?.buy_url && (
                   <>
@@ -102,7 +102,7 @@ export const ProposalSummaryCard: React.FC<ProposalSummaryCardProps> = ({
                       className="text-neutral-600 dark:text-neutral-300 hover:underline flex items-center gap-1 font-medium"
                     >
                       <span>Retailer URL</span>
-                      <ExternalLink size={11} />
+                      <ExternalLink size={12} strokeWidth={1.8} />
                     </a>
                   </>
                 )}
@@ -120,7 +120,7 @@ export const ProposalSummaryCard: React.FC<ProposalSummaryCardProps> = ({
                   <span className="flex items-center gap-1.5">
                     <span>AI Selection Rationale</span>
                   </span>
-                  {showRationale ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+                  {showRationale ? <ChevronUp size={14} strokeWidth={1.8} /> : <ChevronDown size={14} strokeWidth={1.8} />}
                 </button>
                 {showRationale && (
                   <p className="text-xs text-neutral-600 dark:text-neutral-400 mt-2 leading-relaxed">
@@ -142,28 +142,28 @@ export const ProposalSummaryCard: React.FC<ProposalSummaryCardProps> = ({
             <div className="flex flex-col gap-2 mt-3 text-xs">
               <div className="flex items-center justify-between text-neutral-600 dark:text-neutral-400">
                 <span>Unit Price</span>
-                <span className="font-mono text-neutral-900 dark:text-white font-medium">
+                <span className="font-mono text-neutral-900 dark:text-white font-medium tabular-nums">
                   ${proposal.unit_price_at_proposal}
                 </span>
               </div>
 
               <div className="flex items-center justify-between text-neutral-600 dark:text-neutral-400">
                 <span>Estimated Shipping</span>
-                <span className="font-mono text-neutral-900 dark:text-white font-medium">
+                <span className="font-mono text-neutral-900 dark:text-white font-medium tabular-nums">
                   ${proposal.shipping_amount || '0.00'}
                 </span>
               </div>
 
               <div className="flex items-center justify-between text-neutral-600 dark:text-neutral-400">
                 <span>Estimated Tax</span>
-                <span className="font-mono text-neutral-900 dark:text-white font-medium">
+                <span className="font-mono text-neutral-900 dark:text-white font-medium tabular-nums">
                   ${proposal.tax_amount || '0.00'}
                 </span>
               </div>
 
               <div className="pt-2.5 mt-1 border-t border-neutral-200/60 dark:border-neutral-800 flex items-center justify-between font-bold text-sm text-neutral-900 dark:text-white">
                 <span>Authoritative Total</span>
-                <span className="font-mono text-base font-bold text-neutral-900 dark:text-white">
+                <span className="font-mono text-[18px] font-bold text-neutral-900 dark:text-white tabular-nums">
                   ${proposal.total_amount} <span className="text-xs font-normal text-neutral-400">{proposal.currency}</span>
                 </span>
               </div>
@@ -172,7 +172,7 @@ export const ProposalSummaryCard: React.FC<ProposalSummaryCardProps> = ({
 
           {/* Sandbox Notice */}
           <div className="p-2.5 rounded-lg bg-amber-50 dark:bg-amber-950/20 border border-amber-200/80 dark:border-amber-800/40 text-[11px] text-amber-800 dark:text-amber-300 leading-normal flex items-start gap-2">
-            <Info size={14} className="shrink-0 mt-0.5 text-amber-600 dark:text-amber-400" />
+            <Info size={14} strokeWidth={1.8} className="shrink-0 mt-0.5 text-amber-600 dark:text-amber-400" />
             <span>
               <strong>PayPal Sandbox Notice:</strong> Payment authorization executes in the simulated PayPal sandbox environment. Completing checkout does not automatically place an order on the external merchant website.
             </span>
@@ -204,7 +204,7 @@ export const ProposalSummaryCard: React.FC<ProposalSummaryCardProps> = ({
             size="sm"
             onClick={onProceedToCheckout}
             disabled={!isPending}
-            icon={<ShoppingCart size={14} />}
+            icon={<ShoppingCart size={16} strokeWidth={1.8} />}
           >
             Continue with PayPal Checkout
           </Button>

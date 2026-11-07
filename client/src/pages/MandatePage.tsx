@@ -17,10 +17,10 @@ export const MandatePage: React.FC = () => {
       {/* Top Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-neutral-900 dark:text-white tracking-tight">
+          <h1 className="text-[28px] font-bold text-neutral-900 dark:text-white tracking-tight leading-tight">
             Spending Controls
           </h1>
-          <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">
+          <p className="text-[12px] font-normal text-neutral-500 dark:text-neutral-400 mt-0.5">
             Autonomous purchasing authority, budget allocation, and category guardrails.
           </p>
         </div>
@@ -30,7 +30,7 @@ export const MandatePage: React.FC = () => {
             <Button
               variant="outline"
               size="sm"
-              icon={<Edit3 size={14} />}
+              icon={<Edit3 size={16} strokeWidth={1.8} />}
               onClick={() => setIsEditing(true)}
             >
               Edit Mandate
@@ -39,7 +39,7 @@ export const MandatePage: React.FC = () => {
             <Button
               variant="outline"
               size="sm"
-              icon={<RotateCcw size={14} />}
+              icon={<RotateCcw size={16} strokeWidth={1.8} />}
               onClick={() => setIsEditing(false)}
             >
               Cancel Edit

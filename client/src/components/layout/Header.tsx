@@ -65,7 +65,8 @@ export const Header: React.FC<HeaderProps> = ({ onOpenMobileMenu }) => {
 
         <form onSubmit={handleSearchSubmit} className="relative w-full">
           <Search
-            size={15}
+            size={16}
+            strokeWidth={1.8}
             className="absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400"
           />
           <input
@@ -75,7 +76,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenMobileMenu }) => {
             placeholder="Search products, orders, or requests..."
             className="w-full bg-[#F5F6F3] dark:bg-[#121316] text-neutral-900 dark:text-white placeholder-neutral-400 text-xs rounded-full pl-9 pr-14 py-2 border border-transparent focus:border-neutral-300 dark:focus:border-neutral-700 outline-hidden transition-all"
           />
-          <div className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-neutral-400 font-medium px-1.5 py-0.5 rounded border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 pointer-events-none">
+          <div className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-neutral-400 font-mono px-1.5 py-0.5 rounded border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 pointer-events-none">
             Ctrl K
           </div>
         </form>
@@ -89,8 +90,8 @@ export const Header: React.FC<HeaderProps> = ({ onOpenMobileMenu }) => {
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#ECFADF] dark:bg-[#142617] border border-[#95EB68]/40 dark:border-[#95EB68]/30 text-xs text-[#1D4A18] dark:text-[#95EB68] font-medium hover:brightness-95 transition-all"
           title="View Spending Mandate"
         >
-          <ShieldCheck size={14} className="text-[#1D4A18] dark:text-[#95EB68]" />
-          <span>Mandate: ${mandate?.total_budget || '150.00'}</span>
+          <ShieldCheck size={16} strokeWidth={1.8} className="text-[#1D4A18] dark:text-[#95EB68]" />
+          <span>Mandate: <span className="font-semibold tabular-nums">${mandate?.total_budget || '150.00'}</span></span>
         </Link>
 
         {/* Notifications Dropdown */}
@@ -100,7 +101,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenMobileMenu }) => {
             className="w-9 h-9 rounded-full flex items-center justify-center border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-[#17191C] text-neutral-600 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-800 relative cursor-pointer"
             title="Notifications"
           >
-            <Bell size={16} />
+            <Bell size={16} strokeWidth={1.8} />
             <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-[#95EB68]" />
           </button>
 

@@ -45,17 +45,17 @@ export const SpendingOverviewCard: React.FC = () => {
       {/* Card Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-neutral-100 dark:border-neutral-800 gap-2">
         <div>
-          <h3 className="text-sm font-semibold text-neutral-900 dark:text-white">
+          <h3 className="text-[15px] font-semibold text-neutral-900 dark:text-white">
             Spending Overview
           </h3>
-          <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">
+          <p className="text-[12px] font-normal text-neutral-500 dark:text-neutral-400 mt-0.5">
             Trajectory & allocation against mandate limits
           </p>
         </div>
 
         <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 self-start sm:self-auto">
           <span>Total Mandate:</span>
-          <span className="font-semibold text-neutral-900 dark:text-white">${total.toFixed(2)}</span>
+          <span className="font-semibold text-neutral-900 dark:text-white tabular-nums">${total.toFixed(2)}</span>
         </div>
       </div>
 
@@ -132,10 +132,10 @@ export const SpendingOverviewCard: React.FC = () => {
             </ResponsiveContainer>
 
             <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-              <span className="text-xl font-bold text-neutral-900 dark:text-white leading-none">
+              <span className="text-[26px] font-bold text-neutral-900 dark:text-white leading-none tabular-nums">
                 {utilizedPct}%
               </span>
-              <span className="text-[10px] text-neutral-500 dark:text-neutral-400 mt-0.5">
+              <span className="text-[10px] text-neutral-500 dark:text-neutral-400 mt-0.5 font-medium">
                 Utilized
               </span>
             </div>
@@ -148,7 +148,7 @@ export const SpendingOverviewCard: React.FC = () => {
                 <span className="w-2.5 h-2.5 rounded-full bg-[#17191C] dark:bg-neutral-400" />
                 <span>Captured</span>
               </span>
-              <span className="font-semibold text-neutral-900 dark:text-white">${captured.toFixed(2)}</span>
+              <span className="font-semibold text-neutral-900 dark:text-white tabular-nums">${captured.toFixed(2)}</span>
             </div>
 
             <div className="flex items-center justify-between text-neutral-600 dark:text-neutral-400">
@@ -156,7 +156,7 @@ export const SpendingOverviewCard: React.FC = () => {
                 <span className="w-2.5 h-2.5 rounded-full bg-[#AAB5F8]" />
                 <span>Reserved</span>
               </span>
-              <span className="font-semibold text-neutral-900 dark:text-white">${reserved.toFixed(2)}</span>
+              <span className="font-semibold text-neutral-900 dark:text-white tabular-nums">${reserved.toFixed(2)}</span>
             </div>
 
             <div className="flex items-center justify-between text-neutral-600 dark:text-neutral-400">
@@ -164,12 +164,12 @@ export const SpendingOverviewCard: React.FC = () => {
                 <span className="w-2.5 h-2.5 rounded-full bg-[#95EB68]" />
                 <span>Available</span>
               </span>
-              <span className="font-semibold text-[#1D4A18] dark:text-[#95EB68]">${available.toFixed(2)}</span>
+              <span className="font-semibold text-[#1D4A18] dark:text-[#95EB68] tabular-nums">${available.toFixed(2)}</span>
             </div>
 
             <div className="pt-2 border-t border-neutral-200 dark:border-neutral-700/60 flex items-center justify-between font-medium">
               <span className="text-neutral-500 dark:text-neutral-400">Total Budget</span>
-              <span className="font-bold text-neutral-900 dark:text-white">${total.toFixed(2)}</span>
+              <span className="font-bold text-neutral-900 dark:text-white tabular-nums">${total.toFixed(2)}</span>
             </div>
           </div>
         </div>

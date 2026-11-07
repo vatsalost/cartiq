@@ -52,12 +52,12 @@ export const Modal: React.FC<ModalProps> = ({
           <div className="flex items-start justify-between p-5 pb-4 border-b border-neutral-100 dark:border-neutral-800">
             <div>
               {title && (
-                <h3 className="text-base md:text-lg font-semibold text-neutral-900 dark:text-white tracking-tight">
+                <h3 className="text-[18px] font-semibold text-neutral-900 dark:text-white tracking-tight">
                   {title}
                 </h3>
               )}
               {description && (
-                <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">
+                <p className="text-[12px] font-normal text-neutral-500 dark:text-neutral-400 mt-0.5">
                   {description}
                 </p>
               )}
@@ -66,7 +66,7 @@ export const Modal: React.FC<ModalProps> = ({
               onClick={onClose}
               className="w-7 h-7 rounded-lg flex items-center justify-center text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors cursor-pointer"
             >
-              <X size={16} />
+              <X size={16} strokeWidth={1.8} />
             </button>
           </div>
         )}

@@ -67,7 +67,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
           <div className="h-16 px-4 flex items-center justify-between border-b border-[#22252B]">
             <Link to="/" onClick={onClose} className="flex items-center gap-2.5 group">
               <div className="w-8 h-8 rounded-lg bg-[#95EB68] flex items-center justify-center text-[#17191C] font-black text-sm tracking-tighter shadow-sm">
-                <Sparkles size={17} className="text-[#17191C] fill-[#17191C]" />
+                <Sparkles size={20} strokeWidth={1.8} className="text-[#17191C] fill-[#17191C]" />
               </div>
               <div className="flex flex-col">
                 <span className="text-base font-bold text-white tracking-tight leading-none">
@@ -106,7 +106,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                     }`
                   }
                 >
-                  <Icon size={17} className="shrink-0" />
+                  <Icon size={20} strokeWidth={1.8} className="shrink-0" />
                   <span>{item.name}</span>
                 </NavLink>
               )
@@ -127,12 +127,12 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                 <span className="text-xs font-semibold text-white">
                   Mandate v{mandate?.version || 2}
                 </span>
-                <span className="text-[11px] text-neutral-400 font-mono">
+                <span className="text-[11px] text-neutral-400 font-mono tabular-nums">
                   ${availableBudget.toFixed(2)} available
                 </span>
               </div>
             </div>
-            <ArrowRight size={14} className="text-neutral-400 group-hover:text-[#95EB68] group-hover:translate-x-0.5 transition-all" />
+            <ArrowRight size={16} strokeWidth={1.8} className="text-neutral-400 group-hover:text-[#95EB68] group-hover:translate-x-0.5 transition-all" />
           </Link>
         </div>
       </aside>

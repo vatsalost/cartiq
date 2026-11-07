@@ -13,9 +13,9 @@ export const ThemeToggle: React.FC<{ className?: string }> = ({ className = '' }
       aria-label="Toggle theme"
     >
       {theme === 'light' ? (
-        <Moon size={15} />
+        <Moon size={16} strokeWidth={1.8} />
       ) : (
-        <Sun size={15} className="text-amber-400" />
+        <Sun size={16} strokeWidth={1.8} className="text-amber-400" />
       )}
     </button>
   )
