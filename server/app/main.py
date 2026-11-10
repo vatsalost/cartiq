@@ -88,6 +88,89 @@ async def lifespan(app: FastAPI):
                     db.add(new_mandate)
                     db.commit()
                     logger.info("Seeded initial spending mandate v1 for demo user %s.", demo_uuid)
+
+                # Auto-seed default proposal for demo review & checkout
+                from server.app.models.candidate import Candidate, CandidateOffer
+                from server.app.models.proposal import Proposal
+                from server.app.models.request import ShoppingRequest
+
+                prop_uuid = uuid.UUID("98765432-1111-2222-3333-444455556666")
+                demo_prop = db.get(Proposal, prop_uuid)
+                effective_mandate = active_mandate or new_mandate
+                if not demo_prop:
+                    demo_req = db.scalars(select(ShoppingRequest).where(ShoppingRequest.user_id == demo_uuid)).first()
+                    if not demo_req:
+                        demo_req = ShoppingRequest(
+                            id=uuid.uuid4(),
+                            user_id=demo_uuid,
+                            mandate_id=effective_mandate.id,
+                            raw_prompt="Ergonomic wireless mouse",
+                            status="proposal_ready",
+                        )
+                        db.add(demo_req)
+                        db.flush()
+
+                    demo_cand = db.scalars(select(Candidate).where(Candidate.request_id == demo_req.id)).first()
+                    if not demo_cand:
+                        demo_cand = Candidate(
+                            id=uuid.uuid4(),
+                            request_id=demo_req.id,
+                            provider_product_id="prod_logi_mx_master_3s",
+                            title="Logitech MX Master 3S Wireless Performance Mouse",
+                            brand="Logitech",
+                            category="Electronics",
+                            image_url="https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?w=600&auto=format&fit=crop&q=80",
+                        )
+                        db.add(demo_cand)
+                        db.flush()
+
+                    demo_offer = db.scalars(select(CandidateOffer).where(CandidateOffer.candidate_id == demo_cand.id)).first()
+                    if not demo_offer:
+                        demo_offer = CandidateOffer(
+                            id=uuid.uuid4(),
+                            candidate_id=demo_cand.id,
+                            provider_offer_id="off_target_mx_3s",
+                            domain="target.com",
+                            buy_url="https://www.target.com/p/logitech-mx-master-3s",
+                            price_amount=Decimal("49.99"),
+                            currency="USD",
+                            availability="InStock",
+                            condition="new",
+                            is_eligible=True,
+                        )
+                        db.add(demo_offer)
+                        db.flush()
+
+                    now = datetime.now(timezone.utc)
+                    demo_prop = Proposal(
+                        id=prop_uuid,
+                        request_id=demo_req.id,
+                        user_id=demo_uuid,
+                        mandate_id=effective_mandate.id,
+                        mandate_version=effective_mandate.version,
+                        candidate_id=demo_cand.id,
+                        offer_id=demo_offer.id,
+                        quantity=1,
+                        unit_price_at_proposal=Decimal("49.99"),
+                        subtotal_at_proposal=Decimal("49.99"),
+                        shipping_amount=Decimal("0.00"),
+                        tax_amount=Decimal("0.00"),
+                        total_amount=Decimal("49.99"),
+                        currency="USD",
+                        rationale="Selected best match adhering to mandate spending policy.",
+                        guardrail_result={"status": "passed", "verdict": "compliant"},
+                        verification_result={"valid": True},
+                        verification_status="verified",
+                        status="pending",
+                        expires_at=now + timedelta(days=90),
+                    )
+                    db.add(demo_prop)
+                    db.commit()
+                    logger.info("Seeded initial proposal for demo user %s.", demo_uuid)
+                elif demo_prop.status in ["checkout_started", "expired"]:
+                    demo_prop.status = "pending"
+                    demo_prop.expires_at = datetime.now(timezone.utc) + timedelta(days=90)
+                    db.commit()
         except Exception as exc:
             logger.warning("Could not auto-seed demo mandate: %s", exc)
 

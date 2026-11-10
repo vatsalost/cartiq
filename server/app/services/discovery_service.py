@@ -24,12 +24,15 @@ class DiscoveryService(IDiscoveryService):
         product_service: Optional[ProductService] = None,
         channel3_client: Optional[Channel3Client] = None,
     ):
-        self.config = config or Channel3Config()
-        if product_service:
-            self.product_service = product_service
+        if config:
+            self.config = config
         else:
-            client = channel3_client or Channel3Client(config=self.config)
-            self.product_service = ProductService(client=client)
+            import os
+            from server.app.core.config import settings
+            key = getattr(settings, "CHANNEL3_API_KEY", "") or os.getenv("CHANNEL3_API_KEY", "")
+            self.config = Channel3Config(api_key=key if key else None)
+        self.channel3_client = channel3_client or Channel3Client(config=self.config)
+        self.product_service = product_service or ProductService(client=self.channel3_client)
 
     def search_candidates(
         self,
@@ -43,10 +46,20 @@ class DiscoveryService(IDiscoveryService):
         locale = Channel3Locale(country=self.config.default_country, language=self.config.default_language, currency=currency)
 
         try:
-            products: List[NormalizedProduct] = self.product_service.search_products(
-                query=query,
-                locale=locale,
-            )
+            import asyncio
+            import concurrent.futures
+
+            def _fetch():
+                return asyncio.run(
+                    self.channel3_client.search_products(
+                        query=query,
+                        filters=filters,
+                        locale=locale,
+                    )
+                )
+
+            with concurrent.futures.ThreadPoolExecutor(max_workers=1) as pool:
+                products: List[NormalizedProduct] = pool.submit(_fetch).result(timeout=10)
         except Exception as exc:
             logger.warning("Channel3 product search failed: %s; falling back to empty list", exc)
             return []

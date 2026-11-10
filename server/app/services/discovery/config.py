@@ -81,8 +81,7 @@ class Channel3Config(BaseModel):
     @classmethod
     def resolve_api_key(cls, v: Optional[object]) -> Optional[SecretStr]:
         if v is None:
-            env_val = os.getenv("CHANNEL3_API_KEY")
-            return SecretStr(env_val) if env_val else None
+            return None
         if isinstance(v, str):
             return SecretStr(v) if v.strip() else None
         if isinstance(v, SecretStr):

@@ -33,6 +33,9 @@ export const PayPalCheckoutModal: React.FC<PayPalCheckoutModalProps> = ({
       const attemptId = `attempt_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`
 
       const res = await api.createOrderFromProposal(proposal.id, attemptId)
+      if (res.paypal_order_id.startsWith('PP-SANDBOX-')) {
+        throw new Error('Server returned synthetic order ID. Real PayPal SDK requires a live PayPal order. Please use Direct Sandbox Capture.')
+      }
       setInternalOrderId(res.order_id)
       return res.paypal_order_id
     } catch (err: any) {

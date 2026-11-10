@@ -292,7 +292,8 @@ export class CartiApiClient {
       }
       return await res.json()
     } catch (err) {
-      if (this.useMockFallback) {
+      const isLivePayPal = !!import.meta.env.VITE_PAYPAL_CLIENT_ID && import.meta.env.VITE_PAYPAL_CLIENT_ID !== 'test'
+      if (this.useMockFallback && !isLivePayPal) {
         return {
           order_id: `ord_${Date.now()}`,
           paypal_order_id: `PP-SANDBOX-${Math.random().toString(36).substring(2, 10).toUpperCase()}`,

@@ -9,7 +9,9 @@ from server.app.api.dependencies import (
     get_order_service,
     get_proposal_service,
 )
+from server.app.core.config import settings
 from server.app.core.security import AuthenticatedUser
+from server.app.models.order import Order
 from server.app.models.proposal import Proposal
 from server.app.schemas.proposal import (
     ProposalCreateOrderRequest,
@@ -178,6 +180,16 @@ async def create_paypal_order(
     current_user: AuthenticatedUser = Depends(get_current_user),
     order_service: OrderService = Depends(get_order_service),
 ):
+    # In development/demo mode, enable repeatable checkout attempts by resetting uncaptured orders
+    if settings.is_demo_allowed() and settings.APP_ENV != "test":
+        existing_order = order_service.db.query(Order).filter(Order.proposal_id == proposal_id).first()
+        if existing_order and existing_order.status in ["created", "failed"]:
+            order_service.db.delete(existing_order)
+            prop = order_service.db.get(Proposal, proposal_id)
+            if prop:
+                prop.status = "pending"
+            order_service.db.commit()
+
     created_order = order_service.create_order_from_proposal(
         proposal_id=proposal_id,
         user_id=current_user.id,
