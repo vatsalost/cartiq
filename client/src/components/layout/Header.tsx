@@ -91,7 +91,13 @@ export const Header: React.FC<HeaderProps> = ({ onOpenMobileMenu }) => {
           title="View Spending Mandate"
         >
           <ShieldCheck size={16} strokeWidth={1.8} className="text-[#1D4A18] dark:text-[#95EB68]" />
-          <span>Mandate: <span className="font-semibold tabular-nums">${mandate?.total_budget || '150.00'}</span></span>
+          <span>
+            {mandate ? (
+              <>Mandate: <span className="font-semibold tabular-nums">${mandate.total_budget}</span></>
+            ) : (
+              <span className="font-semibold text-amber-700 dark:text-amber-400">Configure Mandate</span>
+            )}
+          </span>
         </Link>
 
         {/* Notifications Dropdown */}

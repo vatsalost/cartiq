@@ -155,6 +155,20 @@ export class CartiApiClient {
   }
 
   // --- SHOPPING CONCIERGE & REQUEST LIFECYCLE (B4 / B5 / F3) ---
+  async searchProducts(query: string, maxPrice?: number): Promise<any[]> {
+    try {
+      const params = new URLSearchParams({ query: query.trim() })
+      if (maxPrice) params.append('max_price', String(maxPrice))
+      const res = await fetch(`${API_BASE}/requests/search/products?${params.toString()}`, {
+        headers: this.getHeaders(),
+      })
+      if (!res.ok) return []
+      return await res.json()
+    } catch {
+      return []
+    }
+  }
+
   async createShoppingRequest(input: ShoppingRequestInput): Promise<ShoppingRequest> {
     try {
       const payload = {

@@ -43,6 +43,8 @@ export const ShoppingPage: React.FC = () => {
   const [submittedQuery, setSubmittedQuery] = useState('')
   const [mandateWarning, setMandateWarning] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
+  const [isSearchingLive, setIsSearchingLive] = useState(false)
+  const [liveProducts, setLiveProducts] = useState<ComparisonProduct[]>([])
   const [activeRequestId, setActiveRequestId] = useState<string | null>(null)
   const [showPreferences, setShowPreferences] = useState(false)
 
@@ -397,6 +399,62 @@ export const ShoppingPage: React.FC = () => {
         ],
       },
     ],
+    spoon: [
+      {
+        id: 'prod_spoon_1',
+        title: 'Muji Japanese Stainless Steel Dinner Spoon Set (4-Pack)',
+        retailer: 'Target',
+        retailerUrl: 'https://www.target.com/p/muji-stainless-spoon-set',
+        price: '$18.99',
+        rating: 4.8,
+        reviewsCount: 310,
+        imageUrl:
+          'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=500&auto=format&fit=crop&q=60',
+        isBestMatch: true,
+        recommendationReasons: [
+          'High-grade 18/10 stainless steel mirror polish',
+          'Ergonomic balance and dishwasher safe',
+          'Well within mandate limits ($18.99)',
+          'Verified in stock at Target',
+        ],
+      },
+      {
+        id: 'prod_spoon_2',
+        title: 'Cuisinart Stainless Steel Slotted Cooking Spoon',
+        retailer: 'Amazon',
+        retailerUrl: 'https://www.amazon.com/dp/B00004SZ7N',
+        price: '$12.99',
+        rating: 4.7,
+        reviewsCount: 890,
+        imageUrl:
+          'https://images.unsplash.com/photo-1590794056226-79ef3a8147e1?w=500&auto=format&fit=crop&q=60',
+        isBestMatch: false,
+        recommendationReasons: [
+          'Heavy gauge stainless steel with soft grip handle',
+          'Heat resistant up to 400°F',
+          'Under mandate limit ($12.99)',
+          'Prime 1-day delivery',
+        ],
+      },
+      {
+        id: 'prod_spoon_3',
+        title: 'OXO Good Grips Brushed Stainless Steel Serving Spoon',
+        retailer: 'Target',
+        retailerUrl: 'https://www.target.com/p/oxo-good-grips-serving-spoon',
+        price: '$14.95',
+        rating: 4.9,
+        reviewsCount: 450,
+        imageUrl:
+          'https://images.unsplash.com/photo-1615485290382-441e4d049cb5?w=500&auto=format&fit=crop&q=60',
+        isBestMatch: false,
+        recommendationReasons: [
+          'Signature non-slip ergonomic thumb grip',
+          'Deep basin ideal for stirring and serving',
+          'Verified mandate compliant ($14.95)',
+          'In stock at Target',
+        ],
+      },
+    ],
   }
 
   // Active product comparison items determined dynamically by evaluated prompt
@@ -405,6 +463,17 @@ export const ShoppingPage: React.FC = () => {
 
   if (mandateWarning) {
     activeProducts = []
+  } else if (liveProducts.length > 0) {
+    activeProducts = liveProducts
+  } else if (
+    queryToEvaluate.includes('spoon') ||
+    queryToEvaluate.includes('cutlery') ||
+    queryToEvaluate.includes('fork') ||
+    queryToEvaluate.includes('knife') ||
+    queryToEvaluate.includes('flatware') ||
+    queryToEvaluate.includes('utensil')
+  ) {
+    activeProducts = productCatalog.spoon
   } else if (queryToEvaluate.includes('mouse') || queryToEvaluate.includes('trackball')) {
     activeProducts = productCatalog.mouse
   } else if (
@@ -431,7 +500,7 @@ export const ShoppingPage: React.FC = () => {
   } else if (queryToEvaluate.includes('lamp') || queryToEvaluate.includes('light')) {
     activeProducts = productCatalog.lamp
   } else {
-    // If user searched for custom text outside catalog
+    // If user searched for custom text outside catalog and live search is still fetching
     activeProducts = []
   }
 
@@ -457,11 +526,11 @@ export const ShoppingPage: React.FC = () => {
       matchScore: '94%',
     },
     {
-      title: 'Wireless noise-canceling headphones',
-      category: 'Electronics',
-      priceGuide: '$59.99',
-      retailer: 'Best Buy',
-      matchScore: '96%',
+      title: 'Stainless steel spoon set (4-pack)',
+      category: 'Kitchen',
+      priceGuide: '$18.99',
+      retailer: 'Target',
+      matchScore: '99%',
     },
   ]
 
@@ -482,11 +551,7 @@ export const ShoppingPage: React.FC = () => {
     const blockedList = mandate?.blocked_categories || []
     const hasBlocked = blockedList.some((kw) => kw.trim() && trimmedPrompt.toLowerCase().includes(kw.toLowerCase().trim()))
 
-    if (!mandate) {
-      setMandateWarning(
-        'Notice: No active spending mandate configured. Please configure your mandate in Spending Controls before purchasing.'
-      )
-    } else if (detectedPrice && perItemCap !== null && detectedPrice > perItemCap) {
+    if (detectedPrice && perItemCap !== null && detectedPrice > perItemCap) {
       setMandateWarning(
         `Mandate Limit Exceeded: Requested price ($${detectedPrice.toFixed(2)}) exceeds your per-item limit of $${perItemCap.toFixed(2)}. The autonomous agent is strictly constrained to mandate boundaries.`
       )
@@ -502,6 +567,25 @@ export const ShoppingPage: React.FC = () => {
       setMandateWarning(null)
     }
 
+    // 1. Fetch live retailer candidates from Channel3
+    try {
+      setIsSearchingLive(true)
+      const liveItems = await api.searchProducts(
+        trimmedPrompt,
+        maxPrice ? parseFloat(maxPrice) : perItemCap ? perItemCap : undefined
+      )
+      if (liveItems && liveItems.length > 0) {
+        setLiveProducts(liveItems)
+      } else {
+        setLiveProducts([])
+      }
+    } catch {
+      setLiveProducts([])
+    } finally {
+      setIsSearchingLive(false)
+    }
+
+    // 2. Submit shopping request to backend pipeline
     try {
       const input: ShoppingRequestInput = {
         prompt: trimmedPrompt,
@@ -519,11 +603,23 @@ export const ShoppingPage: React.FC = () => {
     }
   }
 
-  const handleChipClick = (chip: string) => {
+  const handleChipClick = async (chip: string) => {
     setActiveSearchChip(chip)
     setSubmittedQuery(chip)
     setPrompt(chip)
     setMandateWarning(null)
+    setLiveProducts([])
+    try {
+      setIsSearchingLive(true)
+      const liveItems = await api.searchProducts(chip)
+      if (liveItems && liveItems.length > 0) {
+        setLiveProducts(liveItems)
+      }
+    } catch {
+      // fallback to productCatalog
+    } finally {
+      setIsSearchingLive(false)
+    }
   }
 
   const handleSelectProduct = (product: ComparisonProduct) => {
@@ -820,12 +916,20 @@ export const ShoppingPage: React.FC = () => {
             </div>
             <div>
               <h3 className="text-[15px] font-semibold text-neutral-900 dark:text-white">
-                No In-Mandate Products Found
+                {mandateWarning ? 'Mandate Restriction Alert' : isSearchingLive ? 'Searching Retailers...' : 'No In-Mandate Products Found'}
               </h3>
-              <p className="text-[12px] text-neutral-500 dark:text-neutral-400 max-w-md mt-1">
-                {mandateWarning
-                  ? 'This search query conflicts with your current spending mandate. The autonomous concierge cannot propose items that violate your budget limits or category restrictions.'
-                  : `No verified items found for '${submittedQuery || prompt}' within approved categories (Lighting, Kitchen, Electronics, Home Office) under the $60.00 cap. Try modifying your search.`}
+              <p className="text-[12px] text-neutral-500 dark:text-neutral-400 max-w-md mt-1 leading-relaxed">
+                {isSearchingLive
+                  ? `Contacting retailer catalogs via Channel3 for '${submittedQuery || prompt}'...`
+                  : mandateWarning
+                  ? mandateWarning
+                  : !mandate
+                  ? 'No active spending mandate configured. Please configure your mandate in Spending Controls to start shopping.'
+                  : `No verified items found for '${submittedQuery || prompt}' within your mandate limits${
+                      mandate.per_item_cap ? ` (under $${mandate.per_item_cap} cap)` : ''
+                    }${
+                      mandate.allowed_categories?.length ? ` in [${mandate.allowed_categories.join(', ')}]` : ''
+                    }. Try modifying your search query or adjusting your mandate controls.`}
               </p>
             </div>
           </div>

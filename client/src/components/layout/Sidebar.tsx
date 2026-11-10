@@ -52,7 +52,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 
   const isSettingsActive = location.pathname === '/settings' || location.pathname.startsWith('/settings/')
 
-  const availableBudget = parseFloat(breakdown?.available_budget || '65.02')
+  const availableBudget = mandate ? parseFloat(breakdown?.available_budget || mandate.total_budget || '0.00') : null
 
   return (
     <>
@@ -152,13 +152,13 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
             className="p-3 rounded-xl bg-[#111215] border border-[#262930] hover:border-[#95EB68]/40 transition-all flex items-center justify-between group"
           >
             <div className="flex items-center gap-2.5">
-              <span className="w-2 h-2 rounded-full bg-[#95EB68] shrink-0" />
+              <span className={`w-2 h-2 rounded-full shrink-0 ${mandate ? 'bg-[#95EB68]' : 'bg-amber-400'}`} />
               <div className="flex flex-col">
                 <span className="text-xs font-semibold text-white">
-                  Mandate v{mandate?.version || 2}
+                  {mandate ? `Mandate v${mandate.version}` : 'No Active Mandate'}
                 </span>
                 <span className="text-[11px] text-neutral-400 font-mono tabular-nums">
-                  ${availableBudget.toFixed(2)} available
+                  {availableBudget !== null ? `$${availableBudget.toFixed(2)} available` : 'Define spending limits'}
                 </span>
               </div>
             </div>
