@@ -34,7 +34,7 @@ export const ReceiptDetailModal: React.FC<ReceiptDetailModalProps> = ({
       isOpen={isOpen}
       onClose={onClose}
       title="Official Transaction Receipt"
-      description={`Authoritative PayPal capture record for Order #${order.id.slice(0, 16)}`}
+      description={`Authoritative PayPal capture record for Order #${(order.id || (order as any).order_id || '').slice(0, 16)}`}
       maxWidth="md"
     >
       <div className="flex flex-col gap-4">

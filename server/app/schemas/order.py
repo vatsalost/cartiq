@@ -23,12 +23,17 @@ class OrderCaptureResponse(BaseModel):
     """Result of server-side PayPal capture operation."""
 
     order_id: uuid.UUID
+    id: Optional[uuid.UUID] = None
     paypal_order_id: str
     paypal_capture_id: str
     status: str
     amount: Decimal
     currency: str
     captured_at: datetime
+
+    def model_post_init(self, __context: object) -> None:
+        if self.id is None:
+            self.id = self.order_id
 
 
 class OrderRefundSummary(BaseModel):

@@ -21,11 +21,22 @@ import { Button } from '../components/common/Button'
 
 export const OrdersPage: React.FC = () => {
   const location = useLocation()
-  const newOrderFromNav = (location.state as any)?.newOrder as Order | undefined
+  const rawOrderFromNav = (location.state as any)?.newOrder
+  const newOrderFromNav: Order | undefined = rawOrderFromNav
+    ? {
+        ...rawOrderFromNav,
+        id: rawOrderFromNav.id || rawOrderFromNav.order_id || `ord_${Date.now()}`,
+      }
+    : undefined
+
+  const getOrderId = (o?: Order | null): string => {
+    if (!o) return ''
+    return o.id || (o as any).order_id || ''
+  }
 
   const [orders, setOrders] = useState<Order[]>(() => {
     if (newOrderFromNav) {
-      return [newOrderFromNav, ...mockOrders.filter((o) => o.id !== newOrderFromNav.id)]
+      return [newOrderFromNav, ...mockOrders.filter((o) => getOrderId(o) !== getOrderId(newOrderFromNav))]
     }
     return mockOrders
   })
@@ -247,10 +258,10 @@ export const OrdersPage: React.FC = () => {
                 </tr>
               ) : (
                 filteredOrders.map((order) => {
-                  const isSelected = selectedOrder?.id === order.id
+                  const isSelected = getOrderId(selectedOrder) === getOrderId(order)
                   return (
                     <tr
-                      key={order.id}
+                      key={getOrderId(order) || Math.random().toString()}
                       onClick={() => setSelectedOrder(order)}
                       className={`transition-colors cursor-pointer ${
                         isSelected
@@ -259,7 +270,7 @@ export const OrdersPage: React.FC = () => {
                       }`}
                     >
                       <td className="py-3.5 px-4 font-mono text-[11px] font-medium text-neutral-700 dark:text-neutral-300 tabular-nums">
-                        {order.id.slice(0, 12)}
+                        {getOrderId(order).slice(0, 12) || 'ORD-RECENT'}
                       </td>
                       <td className="py-3.5 px-4 font-medium text-neutral-900 dark:text-white max-w-[220px] truncate">
                         {order.product_title || 'Anker USB-C Hub 7-in-1'}

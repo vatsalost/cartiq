@@ -120,8 +120,13 @@ export const PayPalCheckoutModal: React.FC<PayPalCheckoutModalProps> = ({
 
         {/* PayPal SDK Buttons Section */}
         <div className="flex flex-col gap-2 pt-1">
-          <div className="text-[11px] font-semibold text-neutral-400 uppercase tracking-wider">
-            Authorize Payment Method
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] font-semibold text-neutral-400 uppercase tracking-wider">
+              Authorize Payment Method
+            </span>
+            <span className="text-[10px] text-neutral-400">
+              Use Sandbox Personal Buyer or Direct Capture
+            </span>
           </div>
 
           <div className="min-h-[140px] flex flex-col justify-center rounded-xl p-3 bg-neutral-50/50 dark:bg-[#141619]/50 border border-neutral-200/60 dark:border-neutral-800">

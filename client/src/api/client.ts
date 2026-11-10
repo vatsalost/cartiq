@@ -387,7 +387,11 @@ export class CartiApiClient {
         const errorData = await res.json().catch(() => ({}))
         throw new Error(errorData?.error?.message || 'Payment capture failed')
       }
-      return await res.json()
+      const data = await res.json()
+      return {
+        ...data,
+        id: data.id || data.order_id || orderId,
+      }
     } catch (err) {
       if (this.useMockFallback) {
         return {

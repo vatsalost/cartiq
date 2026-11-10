@@ -38,7 +38,7 @@ export const ReceiptCard: React.FC<ReceiptCardProps> = ({ order, onRequestRefund
               )}
             </div>
             <p className="text-[12px] font-normal text-neutral-500 dark:text-neutral-400 mt-0.5 tabular-nums">
-              Order #{order.id.slice(0, 16)}
+              Order #{(order.id || (order as any).order_id || '').slice(0, 16)}
             </p>
           </div>
         </div>

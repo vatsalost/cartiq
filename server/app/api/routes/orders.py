@@ -34,6 +34,7 @@ async def capture_order(
     order = order_service.capture_order(order_id, current_user.id, paypal_order_id)
     return OrderCaptureResponse(
         order_id=order.id,
+        id=order.id,
         paypal_order_id=order.paypal_order_id or "",
         paypal_capture_id=order.paypal_capture_id or "",
         status=order.status,
