@@ -7,6 +7,7 @@ import {
   Paperclip,
   Check,
   AlertCircle,
+  ShieldCheck,
 } from 'lucide-react'
 import { SseProgressTracker } from '../components/concierge/SseProgressTracker'
 import { ShoppingComparisonCard } from '../components/discovery/ShoppingComparisonCard'
@@ -472,38 +473,30 @@ export const ShoppingPage: React.FC = () => {
     setSubmittedQuery(trimmedPrompt)
     setIsLoading(true)
 
-    // Evaluate client-side mandate limits
+    // Evaluate dynamic mandate limits
     const priceMatch = trimmedPrompt.match(/\$(\d+)/) || trimmedPrompt.match(/(\d+)\s*(dollars|usd)/i)
     const detectedPrice = priceMatch ? parseFloat(priceMatch[1]) : (maxPrice ? parseFloat(maxPrice) : null)
-    const perItemCap = parseFloat(mandate?.per_item_cap || '60.00')
-    const totalBudget = parseFloat(mandate?.total_budget || '150.00')
+    const perItemCap = mandate ? parseFloat(mandate.per_item_cap) : null
+    const totalBudget = mandate ? parseFloat(mandate.total_budget) : null
 
-    const prohibitedKeywords = [
-      'watch',
-      'luxury',
-      'diamond',
-      'gold',
-      'jewelry',
-      'crypto',
-      'weapon',
-      'alcohol',
-      'wine',
-      'beer',
-      'gift card',
-    ]
-    const hasProhibited = prohibitedKeywords.some((kw) => trimmedPrompt.toLowerCase().includes(kw))
+    const blockedList = mandate?.blocked_categories || []
+    const hasBlocked = blockedList.some((kw) => kw.trim() && trimmedPrompt.toLowerCase().includes(kw.toLowerCase().trim()))
 
-    if (detectedPrice && detectedPrice > perItemCap) {
+    if (!mandate) {
+      setMandateWarning(
+        'Notice: No active spending mandate configured. Please configure your mandate in Spending Controls before purchasing.'
+      )
+    } else if (detectedPrice && perItemCap !== null && detectedPrice > perItemCap) {
       setMandateWarning(
         `Mandate Limit Exceeded: Requested price ($${detectedPrice.toFixed(2)}) exceeds your per-item limit of $${perItemCap.toFixed(2)}. The autonomous agent is strictly constrained to mandate boundaries.`
       )
-    } else if (detectedPrice && detectedPrice > totalBudget) {
+    } else if (detectedPrice && totalBudget !== null && detectedPrice > totalBudget) {
       setMandateWarning(
         `Mandate Limit Exceeded: Requested price ($${detectedPrice.toFixed(2)}) exceeds your total available budget of $${totalBudget.toFixed(2)}.`
       )
-    } else if (hasProhibited) {
+    } else if (hasBlocked) {
       setMandateWarning(
-        `Category Policy Violation: Items matching luxury, jewelry, or prohibited goods are outside your active mandate permitted categories (Lighting, Kitchen, Electronics, Home Office).`
+        `Category Policy Violation: This request contains categories strictly prohibited by your spending mandate (${blockedList.join(', ')}).`
       )
     } else {
       setMandateWarning(null)
@@ -548,6 +541,26 @@ export const ShoppingPage: React.FC = () => {
           Autonomous product discovery, comparison, and mandate-compliant purchasing.
         </p>
       </div>
+
+      {/* No Mandate Banner */}
+      {!mandate && (
+        <div className="p-4 rounded-xl bg-amber-50 dark:bg-amber-950/20 border border-amber-200/80 dark:border-amber-800/40 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-amber-900 dark:text-amber-200">
+          <div className="flex items-center gap-2.5">
+            <ShieldCheck size={18} className="text-amber-600 dark:text-amber-400 shrink-0" />
+            <span>
+              <strong>Spending Mandate Not Configured:</strong> You have full control over your budget and category limits. Set up your spending mandate to enable autonomous purchasing.
+            </span>
+          </div>
+          <Button
+            variant="outline"
+            size="xs"
+            onClick={() => navigate('/mandate')}
+            className="shrink-0 bg-white dark:bg-neutral-900 border-amber-300 dark:border-amber-700 text-amber-900 dark:text-amber-100 cursor-pointer"
+          >
+            Configure Mandate &rarr;
+          </Button>
+        </div>
+      )}
 
       {/* Main Search Prompt Card */}
       <div className="w-full rounded-xl p-5 bg-white dark:bg-[#17191C] border border-neutral-200/90 dark:border-neutral-800 shadow-[0_1px_3px_rgba(0,0,0,0.03)] flex flex-col gap-3">
@@ -642,7 +655,7 @@ export const ShoppingPage: React.FC = () => {
                 <Input
                   label="Max Price ($)"
                   type="number"
-                  placeholder={`Max $${mandate?.per_item_cap || '60.00'}`}
+                  placeholder={mandate ? `Max $${mandate.per_item_cap}` : 'Enter max price'}
                   value={maxPrice}
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) => setMaxPrice(e.target.value)}
                 />

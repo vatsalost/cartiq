@@ -17,6 +17,12 @@ router = APIRouter(prefix="/mandates", tags=["Mandates"])
     summary="Get current active mandate",
     description="Loads the active spending mandate version for the authenticated user, including budget metrics.",
 )
+@router.get(
+    "/active",
+    response_model=MandateResponse,
+    summary="Get current active mandate (alias)",
+    description="Alias for /mandates/current for API consistency.",
+)
 async def get_current_mandate(
     current_user: AuthenticatedUser = Depends(get_current_user),
     mandate_service: MandateService = Depends(get_mandate_service),
@@ -29,6 +35,26 @@ async def get_current_mandate(
             status_code=status.HTTP_404_NOT_FOUND,
         )
     return mandate_service.format_mandate_response(mandate)
+
+
+@router.post(
+    "/reset",
+    status_code=status.HTTP_200_OK,
+    summary="Reset all mandates and associated state for authenticated user",
+    description="Wipes all mandates, proposals, and orders so the user can define everything from scratch.",
+)
+async def reset_mandate(
+    current_user: AuthenticatedUser = Depends(get_current_user),
+    mandate_service: MandateService = Depends(get_mandate_service),
+):
+    from server.app.models.mandate import Mandate
+    from server.app.models.order import Order
+    from server.app.models.proposal import Proposal
+    mandate_service.db.query(Order).filter(Order.user_id == current_user.id).delete()
+    mandate_service.db.query(Proposal).filter(Proposal.user_id == current_user.id).delete()
+    mandate_service.db.query(Mandate).filter(Mandate.user_id == current_user.id).delete()
+    mandate_service.db.commit()
+    return {"status": "ok", "message": "Mandate reset successfully. Clean slate activated."}
 
 
 @router.post(

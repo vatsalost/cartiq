@@ -7,39 +7,44 @@ import { api } from '../../api/client'
 import { useAuth } from '../../context/AuthContext'
 
 export const MandateForm: React.FC<{
-  currentMandate: Mandate
+  currentMandate?: Mandate | null
   breakdown: BudgetBreakdown | null
   onSuccess: () => void
 }> = ({ currentMandate, breakdown, onSuccess }) => {
   const { refreshMandate } = useAuth()
-  const [totalBudget, setTotalBudget] = useState(currentMandate.total_budget)
-  const [perItemCap, setPerItemCap] = useState(currentMandate.per_item_cap)
-  const [currency, setCurrency] = useState(currentMandate.currency || 'USD')
-  const [maxQuantity, setMaxQuantity] = useState(currentMandate.max_quantity_per_product || 2)
-  const initialTolerance =
-    Number(currentMandate.price_tolerance_pct) <= 0.5
+  const [totalBudget, setTotalBudget] = useState(currentMandate?.total_budget || '')
+  const [perItemCap, setPerItemCap] = useState(currentMandate?.per_item_cap || '')
+  const [currency, setCurrency] = useState(currentMandate?.currency || 'USD')
+  const [maxQuantity, setMaxQuantity] = useState(currentMandate?.max_quantity_per_product || 1)
+  const initialTolerance = currentMandate
+    ? Number(currentMandate.price_tolerance_pct) <= 0.5
       ? Math.round(Number(currentMandate.price_tolerance_pct) * 100)
       : Number(currentMandate.price_tolerance_pct || 10)
+    : 10
   const [priceTolerance, setPriceTolerance] = useState(initialTolerance)
 
-  const [allowedCategories, setAllowedCategories] = useState<string[]>([
-    ...currentMandate.allowed_categories,
-  ])
+  const [allowedCategories, setAllowedCategories] = useState<string[]>(
+    currentMandate?.allowed_categories ? [...currentMandate.allowed_categories] : []
+  )
   const [newCatInput, setNewCatInput] = useState('')
 
-  const [allowedRetailers, setAllowedRetailers] = useState<string[]>([
-    ...currentMandate.allowed_retailers,
-  ])
+  const [allowedRetailers, setAllowedRetailers] = useState<string[]>(
+    currentMandate?.allowed_retailers ? [...currentMandate.allowed_retailers] : []
+  )
   const [newRetailerInput, setNewRetailerInput] = useState('')
 
-  const [blockedCategories, setBlockedCategories] = useState<string[]>([
-    ...currentMandate.blocked_categories,
-  ])
+  const [blockedCategories, setBlockedCategories] = useState<string[]>(
+    currentMandate?.blocked_categories ? [...currentMandate.blocked_categories] : []
+  )
   const [newBlockedInput, setNewBlockedInput] = useState('')
 
   const [error, setError] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [successMessage, setSuccessMessage] = useState<string | null>(null)
+
+  const suggestedCategories = ['Electronics', 'Home & Kitchen', 'Office Supplies', 'Lighting', 'Books', 'Fitness']
+  const suggestedRetailers = ['amazon.com', 'target.com', 'bestbuy.com', 'walmart.com', 'bhphotovideo.com']
+  const suggestedBlocked = ['Alcohol', 'Weapons', 'Tobacco', 'Gambling', 'Crypto']
 
   const handleAddCategory = () => {
     if (newCatInput.trim() && !allowedCategories.includes(newCatInput.trim())) {
@@ -243,6 +248,19 @@ export const MandateForm: React.FC<{
               Add
             </Button>
           </div>
+          <div className="flex flex-wrap gap-1 items-center pt-1">
+            <span className="text-[10px] text-neutral-400">Suggestions:</span>
+            {suggestedCategories.filter((c) => !allowedCategories.includes(c)).map((cat) => (
+              <button
+                type="button"
+                key={cat}
+                onClick={() => setAllowedCategories([...allowedCategories, cat])}
+                className="text-[11px] px-2 py-0.5 rounded bg-neutral-200/60 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 hover:bg-neutral-300 dark:hover:bg-neutral-700 cursor-pointer"
+              >
+                + {cat}
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Approved Retailers */}
@@ -279,6 +297,19 @@ export const MandateForm: React.FC<{
             <Button type="button" variant="outline" size="xs" onClick={handleAddRetailer}>
               Add
             </Button>
+          </div>
+          <div className="flex flex-wrap gap-1 items-center pt-1">
+            <span className="text-[10px] text-neutral-400">Suggestions:</span>
+            {suggestedRetailers.filter((r) => !allowedRetailers.includes(r)).map((ret) => (
+              <button
+                type="button"
+                key={ret}
+                onClick={() => setAllowedRetailers([...allowedRetailers, ret])}
+                className="text-[11px] px-2 py-0.5 rounded bg-neutral-200/60 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 hover:bg-neutral-300 dark:hover:bg-neutral-700 cursor-pointer"
+              >
+                + {ret}
+              </button>
+            ))}
           </div>
         </div>
       </div>
@@ -318,12 +349,25 @@ export const MandateForm: React.FC<{
             Block
           </Button>
         </div>
+        <div className="flex flex-wrap gap-1 items-center pt-1">
+          <span className="text-[10px] text-rose-400">Suggestions:</span>
+          {suggestedBlocked.filter((b) => !blockedCategories.includes(b)).map((blk) => (
+            <button
+              type="button"
+              key={blk}
+              onClick={() => setBlockedCategories([...blockedCategories, blk])}
+              className="text-[11px] px-2 py-0.5 rounded bg-rose-100/70 dark:bg-rose-900/30 text-rose-700 dark:text-rose-300 hover:bg-rose-200 cursor-pointer"
+            >
+              + {blk}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Submit Button */}
       <div className="flex items-center justify-end gap-3 pt-3 border-t border-neutral-100 dark:border-neutral-800">
         <Button type="submit" variant="primary" size="md" loading={isSubmitting} icon={<Save size={16} strokeWidth={1.8} />}>
-          Save New Mandate Version
+          {currentMandate ? `Save Revision v${currentMandate.version + 1}` : 'Activate Spending Mandate (v1)'}
         </Button>
       </div>
     </form>

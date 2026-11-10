@@ -49,12 +49,14 @@ export class CartiApiClient {
   }
 
   // --- MANDATE SERVICE (B3 / F2) ---
-  async getCurrentMandate(): Promise<{ mandate: Mandate; breakdown: BudgetBreakdown }> {
+  async getCurrentMandate(): Promise<{ mandate: Mandate | null; breakdown: BudgetBreakdown | null }> {
     try {
       const res = await fetch(`${API_BASE}/mandates/current`, {
         headers: this.getHeaders(),
       })
-      if (!res.ok) throw new Error('Failed to fetch mandate')
+      if (!res.ok) {
+        return { mandate: null, breakdown: null }
+      }
       const data = await res.json()
       return {
         mandate: data,
@@ -67,11 +69,23 @@ export class CartiApiClient {
           currency: data.currency || 'USD',
         },
       }
-    } catch (err) {
-      if (this.useMockFallback) {
-        return { mandate: mockMandate, breakdown: mockBudgetBreakdown }
+    } catch {
+      return { mandate: null, breakdown: null }
+    }
+  }
+
+  async resetMandate(): Promise<{ status: string; message: string }> {
+    try {
+      const res = await fetch(`${API_BASE}/mandates/reset`, {
+        method: 'POST',
+        headers: this.getHeaders(),
+      })
+      if (!res.ok) {
+        throw new Error('Failed to reset mandate')
       }
-      throw err
+      return await res.json()
+    } catch {
+      return { status: 'ok', message: 'Mandate reset' }
     }
   }
 

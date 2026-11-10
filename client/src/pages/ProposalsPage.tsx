@@ -91,10 +91,10 @@ export const ProposalsPage: React.FC = () => {
     navigate('/orders', { state: { newOrder: order } })
   }
 
-  const totalBudget = parseFloat(mandate?.total_budget || '150.00')
-  const capturedToDate = parseFloat(breakdown?.captured_spending || '34.99')
-  const thisPurchase = parseFloat(proposal.total_amount || '49.99')
-  const remainingAfter = Math.max(0, totalBudget - capturedToDate - thisPurchase).toFixed(2)
+  const totalBudget = mandate ? parseFloat(mandate.total_budget) : 0
+  const capturedToDate = parseFloat(breakdown?.captured_spending || '0.00')
+  const thisPurchase = parseFloat(proposal.total_amount || '0.00')
+  const remainingAfter = mandate ? Math.max(0, totalBudget - capturedToDate - thisPurchase).toFixed(2) : '0.00'
 
   return (
     <div className="flex flex-col gap-5">
@@ -343,11 +343,17 @@ export const ProposalsPage: React.FC = () => {
           {/* Actions Bar */}
           <div className="flex flex-col gap-2.5">
             <button
-              onClick={() => setIsCheckoutOpen(true)}
+              onClick={() => {
+                if (!mandate) {
+                  navigate('/mandate')
+                  return
+                }
+                setIsCheckoutOpen(true)
+              }}
               disabled={proposal.status === 'rejected'}
               className="w-full py-2.5 px-4 rounded-xl text-xs font-semibold bg-[#17191C] hover:bg-neutral-800 text-white dark:bg-[#95EB68] dark:text-[#17191C] dark:hover:bg-[#85da58] transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs disabled:opacity-50"
             >
-              <span>Continue with PayPal Checkout</span>
+              <span>{!mandate ? 'Configure Mandate to Checkout' : 'Continue with PayPal Checkout'}</span>
               <ArrowRight size={16} strokeWidth={1.8} />
             </button>
 

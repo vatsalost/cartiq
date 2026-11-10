@@ -13,38 +13,19 @@ import { Mandate, BudgetBreakdown } from '../../api/types'
 export const MandateCard: React.FC<{
   mandate: Mandate
   breakdown: BudgetBreakdown | null
-}> = ({ mandate, breakdown }) => {
-  const total = parseFloat(mandate.total_budget || '150.00')
-  const available = parseFloat(breakdown?.available_budget || '65.02')
-  const reserved = parseFloat(breakdown?.active_reservations || '49.99')
-  const captured = parseFloat(breakdown?.captured_spending || '34.99')
+  onReset?: () => void
+}> = ({ mandate, breakdown, onReset }) => {
+  const total = parseFloat(mandate.total_budget || '0.00')
+  const available = parseFloat(breakdown?.available_budget || mandate.total_budget || '0.00')
+  const reserved = parseFloat(breakdown?.active_reservations || '0.00')
+  const captured = parseFloat(breakdown?.captured_spending || '0.00')
 
   const utilized = captured + reserved
-  const utilizedPct = Math.round((utilized / total) * 100)
+  const utilizedPct = total > 0 ? Math.round((utilized / total) * 100) : 0
 
-  const allowedCategories = [
-    'home-decor',
-    'electronics',
-    'office-supplies',
-    'kitchen',
-    'books',
-  ]
-
-  const approvedRetailers = [
-    'Target',
-    'Amazon',
-    'Best Buy',
-    'Wayfair',
-    'B&H Photo',
-  ]
-
-  const blockedCategories = [
-    'gift-cards',
-    'weapons',
-    'adult',
-    'gambling',
-    'crypto',
-  ]
+  const allowedCategories = mandate.allowed_categories || []
+  const approvedRetailers = mandate.allowed_retailers || []
+  const blockedCategories = mandate.blocked_categories || []
 
   return (
     <div className="flex flex-col gap-6">
@@ -176,15 +157,19 @@ export const MandateCard: React.FC<{
               Allowed Categories
             </div>
             <div className="flex flex-wrap gap-2">
-              {allowedCategories.map((cat) => (
-                <span
-                  key={cat}
-                  className="px-2.5 py-1 rounded-lg bg-neutral-100 dark:bg-neutral-800 text-neutral-800 dark:text-neutral-200 text-xs font-medium flex items-center gap-1.5"
-                >
-                  <Check size={14} strokeWidth={2} className="text-[#1D4A18] dark:text-[#95EB68]" />
-                  <span>{cat}</span>
-                </span>
-              ))}
+              {allowedCategories.length > 0 ? (
+                allowedCategories.map((cat) => (
+                  <span
+                    key={cat}
+                    className="px-2.5 py-1 rounded-lg bg-neutral-100 dark:bg-neutral-800 text-neutral-800 dark:text-neutral-200 text-xs font-medium flex items-center gap-1.5"
+                  >
+                    <Check size={14} strokeWidth={2} className="text-[#1D4A18] dark:text-[#95EB68]" />
+                    <span>{cat}</span>
+                  </span>
+                ))
+              ) : (
+                <span className="text-xs text-neutral-400 italic">All product categories permitted</span>
+              )}
             </div>
           </div>
 
@@ -194,14 +179,18 @@ export const MandateCard: React.FC<{
               Approved Retailers
             </div>
             <div className="flex flex-wrap gap-2">
-              {approvedRetailers.map((ret) => (
-                <span
-                  key={ret}
-                  className="px-2.5 py-1 rounded-lg bg-neutral-50 dark:bg-neutral-800/60 border border-neutral-200/70 dark:border-neutral-700/60 text-neutral-700 dark:text-neutral-300 text-xs font-medium"
-                >
-                  {ret}
-                </span>
-              ))}
+              {approvedRetailers.length > 0 ? (
+                approvedRetailers.map((ret) => (
+                  <span
+                    key={ret}
+                    className="px-2.5 py-1 rounded-lg bg-neutral-50 dark:bg-neutral-800/60 border border-neutral-200/70 dark:border-neutral-700/60 text-neutral-700 dark:text-neutral-300 text-xs font-medium"
+                  >
+                    {ret}
+                  </span>
+                ))
+              ) : (
+                <span className="text-xs text-neutral-400 italic">All authorized merchants permitted</span>
+              )}
             </div>
           </div>
         </div>
@@ -223,15 +212,19 @@ export const MandateCard: React.FC<{
               Blocked Categories
             </div>
             <div className="flex flex-wrap gap-2">
-              {blockedCategories.map((cat) => (
-                <span
-                  key={cat}
-                  className="px-2.5 py-1 rounded-lg bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900/40 text-rose-700 dark:text-rose-400 text-xs font-medium flex items-center gap-1.5"
-                >
-                  <X size={14} strokeWidth={2} className="text-rose-600 dark:text-rose-400" />
-                  <span>{cat}</span>
-                </span>
-              ))}
+              {blockedCategories.length > 0 ? (
+                blockedCategories.map((cat) => (
+                  <span
+                    key={cat}
+                    className="px-2.5 py-1 rounded-lg bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900/40 text-rose-700 dark:text-rose-400 text-xs font-medium flex items-center gap-1.5"
+                  >
+                    <X size={14} strokeWidth={2} className="text-rose-600 dark:text-rose-400" />
+                    <span>{cat}</span>
+                  </span>
+                ))
+              ) : (
+                <span className="text-xs text-neutral-400 italic">No categories blocked</span>
+              )}
             </div>
           </div>
 
@@ -243,7 +236,9 @@ export const MandateCard: React.FC<{
             <div className="space-y-1.5 text-xs text-neutral-600 dark:text-neutral-400">
               <div className="flex items-center justify-between py-1 border-b border-neutral-100 dark:border-neutral-800">
                 <span>Max Quantity</span>
-                <span className="font-semibold text-neutral-900 dark:text-white">1 per item</span>
+                <span className="font-semibold text-neutral-900 dark:text-white">
+                  {mandate.max_quantity_per_product || 1} per item
+                </span>
               </div>
               <div className="flex items-center justify-between py-1 border-b border-neutral-100 dark:border-neutral-800">
                 <span>Requires Stock Verification</span>

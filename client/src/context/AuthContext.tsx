@@ -31,39 +31,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       try {
         const res = await api.getCurrentMandate()
-        setMandate(res.mandate)
-        setBreakdown(res.breakdown)
-      } catch (mandateErr) {
-        if (isConnected) {
-          console.info('No active mandate found on live backend, auto-seeding initial mandate...', mandateErr)
-          try {
-            const seeded = await api.saveMandate({
-              total_budget: '150.00',
-              per_item_cap: '60.00',
-              currency: 'USD',
-              allowed_categories: ['Lighting', 'Kitchen', 'Electronics', 'Home Office'],
-              blocked_categories: [],
-              allowed_retailers: ['amazon.com', 'target.com', 'bestbuy.com'],
-              max_quantity_per_product: 2,
-              price_tolerance_pct: 10,
-            })
-            setMandate(seeded)
-            setBreakdown({
-              mandate_id: seeded.id,
-              total_budget: seeded.total_budget,
-              captured_spending: '0.00',
-              active_reservations: '0.00',
-              available_budget: seeded.total_budget,
-              currency: seeded.currency,
-            })
-          } catch (seedErr) {
-            console.warn('Could not auto-seed mandate:', seedErr)
-          }
-        }
+        setMandate(res?.mandate || null)
+        setBreakdown(res?.breakdown || null)
+      } catch {
+        setMandate(null)
+        setBreakdown(null)
       }
     } catch (e) {
-      console.warn('Backend unavailable, using Carti offline mock state', e)
+      console.warn('Backend connection error:', e)
       setBackendConnected(false)
+      setMandate(null)
+      setBreakdown(null)
     } finally {
       setIsLoadingMandate(false)
     }

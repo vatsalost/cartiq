@@ -35,9 +35,9 @@ export const DashboardPage: React.FC = () => {
     loadData()
   }, [])
 
-  const availableAmount = breakdown?.available_budget || '65.02'
-  const capturedAmount = parseFloat(breakdown?.captured_spending || '34.99')
-  const reservedAmount = parseFloat(breakdown?.active_reservations || '49.99')
+  const availableAmount = mandate ? (breakdown?.available_budget || mandate.total_budget || '0.00') : '0.00'
+  const capturedAmount = parseFloat(breakdown?.captured_spending || '0.00')
+  const reservedAmount = parseFloat(breakdown?.active_reservations || '0.00')
   const totalCommitted = (capturedAmount + reservedAmount).toFixed(2)
 
   return (
@@ -64,6 +64,26 @@ export const DashboardPage: React.FC = () => {
           </Button>
         </div>
       </div>
+
+      {/* No Mandate Alert */}
+      {!mandate && (
+        <div className="p-4 rounded-xl bg-amber-50 dark:bg-amber-950/20 border border-amber-200/80 dark:border-amber-800/40 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-amber-900 dark:text-amber-200">
+          <div className="flex items-center gap-2.5">
+            <ShieldCheck size={18} className="text-amber-600 dark:text-amber-400 shrink-0" />
+            <span>
+              <strong>No Active Spending Mandate:</strong> Budget metrics and authorized boundaries will appear once you set up your spending mandate.
+            </span>
+          </div>
+          <Button
+            variant="outline"
+            size="xs"
+            onClick={() => navigate('/mandate')}
+            className="shrink-0 bg-white dark:bg-neutral-900 border-amber-300 dark:border-amber-700 text-amber-900 dark:text-amber-100 cursor-pointer"
+          >
+            Configure Mandate &rarr;
+          </Button>
+        </div>
+      )}
 
       {/* 4 Metric Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
