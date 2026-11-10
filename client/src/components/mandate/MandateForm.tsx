@@ -58,8 +58,12 @@ export const MandateForm: React.FC<{
   }
 
   const handleAddRetailer = () => {
-    if (newRetailerInput.trim() && !allowedRetailers.includes(newRetailerInput.trim().toLowerCase())) {
-      setAllowedRetailers([...allowedRetailers, newRetailerInput.trim().toLowerCase()])
+    let clean = newRetailerInput.trim().toLowerCase().replace(/^https?:\/\//, '').split('/')[0].split('?')[0]
+    if (clean && !clean.includes('.')) {
+      clean = clean.replace(/\s+/g, '') + '.com'
+    }
+    if (clean && !allowedRetailers.includes(clean)) {
+      setAllowedRetailers([...allowedRetailers, clean])
       setNewRetailerInput('')
     }
   }

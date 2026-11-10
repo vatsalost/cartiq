@@ -112,13 +112,24 @@ export class CartiApiClient {
         payload.expires_at ||
         new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString()
 
+      // Clean and normalize retailer domains
+      const cleanRetailers = (payload.allowed_retailers || [])
+        .map((r) => {
+          let domain = r.trim().toLowerCase().replace(/^https?:\/\//, '').split('/')[0].split('?')[0]
+          if (domain && !domain.includes('.')) {
+            domain = domain.replace(/\s+/g, '') + '.com'
+          }
+          return domain
+        })
+        .filter(Boolean)
+
       const formattedPayload = {
         total_budget: String(payload.total_budget),
         per_item_cap: String(payload.per_item_cap),
         currency: payload.currency || 'USD',
         allowed_categories: payload.allowed_categories,
         blocked_categories: payload.blocked_categories || [],
-        allowed_retailers: payload.allowed_retailers || [],
+        allowed_retailers: cleanRetailers,
         max_quantity_per_product: payload.max_quantity_per_product || 1,
         price_tolerance_pct: priceTolerance,
         expires_at: expiresAt,
@@ -131,25 +142,16 @@ export class CartiApiClient {
       })
       if (!res.ok) {
         const errorData = await res.json().catch(() => ({}))
-        throw new Error(errorData?.error?.message || 'Failed to update spending mandate')
+        const errorMsg =
+          errorData?.error?.message ||
+          errorData?.error?.details?.validation_errors?.[0]?.message ||
+          errorData?.detail ||
+          'Failed to update spending mandate'
+        throw new Error(errorMsg)
       }
       return await res.json()
-    } catch (err) {
-      if (this.useMockFallback) {
-        return {
-          ...mockMandate,
-          version: mockMandate.version + 1,
-          total_budget: String(payload.total_budget),
-          per_item_cap: String(payload.per_item_cap),
-          currency: payload.currency,
-          allowed_categories: payload.allowed_categories,
-          blocked_categories: payload.blocked_categories,
-          allowed_retailers: payload.allowed_retailers,
-          max_quantity_per_product: payload.max_quantity_per_product,
-          price_tolerance_pct: payload.price_tolerance_pct,
-          updated_at: new Date().toISOString(),
-        }
-      }
+    } catch (err: any) {
+      console.error('Failed to save mandate:', err)
       throw err
     }
   }

@@ -189,7 +189,7 @@ def _ensure_demo_proposal(
             max_quantity_per_product=5,
             allowed_categories=["Kitchen", "Home Office", "Electronics", "Lighting", "General", "Furniture"],
             blocked_categories=[],
-            allowed_retailers=["Target", "Amazon", "Best Buy", "Walmart", "target.com", "amazon.com", "bestbuy.com", "walmart.com", "us.framacph.com", "muji.us"],
+            allowed_retailers=["target.com", "amazon.com", "bestbuy.com", "walmart.com", "us.framacph.com", "muji.us"],
             expires_at=now + timedelta(days=30),
             created_at=now,
         )
