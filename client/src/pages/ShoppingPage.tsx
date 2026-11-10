@@ -6,6 +6,7 @@ import {
   SlidersHorizontal,
   Paperclip,
   Check,
+  AlertCircle,
 } from 'lucide-react'
 import { SseProgressTracker } from '../components/concierge/SseProgressTracker'
 import { ShoppingComparisonCard } from '../components/discovery/ShoppingComparisonCard'
@@ -38,6 +39,8 @@ export const ShoppingPage: React.FC = () => {
     queryParam || 'Aesthetic warm desk lamp under $50 with brass finish'
   )
   const [activeSearchChip, setActiveSearchChip] = useState('Warm-light desk lamp')
+  const [submittedQuery, setSubmittedQuery] = useState('')
+  const [mandateWarning, setMandateWarning] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [activeRequestId, setActiveRequestId] = useState<string | null>(null)
   const [showPreferences, setShowPreferences] = useState(false)
@@ -153,8 +156,8 @@ export const ShoppingPage: React.FC = () => {
       {
         id: 'prod_coffee_3',
         title: 'Secura Stainless Steel French Press 34oz',
-        retailer: 'Walmart',
-        retailerUrl: 'https://www.walmart.com',
+        retailer: 'Amazon',
+        retailerUrl: 'https://www.amazon.com',
         price: '$27.99',
         rating: 4.6,
         reviewsCount: 195,
@@ -165,7 +168,7 @@ export const ShoppingPage: React.FC = () => {
           'Double-wall thermal insulation',
           'Cool touch handle & knob',
           'Within $60 item cap ($27.99)',
-          'Walmart verified seller',
+          'Amazon Prime verified seller',
         ],
       },
     ],
@@ -281,17 +284,160 @@ export const ShoppingPage: React.FC = () => {
         ],
       },
     ],
+    mouse: [
+      {
+        id: 'prod_mouse_1',
+        title: 'Logitech Lift Vertical Ergonomic Wireless Mouse',
+        retailer: 'Target',
+        retailerUrl: 'https://www.target.com',
+        price: '$44.99',
+        rating: 4.8,
+        reviewsCount: 1420,
+        imageUrl:
+          'https://images.unsplash.com/photo-1615663245857-ac93bb7c39e7?w=500&auto=format&fit=crop&q=60',
+        isBestMatch: true,
+        recommendationReasons: [
+          '57-degree natural vertical angle reduces wrist strain',
+          'Quiet clicks & SmartWheel precision scroll',
+          'Well within $60 item cap ($44.99)',
+          'In stock at Target with same-day pickup',
+        ],
+      },
+      {
+        id: 'prod_mouse_2',
+        title: 'Anker 2.4G Wireless Vertical Ergonomic Optical Mouse',
+        retailer: 'Amazon',
+        retailerUrl: 'https://www.amazon.com',
+        price: '$24.99',
+        rating: 4.6,
+        reviewsCount: 3200,
+        imageUrl:
+          'https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?w=500&auto=format&fit=crop&q=60',
+        isBestMatch: false,
+        recommendationReasons: [
+          'Neutral "handshake" wrist alignment design',
+          '800/1200/1600 DPI resolution optical tracking',
+          'Budget friendly price under $25',
+          'Amazon Prime next-day shipping',
+        ],
+      },
+      {
+        id: 'prod_mouse_3',
+        title: 'ProtoArc EM01 Wireless Ergonomic Rechargeable Mouse',
+        retailer: 'Best Buy',
+        retailerUrl: 'https://www.bestbuy.com',
+        price: '$39.99',
+        rating: 4.5,
+        reviewsCount: 380,
+        imageUrl:
+          'https://images.unsplash.com/photo-1586816879360-004f5b0c51e3?w=500&auto=format&fit=crop&q=60',
+        isBestMatch: false,
+        recommendationReasons: [
+          'Adjustable 0° or 20° tilt angle for personalized comfort',
+          'Multi-device 2.4G & Bluetooth connectivity',
+          'Within mandate limit ($39.99)',
+          'Best Buy verified warranty support',
+        ],
+      },
+    ],
+    pourOver: [
+      {
+        id: 'prod_pour_1',
+        title: 'Hario V60 Ceramic Pour-Over Coffee Dripper Set',
+        retailer: 'Target',
+        retailerUrl: 'https://www.target.com',
+        price: '$32.50',
+        rating: 4.9,
+        reviewsCount: 940,
+        imageUrl:
+          'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=500&auto=format&fit=crop&q=60',
+        isBestMatch: true,
+        recommendationReasons: [
+          'Iconic spiral ribbed ceramic heat retention',
+          'Includes server, dripper, and 40 paper filters',
+          'Under $35 and within $60 mandate cap ($32.50)',
+          'Available at Target local fulfillment',
+        ],
+      },
+      {
+        id: 'prod_pour_2',
+        title: 'Kalita Wave 185 Stainless Steel Pour-Over Dripper',
+        retailer: 'Amazon',
+        retailerUrl: 'https://www.amazon.com',
+        price: '$34.99',
+        rating: 4.8,
+        reviewsCount: 650,
+        imageUrl:
+          'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=500&auto=format&fit=crop&q=60',
+        isBestMatch: false,
+        recommendationReasons: [
+          'Flat-bottom three-hole extraction geometry',
+          'Durable lightweight Japanese stainless steel',
+          'Within mandate item cap ($34.99)',
+          'Prime eligible fast delivery',
+        ],
+      },
+      {
+        id: 'prod_pour_3',
+        title: 'Chemex Classic Pour-Over Glass Coffeemaker 6-Cup',
+        retailer: 'Target',
+        retailerUrl: 'https://www.target.com',
+        price: '$46.95',
+        rating: 4.8,
+        reviewsCount: 1850,
+        imageUrl:
+          'https://images.unsplash.com/photo-1517256064527-09c73fc73e38?w=500&auto=format&fit=crop&q=60',
+        isBestMatch: false,
+        recommendationReasons: [
+          'Non-porous Borosilicate glass with polished wood collar',
+          'Pure flavor extraction without chemical residue',
+          'Approved Target retailer within $60 cap ($46.95)',
+          'In stock for immediate purchase',
+        ],
+      },
+    ],
   }
 
-  // Active product comparison items determined dynamically by search prompt
-  const lowerPrompt = (prompt || activeSearchChip).toLowerCase()
-  const activeProducts = lowerPrompt.includes('coffee')
-    ? productCatalog.coffee
-    : lowerPrompt.includes('headphone') || lowerPrompt.includes('sound')
-    ? productCatalog.headphones
-    : lowerPrompt.includes('chair') || lowerPrompt.includes('cushion')
-    ? productCatalog.chair
-    : productCatalog.lamp
+  // Active product comparison items determined dynamically by evaluated prompt
+  const queryToEvaluate = (submittedQuery || prompt || activeSearchChip).toLowerCase()
+  let activeProducts: ComparisonProduct[] = []
+
+  if (mandateWarning) {
+    activeProducts = []
+  } else if (queryToEvaluate.includes('mouse') || queryToEvaluate.includes('trackball')) {
+    activeProducts = productCatalog.mouse
+  } else if (
+    queryToEvaluate.includes('pour') ||
+    queryToEvaluate.includes('dripper') ||
+    queryToEvaluate.includes('chemex')
+  ) {
+    activeProducts = productCatalog.pourOver
+  } else if (queryToEvaluate.includes('coffee') || queryToEvaluate.includes('french')) {
+    activeProducts = productCatalog.coffee
+  } else if (
+    queryToEvaluate.includes('headphone') ||
+    queryToEvaluate.includes('sound') ||
+    queryToEvaluate.includes('earphone') ||
+    queryToEvaluate.includes('audio')
+  ) {
+    activeProducts = productCatalog.headphones
+  } else if (
+    queryToEvaluate.includes('chair') ||
+    queryToEvaluate.includes('cushion') ||
+    queryToEvaluate.includes('seat')
+  ) {
+    activeProducts = productCatalog.chair
+  } else if (queryToEvaluate.includes('lamp') || queryToEvaluate.includes('light')) {
+    activeProducts = productCatalog.lamp
+  } else {
+    // If user searched for custom text outside catalog
+    activeProducts = []
+  }
+
+  // Initial fallback to default chip if no search submitted yet and no mandate violation
+  if (!submittedQuery && !mandateWarning && activeProducts.length === 0) {
+    activeProducts = productCatalog.lamp
+  }
 
   // Suggested shopping requests inspiration items
   const suggestedRequests = [
@@ -322,10 +468,50 @@ export const ShoppingPage: React.FC = () => {
     if (e) e.preventDefault()
     if (!prompt.trim()) return
 
+    const trimmedPrompt = prompt.trim()
+    setSubmittedQuery(trimmedPrompt)
     setIsLoading(true)
+
+    // Evaluate client-side mandate limits
+    const priceMatch = trimmedPrompt.match(/\$(\d+)/) || trimmedPrompt.match(/(\d+)\s*(dollars|usd)/i)
+    const detectedPrice = priceMatch ? parseFloat(priceMatch[1]) : (maxPrice ? parseFloat(maxPrice) : null)
+    const perItemCap = parseFloat(mandate?.per_item_cap || '60.00')
+    const totalBudget = parseFloat(mandate?.total_budget || '150.00')
+
+    const prohibitedKeywords = [
+      'watch',
+      'luxury',
+      'diamond',
+      'gold',
+      'jewelry',
+      'crypto',
+      'weapon',
+      'alcohol',
+      'wine',
+      'beer',
+      'gift card',
+    ]
+    const hasProhibited = prohibitedKeywords.some((kw) => trimmedPrompt.toLowerCase().includes(kw))
+
+    if (detectedPrice && detectedPrice > perItemCap) {
+      setMandateWarning(
+        `Mandate Limit Exceeded: Requested price ($${detectedPrice.toFixed(2)}) exceeds your per-item limit of $${perItemCap.toFixed(2)}. The autonomous agent is strictly constrained to mandate boundaries.`
+      )
+    } else if (detectedPrice && detectedPrice > totalBudget) {
+      setMandateWarning(
+        `Mandate Limit Exceeded: Requested price ($${detectedPrice.toFixed(2)}) exceeds your total available budget of $${totalBudget.toFixed(2)}.`
+      )
+    } else if (hasProhibited) {
+      setMandateWarning(
+        `Category Policy Violation: Items matching luxury, jewelry, or prohibited goods are outside your active mandate permitted categories (Lighting, Kitchen, Electronics, Home Office).`
+      )
+    } else {
+      setMandateWarning(null)
+    }
+
     try {
       const input: ShoppingRequestInput = {
-        prompt: prompt.trim(),
+        prompt: trimmedPrompt,
         category: category.trim() || undefined,
         max_price: maxPrice ? parseFloat(maxPrice) : undefined,
         preferred_brand: brand.trim() || undefined,
@@ -342,11 +528,13 @@ export const ShoppingPage: React.FC = () => {
 
   const handleChipClick = (chip: string) => {
     setActiveSearchChip(chip)
+    setSubmittedQuery(chip)
     setPrompt(chip)
+    setMandateWarning(null)
   }
 
-  const handleSelectProduct = () => {
-    navigate('/proposals')
+  const handleSelectProduct = (product: ComparisonProduct) => {
+    navigate('/proposals', { state: { product } })
   }
 
   return (
@@ -570,36 +758,65 @@ export const ShoppingPage: React.FC = () => {
         />
       )}
 
+      {/* Mandate Policy Warning Banner */}
+      {mandateWarning && (
+        <div className="p-4 rounded-xl bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20 flex items-start gap-3 text-xs text-amber-800 dark:text-amber-300">
+          <AlertCircle size={18} strokeWidth={1.8} className="shrink-0 mt-0.5 text-amber-600 dark:text-amber-400" />
+          <div className="flex flex-col gap-0.5">
+            <span className="font-semibold text-amber-900 dark:text-amber-200">Mandate Guardrail Policy Notice</span>
+            <span>{mandateWarning}</span>
+          </div>
+        </div>
+      )}
+
       {/* Found Products Section */}
       <div className="flex flex-col gap-4">
         <div>
           <h2 className="text-[18px] font-semibold text-neutral-900 dark:text-white leading-snug">
-            Found {activeProducts.length} Products for &apos;{activeSearchChip}&apos;
+            Found {activeProducts.length} Products for &apos;{submittedQuery || activeSearchChip}&apos;
           </h2>
           <p className="text-[12px] font-normal text-neutral-500 dark:text-neutral-400 mt-0.5">
             Ranked by AI relevance score and verified against your mandate limits
           </p>
         </div>
 
-        {/* 3 Product Comparison Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-          {activeProducts.map((p) => (
-            <ShoppingComparisonCard
-              key={p.id}
-              id={p.id}
-              title={p.title}
-              retailer={p.retailer}
-              retailerUrl={p.retailerUrl}
-              price={p.price}
-              rating={p.rating}
-              reviewsCount={p.reviewsCount}
-              imageUrl={p.imageUrl}
-              isBestMatch={p.isBestMatch}
-              recommendationReasons={p.recommendationReasons}
-              onSelect={handleSelectProduct}
-            />
-          ))}
-        </div>
+        {/* Product Comparison Cards or Empty State */}
+        {activeProducts.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            {activeProducts.map((p) => (
+              <ShoppingComparisonCard
+                key={p.id}
+                id={p.id}
+                title={p.title}
+                retailer={p.retailer}
+                retailerUrl={p.retailerUrl}
+                price={p.price}
+                rating={p.rating}
+                reviewsCount={p.reviewsCount}
+                imageUrl={p.imageUrl}
+                isBestMatch={p.isBestMatch}
+                recommendationReasons={p.recommendationReasons}
+                onSelect={() => handleSelectProduct(p)}
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="p-8 rounded-xl bg-white dark:bg-[#17191C] border border-neutral-200/90 dark:border-neutral-800 flex flex-col items-center justify-center text-center gap-3">
+            <div className="w-12 h-12 rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-500 dark:text-neutral-400 flex items-center justify-center">
+              <AlertCircle size={22} strokeWidth={1.8} />
+            </div>
+            <div>
+              <h3 className="text-[15px] font-semibold text-neutral-900 dark:text-white">
+                No In-Mandate Products Found
+              </h3>
+              <p className="text-[12px] text-neutral-500 dark:text-neutral-400 max-w-md mt-1">
+                {mandateWarning
+                  ? 'This search query conflicts with your current spending mandate. The autonomous concierge cannot propose items that violate your budget limits or category restrictions.'
+                  : `No verified items found for '${submittedQuery || prompt}' within approved categories (Lighting, Kitchen, Electronics, Home Office) under the $60.00 cap. Try modifying your search.`}
+              </p>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )

@@ -161,7 +161,18 @@ export class CartiApiClient {
         const errorData = await res.json().catch(() => ({}))
         throw new Error(errorData?.error?.message || 'Failed to create shopping request')
       }
-      return await res.json()
+      const data = await res.json()
+      return {
+        id: data.request_id || data.id,
+        user_id: this.demoToken,
+        mandate_id: mockMandate.id,
+        mandate_version: 1,
+        prompt: input.prompt,
+        status: data.status || 'queued',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        ...data,
+      }
     } catch (err) {
       if (this.useMockFallback) {
         const newReq: ShoppingRequest = {
@@ -269,7 +280,8 @@ export class CartiApiClient {
     checkoutAttemptId: string
   ): Promise<{ order_id: string; paypal_order_id: string; status: string; amount: string; currency: string; approval_url?: string }> {
     try {
-      const res = await fetch(`${API_BASE}/proposals/${proposalId}/order`, {
+      const cleanId = proposalId.startsWith('prop_') ? proposalId.replace(/^prop_/, '') : proposalId
+      const res = await fetch(`${API_BASE}/proposals/${cleanId}/order`, {
         method: 'POST',
         headers: this.getHeaders(),
         body: JSON.stringify({ checkout_attempt_id: checkoutAttemptId }),

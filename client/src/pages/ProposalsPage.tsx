@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import {
   ArrowLeft,
   ShoppingCart,
@@ -19,6 +19,8 @@ import { useAuth } from '../context/AuthContext'
 
 export const ProposalsPage: React.FC = () => {
   const navigate = useNavigate()
+  const location = useLocation()
+  const selectedProduct = location.state?.product
   const { refreshMandate, breakdown, mandate } = useAuth()
   const [proposal, setProposal] = useState<Proposal>(mockProposal)
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false)
@@ -27,15 +29,48 @@ export const ProposalsPage: React.FC = () => {
 
   useEffect(() => {
     async function loadActiveProposal() {
+      if (selectedProduct) {
+        const rawPrice = selectedProduct.price.replace(/[^0-9.]/g, '') || '49.99'
+        const domain = selectedProduct.retailerUrl
+          ? selectedProduct.retailerUrl.replace(/^https?:\/\//, '').replace(/\/.*$/, '')
+          : `${selectedProduct.retailer.toLowerCase()}.com`
+        setProposal({
+          ...mockProposal,
+          id: '98765432-1111-2222-3333-444455556666',
+          unit_price_at_proposal: rawPrice,
+          subtotal_at_proposal: rawPrice,
+          total_amount: rawPrice,
+          currency: 'USD',
+          product: {
+            product_id: selectedProduct.id,
+            title: selectedProduct.title,
+            brand: selectedProduct.title.split(' ')[0] || 'Selected Brand',
+            category: 'Electronics',
+            image_url: selectedProduct.imageUrl,
+          },
+          offer: {
+            offer_id: 'off_98765432-2222-3333-4444-555566667777',
+            domain: domain,
+            buy_url: selectedProduct.retailerUrl || `https://www.${domain}`,
+            price_amount: rawPrice,
+            currency: 'USD',
+            availability: 'in_stock',
+            condition: 'new',
+          },
+          rationale: `Selected best match from comparison matrix for "${selectedProduct.title}". Compliant with $60 item cap and verified within active spending mandate.`,
+        })
+        return
+      }
+
       try {
-        const prop = await api.getProposal('prop_98765432-1111-2222-3333-444455556666')
+        const prop = await api.getProposal('98765432-1111-2222-3333-444455556666')
         if (prop) setProposal(prop)
       } catch {
         // Use default mock proposal
       }
     }
     loadActiveProposal()
-  }, [])
+  }, [selectedProduct])
 
   const handleReject = async () => {
     try {
