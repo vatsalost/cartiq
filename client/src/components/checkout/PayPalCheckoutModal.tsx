@@ -24,7 +24,7 @@ export const PayPalCheckoutModal: React.FC<PayPalCheckoutModalProps> = ({
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [isApproved, setIsApproved] = useState(false)
 
-  const paypalClientId = 'test'
+  const paypalClientId = import.meta.env.VITE_PAYPAL_CLIENT_ID || 'test'
 
   const handleCreateOrder = async (): Promise<string> => {
     try {
