@@ -34,6 +34,28 @@ export const ProposalsPage: React.FC = () => {
         const domain = selectedProduct.retailerUrl
           ? selectedProduct.retailerUrl.replace(/^https?:\/\//, '').replace(/\/.*$/, '')
           : `${selectedProduct.retailer.toLowerCase()}.com`
+
+        try {
+          const synced = await api.syncProposal({
+            id: '98765432-1111-2222-3333-444455556666',
+            title: selectedProduct.title,
+            price: rawPrice,
+            currency: 'USD',
+            domain: domain,
+            buy_url: selectedProduct.retailerUrl || `https://www.${domain}`,
+            image_url: selectedProduct.imageUrl,
+            category: selectedProduct.category || 'Home Office',
+            brand: selectedProduct.brand || selectedProduct.title.split(' ')[0],
+          })
+          if (synced) {
+            setProposal(synced)
+            refreshMandate()
+            return
+          }
+        } catch (e) {
+          console.warn('Could not sync proposal with backend, using fallback snapshot', e)
+        }
+
         setProposal({
           ...mockProposal,
           id: '98765432-1111-2222-3333-444455556666',
@@ -45,7 +67,7 @@ export const ProposalsPage: React.FC = () => {
             product_id: selectedProduct.id,
             title: selectedProduct.title,
             brand: selectedProduct.title.split(' ')[0] || 'Selected Brand',
-            category: 'Electronics',
+            category: selectedProduct.category || 'Home Office',
             image_url: selectedProduct.imageUrl,
           },
           offer: {
@@ -57,7 +79,7 @@ export const ProposalsPage: React.FC = () => {
             availability: 'in_stock',
             condition: 'new',
           },
-          rationale: `Selected best match from comparison matrix for "${selectedProduct.title}". Compliant with $60 item cap and verified within active spending mandate.`,
+          rationale: `Selected best match from comparison matrix for "${selectedProduct.title}". Compliant with active spending mandate.`,
         })
         return
       }

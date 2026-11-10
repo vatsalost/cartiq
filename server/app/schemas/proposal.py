@@ -86,6 +86,21 @@ class ProposalRejectRequest(BaseModel):
     reason: Optional[str] = Field("user_rejected", max_length=256, description="Reason for rejecting proposal")
 
 
+class ProposalSyncRequest(BaseModel):
+    """Payload to synchronize or create a proposal in the DB for preview and checkout."""
+
+    id: uuid.UUID
+    title: str
+    price: Decimal
+    currency: str = "USD"
+    domain: Optional[str] = "target.com"
+    buy_url: Optional[str] = "https://www.target.com"
+    image_url: Optional[str] = None
+    category: Optional[str] = "General"
+    brand: Optional[str] = None
+    quantity: int = Field(1, ge=1, le=10)
+
+
 class ProposalCreateRequest(BaseModel):
     """Request payload to create a proposal from an eligible candidate."""
 

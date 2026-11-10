@@ -268,6 +268,42 @@ export class CartiApiClient {
   }
 
   // --- PROPOSAL SERVICE (B9 / F5) ---
+  async syncProposal(input: {
+    id: string
+    title: string
+    price: string | number
+    currency?: string
+    domain?: string
+    buy_url?: string
+    image_url?: string
+    category?: string
+    brand?: string
+  }): Promise<Proposal> {
+    const cleanId = input.id.startsWith('prop_') ? input.id.replace(/^prop_/, '') : input.id
+    const rawPrice = typeof input.price === 'string' ? input.price.replace(/[^0-9.]/g, '') : input.price.toString()
+    const payload = {
+      id: cleanId,
+      title: input.title,
+      price: parseFloat(rawPrice) || 39.95,
+      currency: input.currency || 'USD',
+      domain: input.domain || 'target.com',
+      buy_url: input.buy_url || 'https://www.target.com',
+      image_url: input.image_url,
+      category: input.category || 'Home Office',
+      brand: input.brand,
+    }
+    const res = await fetch(`${API_BASE}/proposals/sync`, {
+      method: 'POST',
+      headers: this.getHeaders(),
+      body: JSON.stringify(payload),
+    })
+    if (!res.ok) {
+      const errData = await res.json().catch(() => ({}))
+      throw new Error(errData?.error?.message || errData?.detail || 'Failed to sync proposal')
+    }
+    return await res.json()
+  }
+
   async getProposal(proposalId: string): Promise<Proposal> {
     try {
       const cleanId = proposalId.startsWith('prop_') ? proposalId.replace(/^prop_/, '') : proposalId
